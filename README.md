@@ -27,6 +27,8 @@ The refactoring replaces this code with a Lambda destination, ideally defined in
 
 As any good pattern, this refactoring should highlight advantages and disadvantages. For example, some refactorings would introduce additional runtime elements, such as EventBridge, which carry a cost or introduce more moving parts. Good documents include a balanced discussion on such trade-offs.
 
+The skeleton for this pattern can be found at [Extraxct Send Message](patterns/extract_send_message.md)
+
 ## A Strawman Catalog
 
 These are some very initial refactoring ideas. The goal of the project would be to find many more and document them:
