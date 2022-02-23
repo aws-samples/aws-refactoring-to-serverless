@@ -1,3 +1,45 @@
 # Refactoring to Serverless
 
 A collection of refactorings that show how you can extract application code and instead implement it in serverless CDK code.
+
+## Refactoring to Serverless Patterns: An Example
+
+Multiple times I have seen Lambda code that performs functions that could be more easily and more reliably performed by using a platform feature. For example, the following code was taken from a GitHub example:
+
+```
+queue_name = os.environ['SQS_NAME']
+sqs = boto3.resource('sqs')
+queue = sqs.get_queue_by_name(QueueName=queue_name)
+
+def handler(event, context):
+   ...
+  response = queue.send_message(MessageBody='world')
+```
+
+This code hides the application topology, meaning that the relationship between this function and the SQS queue (defined by an environment setting) is not visible unless one inspects the source code. Replacing this code with a Lambda destination, ideally defined in AWS CDK, extracts the chaining of this function to the respective SQS channel from the application code and makes it explicit in automation code. The result separates application logic (in the function code) from composition (in CDK code).
+As any good pattern, this refactoring should highlight advantages and disadvantages. For example, some refactorings would introduce additional runtime elements, such as EventBridge, which carry a cost or introduce more moving parts. Good documents include a balanced discussion on such trade-offs.
+
+## A Strawman Catalog
+
+These are some very initial refactoring ideas. The goal of the project would be to find many more and document them:
+
+* Extract Invocation
+* Extract Sending Message
+* Extract Message Filter to EventBridge
+* Replace Step Function Map with Scatter-Gather
+* Orchestration to Choreography
+* Choreography to Orchestration
+* Replace Polling with Wait State
+
+## Refactoring Catalog Format
+
+Each pattern in the catalog will have the following format:
+
+* Name - an evocative name is important for the community to adopt the pattern vocabulary. Ideally, a builder should be able to say “I think we should extract this invocation into a destination”
+* Diagram / Sketch - a visual that captures the essence of the pattern. It doesn’t have to be a class diagram or full-on architecture diagram. Recognizability is most important: can a developer see what the refactoring suggests just from the visual
+* Description - one paragraph describing what the refactoring suggests, including the benefits
+* Implementation - a longer description that explains how to do it
+* Considerations - things to keep in mind when using this refactoring
+* Related Refactorings - If someone uses this one, what other refactoring could logically follow?
+
+
