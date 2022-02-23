@@ -1,10 +1,16 @@
 # Refactoring to Serverless
 
-A collection of refactorings that show how you can extract application code and instead implement it in serverless CDK code.
+Serverless is too often conflated with just a code run-time, especially when compared to VMs and container run-times. In reality, seeing it as a complete ecosystem and a new way of building applications not only allows developers to realize the full potential of serverless, it also highlights the strength of AWS serverless ecosystem, which includes orchestration and event bus services.
+
+This project shows developers how to better take advantage of the serverless ecosystem based on a collection of refactorings. Refactoring, a popular coding technique that is supported by most modern IDEs, is defined by Martin Folwer as:
+
+> A disciplined technique for restructuring an existing body of code, altering its internal structure without changing its external behavior
+
+By presenting our design guidance in form of refactorings we can address an audience of enterprise developers who are well-versed in design patterns and refactorings. 
 
 ## Refactoring to Serverless Patterns: An Example
 
-Multiple times I have seen Lambda code that performs functions that could be more easily and more reliably performed by using a platform feature. For example, the following code was taken from a GitHub example:
+I routinely see Lambda code that performs functions that could be more easily and more reliably performed by using a platform feature. For example, the following code was taken from a GitHub example:
 
 ```
 queue_name = os.environ['SQS_NAME']
@@ -16,7 +22,9 @@ def handler(event, context):
   response = queue.send_message(MessageBody='world')
 ```
 
-This code hides the application topology, meaning that the relationship between this function and the SQS queue (defined by an environment setting) is not visible unless one inspects the source code. Replacing this code with a Lambda destination, ideally defined in AWS CDK, extracts the chaining of this function to the respective SQS channel from the application code and makes it explicit in automation code. The result separates application logic (in the function code) from composition (in CDK code).
+This code isn't just unnecessary, it also hides the application topology: the relationship between this function and the SQS queue (defined by an environment setting) is not visible unless one inspects the source code.
+The refactoring replaces this code with a Lambda destination, ideally defined in AWS CDK. By extracting the the sending of the message to an SQS channel, this dependencty becomes explicit in the automation code. It also better separates application logic (in the function code) from composition (in CDK code).
+
 As any good pattern, this refactoring should highlight advantages and disadvantages. For example, some refactorings would introduce additional runtime elements, such as EventBridge, which carry a cost or introduce more moving parts. Good documents include a balanced discussion on such trade-offs.
 
 ## A Strawman Catalog
