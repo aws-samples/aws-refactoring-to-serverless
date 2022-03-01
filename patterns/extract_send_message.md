@@ -20,7 +20,7 @@ You define a Lambda Destination inside a SAM Template through the [`EventInvokeC
           OnSuccess:
             Type: SQS
             Destination: !GetAtt MyChannel.Arn
-    ```
+```
 
 In CloudFormation, you specify a separate [`EventInvokeConfig`](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-lambda-eventinvokeconfig.html) resource, which references both your function and the SQS/SNS channel:
 
@@ -45,7 +45,7 @@ new lambda.Function(this, config.bankName, {
 
 ## Considerations 
 
-### Advvantages
+### Advantages
 * Extracting the message sending into a destination makes the application topology explicit and separates compsition from application logic
 
 ### Applicability
