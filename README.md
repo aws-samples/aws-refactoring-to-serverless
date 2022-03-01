@@ -43,13 +43,21 @@ These are some very initial refactoring ideas. The goal of the project would be 
 
 ## Refactoring Catalog Format
 
-Each pattern in the catalog will have the following format:
+Each pattern in the catalog adheres to the following format:
 
-* Name - an evocative name is important for the community to adopt the pattern vocabulary. Ideally, a builder should be able to say “I think we should extract this invocation into a destination”
+* Name - an evocative name is important for the community to adopt the vocabulary. A builder should be able to say “I think we should extract this invocation into a destination”
 * Diagram / Sketch - a visual that captures the essence of the pattern. It doesn’t have to be a class diagram or full-on architecture diagram. Recognizability is most important: can a developer see what the refactoring suggests just from the visual
 * Description - one paragraph describing what the refactoring suggests, including the benefits
 * Implementation - a longer description that explains how to do it
 * Considerations - things to keep in mind when using this refactoring
 * Related Refactorings - If someone uses this one, what other refactoring could logically follow?
 
+## Contributing
+
+This project is open for contributions. 
+* Each contributor should implement and document one refactoring from the list above. 
+* The implementation of the 'before' and 'after' examples can be in Python or Typescript
+* The 'after' example uses CDK
+* The documentation is in markdown
+* The examples might require some scaffolding, shich we don't include in the documentation. We currently copy the code into the documentation manually. In the future we might implement a build system that extracts relevant code snippets.
 
