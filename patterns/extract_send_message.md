@@ -40,7 +40,7 @@ In CDK, you either pass the destination on the Lamda Function constructor or add
 new lambda.Function(this, config.bankName, {
     runtime: lambda.Runtime.NODEJS_14_X,
     functionName: "MyFunction",
-    onSuccess: new destinations.SqsDestination(sqsChannel),
+    onSuccess: new destinations.SqsDestination(sqsChannel) } )
 ```
 
 ## Considerations 
