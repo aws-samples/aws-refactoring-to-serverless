@@ -36,6 +36,7 @@ These are some very initial refactoring ideas. The goal of the project would be 
 * Extract Function Invocation
 * [Extract Send Message](patterns/extract_send_message.md)
 * Extract Message Filter
+* Replace Event Pattern with Lambda
 * Replace Map with Scatter-Gather
 * Convert Orchestration to Choreography
 * Convert Choreography to Orchestration
@@ -60,4 +61,5 @@ This project is open for contributions.
 * The 'after' example uses CDK
 * The documentation is in markdown
 * The examples might require some scaffolding, shich we don't include in the documentation. We currently copy the code into the documentation manually. In the future we might implement a build system that extracts relevant code snippets.
+* We aim to build running examples that include a test rig to show that the behavior before and after is identical.
 
