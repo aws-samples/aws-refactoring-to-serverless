@@ -54,4 +54,5 @@ new lambda.Function(this, config.bankName, {
 * Destinations that invoke another Lambda function have the option to send the message body only, i.e. the data structure that your function returns (via the `responeOnly` option in [`LambdaDestinationOptions`](https://docs.aws.amazon.com/cdk/api/v2/docs/aws-cdk-lib.aws_lambda_destinations.LambdaDestinationOptions.html)). No such option exists for destinations that send messages to SQS or SNS. The message therefore includes the event wrapper and the actual data structure inside the `detail/responsePayload` element. This change will affect downstream event consumers. To maintain the same message format without the wrapper, you would need to direct the destination to an EventBridge, which filters the message content and then passes it onto the SQS chanel or SNS topic. An example of this is shown in the [Loan Broker CDK Example](https://github.com/spac3lord/eip/blob/master/LoanBroker/AwsStepFunctions/PubSub/LoanBrokerPubSub.yml)
 
 
-## Related
+## Related Refactorings
+* Extract Message Filter
