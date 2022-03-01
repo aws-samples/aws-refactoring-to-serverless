@@ -33,8 +33,8 @@ The skeleton for this pattern can be found at [Extraxct Send Message](patterns/e
 
 These are some very initial refactoring ideas. The goal of the project would be to find many more and document them:
 
-* Extract Invocation
-* Extract Sending Message
+* Extract Function Invocation
+* [Extract Sending Message](patterns/extract_send_message.md)
 * Extract Message Filter to EventBridge
 * Replace Step Function Map with Scatter-Gather
 * Orchestration to Choreography
