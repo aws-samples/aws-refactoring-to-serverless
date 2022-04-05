@@ -1,4 +1,4 @@
-This stack contains two lambda functions that demonstrate before / after implementation of lambda.
+This stack contains two lambda functions that demonstrate before / after implementation using Lambda Destination to extract sending message.
 - [lib/sqs-destination-stack.ts](lib/sqs-destination-stack.ts): This is where the CDK application’s main stack is defined.  
    The stack will provision:  
    - SQS Queue called 'PostProcessingQueue'
@@ -28,7 +28,7 @@ cdk deploy
 ```
 
 
-## Test Lambdas
+## Test
 ---
 - First, lets test the SendMessageInCode lambda:
 ``` 
@@ -36,7 +36,7 @@ aws lambda invoke --function-name SendMessageInCode --payload '{}' output.json
 ```
 You should see StatusCode:200
 
-- Next, lets test the SendMessageUsingDestination lambda. This sends message to SQS using Lambda Destination
+- Next, lets test the SendMessageUsingDestination lambda to message to SQS using Lambda Destination
  ``` 
  aws lambda invoke --function-name SendMessageUsingDestination --invocation-type Event --payload '{}' output.json
  ``` 
@@ -49,12 +49,12 @@ You should see StatusCode:202
 Login to your AWS console and navigate to Amazon SQS -> Queues -> PostProcessingQueue.  
 You should see 2 messages in the Queue.   
 
-![Queue](/sqs.png)
+![Queue](sqs.png)
 
 ---
 Message send via Lambda destination contains the details of the function, its context, and the request and response payloads. 
-![DestinationMessage](/DestinationMessage.png)
+![DestinationMessage](DestinationMessage.png)
 
 ## To-DO 
 --- 
-Add Test
+Add Unit Test
