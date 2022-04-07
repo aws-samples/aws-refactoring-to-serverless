@@ -3,9 +3,9 @@
 
 ## Description
 
-In a scenario where publishers - subscribers are communicating over a Messaging Platform (like Amazon EventBridge, SNS, etc) and the subscribers are filtering out messsages purely based on data in content in payload, then extract the filtering logic from the consumers to the Messaging platform.
+In publish-subscribe model over EventBridge (or SNS?), if consumers are filtering out messsages purely based on data in message, then extract the filtering logic from the consumers to EventBridge.
 
-An example of subscriber might look as follows:
+An example of consumer code might look like below:
 
 ```
 exports.handler = async (event) => {
@@ -27,7 +27,7 @@ exports.handler = async (event) => {
 The filtering logic can be placed in CDK or CloudFormation to make the application topology explicit.  
 For a CDK example written in Typescript, please see [/code/message-filter](/code/message-filter).
 
-2. For SNS: If existing architecture is already using SNS, look at [SNS Filter Policy](https://docs.aws.amazon.com/sns/latest/dg/sns-message-filtering.html) to move out the filtering logic from the code.
+2. If existing architecture is already using SNS, look at [SNS Filter Policy](https://docs.aws.amazon.com/sns/latest/dg/sns-message-filtering.html) to move out the filtering logic from the code.
 
 
 

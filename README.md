@@ -35,7 +35,7 @@ These are some very initial refactoring ideas. The goal of the project would be 
 
 * Extract Function Invocation
 * [Extract Send Message](patterns/extract_send_message.md)
-* Extract Message Filter
+* [Extract Message Filter](patterns/extract_message_filter.md)
 * Replace Event Pattern with Lambda
 * Replace Map with Scatter-Gather
 * Convert Orchestration to Choreography
