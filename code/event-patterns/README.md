@@ -1,5 +1,6 @@
-This CDK example demonstrates the usage of Lambda Destination to fan out processing via EventBridge.  
-Below is the reference architecture:  
+This CDK example demonstrates usage of Lambda Destination to refactor the call to EventBridge and Dead Letter Queue (DLQ).
+
+Below is the system architecture that this stack creates: 
 
 ![](EventBridge-Lambda.png)
 
@@ -7,7 +8,7 @@ Below is the reference architecture:
    The stack will provision the resources described in the architecture above.  
    There are 2 flavors of the pre processing Lambda function. One that uses Lambda Destination and the other uses code to publish event to EventBridge. 
 
-   
+
 
 ## Requirement
 

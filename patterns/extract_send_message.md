@@ -41,4 +41,4 @@ For a CDK example written in Typescript, please see [/code/send-message](/code/s
 
 
 ## Related Refactorings
-* Extract Message Filter
+[Extract Message Filter](extract_message_filter.md)
