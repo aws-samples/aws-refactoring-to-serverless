@@ -5,6 +5,6 @@ exports.handler = async function(event) {
 
     //return response
     return {
-        message: 'Response from: Lambda Using Destination'
+        message: 'Hello World - I am refactored'
     };
 };  

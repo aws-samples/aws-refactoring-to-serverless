@@ -8,7 +8,7 @@ exports.handler = async (event) => {
     //Lastly, send message to the queue for post processing
     const params = {
         QueueUrl: process.env.QUEUE_URL,
-        MessageBody: 'Response from: Before Destination Lambda'
+        MessageBody: 'Hello World'
     };
 
     await sqs.sendMessage(params).promise();
