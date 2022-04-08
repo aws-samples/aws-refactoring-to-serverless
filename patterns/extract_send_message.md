@@ -1,6 +1,6 @@
 # Extract Send Message 
 
-![](DestinationToSQS.png)
+![](message-send.png)
 
 ## Description
 

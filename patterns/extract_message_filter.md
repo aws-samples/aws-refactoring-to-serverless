@@ -13,7 +13,6 @@ exports.handler = async (event) => {
     
     //Name field should not be emtpy and location should be NYC.
     if (!input.name || input.location != 'NYC') {
-        console.log("Message was filtered out !!!!")
         return
     } 
    

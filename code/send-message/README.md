@@ -34,13 +34,13 @@ cdk deploy
 
 ## Test the functionality
 
-- First, lets test the SendMessageInCode lambda:
+- First, lets test the lambda that has logic in code:
 ``` 
-aws lambda invoke --function-name SendMessageInCode --payload '{}' output.json
+aws lambda invoke --function-name SendMessageInCode --invocation-type Event --payload '{}' output.json
 ```
 You should see StatusCode:200
 
-- Next, lets test the SendMessageUsingDestination lambda to message to SQS using Lambda Destination
+- Next, lets test the refactored lambda to message to SQS using Lambda Destination
  ``` 
  aws lambda invoke --function-name SendMessageUsingDestination --invocation-type Event --payload '{}' output.json
  ``` 
