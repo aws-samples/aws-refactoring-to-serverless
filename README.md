@@ -38,6 +38,7 @@ These are some very initial refactoring ideas. The goal of the project would be 
 * Extract Message Filter
 * Replace Event Pattern with Lambda
 * Replace Map with Scatter-Gather
+* Replace Lambda with service integration
 * Convert Orchestration to Choreography
 * Convert Choreography to Orchestration
 * Replace Polling with Wait State
