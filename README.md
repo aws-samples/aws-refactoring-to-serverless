@@ -40,7 +40,7 @@ These are some very initial refactoring ideas. The goal of the project would be 
 | Extract Message Filter | Eliminate invalid messages with EvenBridge instead of conditional statements | Catalog only | 
 | Replace Event Pattern with Lambda | If an event pattern can no longer be implemented in EventBridge, build it in Lambda instead | Catalog only |
 | Replace Map with Scatter-Gather | Instead of making parallel invocations from a StepFunctions `Map` step, send a message to SNS  | Catalog only |
-| [Replace Lambda with Service Integration](patterns/service_integration.md) | Service integratoin allows direct calls to any API from StepFunctions without the need for an additional Lambda function | Catalog only |
+| [Replace Lambda with Service Integration](patterns/service_integration.md) | Service integratoin allows direct calls to any API from StepFunctions without the need for an additional Lambda function | Skeleton |
 | Direct database access | Replace a Lambda function that only reads from DynamoDB with Step Functions' `getItem` task  | Catalog Only |
 | Convert Orchestration to Choreography | Replace central workflow with message flow  | Catalog only |
 | Convert Choreography to Orchestration | Replace message flow with central workflow | Catalog only |
