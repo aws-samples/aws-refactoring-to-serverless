@@ -22,7 +22,7 @@ def handler(event, context):
 
 Use [Lambda Destination ](https://aws.amazon.com/blogs/compute/introducing-aws-lambda-destinations/) to send the message and configure the channel name in CDK or CloudFormation to make the application topology explicit.
 
-For a CDK example written in Typescript, please see [/code/send-message](/code/send-message).
+For a CDK implementation written in Typescript, please see [/implementation/extract-send-message](/implementation/extract-send-message).
 
 ## Considerations 
 
