@@ -1,19 +1,19 @@
-## Project Setup
-This project is the CDK implementation of ['Extract Send Message'](../../patterns/extract_send_message.md) pattern.
+# Extract  AWS Lambda by AWS Step Functions SDK integrations
+This project is the CDK implementation of ['Extract Send Message'](../../patterns/extract_send_message.md) pattern. This patterns shows how you use a Lambda Destination in CDK to send message to SQS and make the application topology explicit.
 
-It has 2 stacks:
-- [lib/send-message-from-code.ts](lib/send-message-from-code.ts) This stack creates a lambda which publishes message to sqs directly from code
-- [lib/send-message-from-destionation.ts](lib/send-message-from-code.ts) This stack creates a lambda where message sending is extracted from code and wired in CDK using  
 
-## Project Usage
+## How it works
+We have OrderPizza Lambda that processes the request and then sends message to SQS to downstream processing.
 
-## Pre-Requisite
+Project uses 2 CDK stacks to demonstrate before and after refactoring:
+- [lib/send-message-from-code.ts](lib/send-message-from-code.ts) This stack creates a Lambda which publishes message to SQS directly from code.
+- [lib/send-message-from-destionation.ts](lib/send-message-from-code.ts) This stack creates a Lambda where message sending is extracted from code and wired in CDK using Lambda Destinat  
 
-AWS CLI is configured with Administrator permission.
+---
+## Deploy the infrastructure
 
-## Build
 
-To build this app, you need to be in this example's root folder. Then run the following:
+To build this app, navigate to `implementation/extract-send-message` folder. Then run the following:
 
 ```bash
 npm install -g aws-cdk
@@ -21,11 +21,9 @@ npm install
 npm run build
 ```
 
-This will install the necessary CDK, this example's dependencies, and then build your TypeScript files and your CloudFormation template.
+This will install the necessary CDK, dependencies, build your TypeScript files and CloudFormation template.
 
-## Deploy
-
-Run below to deploy / redeploy this Stack to your AWS Account.
+Next, deploy the 2 Stacks to your AWS Account.
 ``` 
 cdk deploy --all
 ```
@@ -60,9 +58,8 @@ Inspect the message on each Queue using 'Poll Messages'
 
 ![](message-send.png)
 
-## Cleanup
 
-To avoid unexpected charges to your account, make sure you terminate the resources created using CDK stacks.
+## Cleanup
 
 ```
 cdk destroy --all
