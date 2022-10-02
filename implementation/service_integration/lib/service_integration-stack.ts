@@ -1,22 +1,16 @@
-import { Construct } from 'constructs';
-import { Stack, StackProps,RemovalPolicy,Duration, aws_rekognition, CfnOutput } from 'aws-cdk-lib';
+import { Stack, StackProps,RemovalPolicy,Duration, CfnOutput } from 'aws-cdk-lib';
 import * as sfn from 'aws-cdk-lib/aws-stepfunctions';
 import * as tasks from 'aws-cdk-lib/aws-stepfunctions-tasks';
-import { Function, Runtime, Code } from "aws-cdk-lib/aws-lambda"
 import * as s3 from 'aws-cdk-lib/aws-s3'
 import * as s3deploy from "aws-cdk-lib/aws-s3-deployment";
-import { PolicyStatement } from 'aws-cdk-lib/aws-iam';
 import * as iam from 'aws-cdk-lib/aws-iam';
+import * as lambda from 'aws-cdk-lib/aws-lambda';
+import { Construct } from 'constructs';
 
 
-
-
-
-//https://catfact.ninja/fact
-//json {"fact":"The silks ..","length":174}
 
 export class ServiceIntegrationStack extends Stack {
-  private IMAGE_TO_LABEL: String = 'reinvent_andy_jassy.png';
+  private IMAGE_TO_LABEL: String = 'people.png';
 
   private imageBucket: s3.Bucket;
 
@@ -24,7 +18,7 @@ export class ServiceIntegrationStack extends Stack {
     super(scope, id, props);
 
     this.imageBucket = new s3.Bucket(this, 'DestinationBucket', {
-      bucketName: "refactoring-service-integration-bucket",
+      bucketName: "service-integration-bucket",
       removalPolicy: RemovalPolicy.DESTROY,
       autoDeleteObjects: true,
     });
@@ -34,76 +28,75 @@ export class ServiceIntegrationStack extends Stack {
       destinationBucket: this.imageBucket,
     });
 
-    this.callRekognitionFromLambda();
-    this.directRekognitionIntegration();
+     //Before: Making all from StepFuntion to a Lambda, which then calls Rekognition
+    this.detectCelebritiesUsingLambda();
+
+     //After Refactoring: Using StepFuction's ServiceIntegration to call Rekognition
+    this.detectCelebritiesUsingServiceIntegration();
   }
   
-    private callRekognitionFromLambda() {
-   
-      const getDataFromAPI = new Function(this, 'ExtractMetadataUsingRekognition', {
-        functionName: `ExtractMetadataUsingRekognition`,
-        runtime: Runtime.NODEJS_14_X,           
-        code: Code.fromAsset('lambda-fns'),         
-        handler: 'extractDataUsingRekognition.handler',
+ 
+    private detectCelebritiesUsingLambda() {
+      const detectCelebrityInImage = new lambda.Function(this, 'detectCelebrityInImage', {
+        functionName: 'detectCelebrityInImage',
+        runtime: lambda.Runtime.NODEJS_14_X,           
+        code: lambda.Code.fromAsset('lambda-fns'),         
+        handler: 'detectCelebrity.handler'
       });
 
       const rekognitionPolicy = new iam.PolicyStatement({
         actions:[
           "s3:GetObject",
-          "rekognition:DetectLabels"],
-        resources:['*']
-      })
+          "rekognition:RecognizeCelebrities"],
+          resources: ['*'] //rekognition requires 'all'
+        })
 
-      getDataFromAPI.addToRolePolicy(rekognitionPolicy)
+      detectCelebrityInImage.addToRolePolicy(rekognitionPolicy)
   
-      const lambdaStepFunction = new sfn.StateMachine(this, 'workflowWithLambda', {
-        definition: new tasks.LambdaInvoke(this, 'Call API with Lambda', {
-          lambdaFunction: getDataFromAPI,
+      const stepFunction = new sfn.StateMachine(this, 'workflow', {
+        stateMachineName: 'detectCelebrityUsingLambda',
+        definition: new tasks.LambdaInvoke(this, 'lambda', {
+          lambdaFunction: detectCelebrityInImage,
           payload: sfn.TaskInput.fromObject({
             s3Bucket: this.imageBucket.bucketName,
             imageName: this.IMAGE_TO_LABEL
           }),
-        
           outputPath: '$.Payload',
         }),
-        timeout: Duration.seconds(30),
-        tracingEnabled: true,
-      
+        timeout: Duration.seconds(30)      
       });
 
-      new CfnOutput(this,'ArnForLambdaIntegration',{
-        value: lambdaStepFunction.stateMachineArn,
-        description: 'ARN for executiong the StepFunction from AWS CLI'
-      });
+      new CfnOutput(this,'ArnForLambdaIntegration',{value: stepFunction.stateMachineArn});
   
     }
     
-    private directRekognitionIntegration() {
-      const serviceIntegrationStepFunction = new sfn.StateMachine(this, 'directServiceCall', {
-        definition: new tasks.CallAwsService(this, 'detectLabels',{
+    private detectCelebritiesUsingServiceIntegration() {
+      const stepFunction = new sfn.StateMachine(this, 'directServiceCall', {
+        stateMachineName: 'detectCelebrityUsingServiceAPI',
+        definition: new tasks.CallAwsService(this, 'RecognizeCelebrities',{
           service: 'rekognition',
-          action: 'detectLabels',
+          action: 'recognizeCelebrities',
           parameters: {
             Image: {
               S3Object: {
                 Bucket: this.imageBucket.bucketName,
                 Name: this.IMAGE_TO_LABEL
               }
-            },
-            MaxLabels: 5,
-		        MinConfidence: 80
-        },
-      iamResources:['*']
+            }
+          },
+          iamResources:['*'],          
+          additionalIamStatements: [
+            new iam.PolicyStatement({
+            actions: ['s3:getObject'],
+            resources: [`${this.imageBucket.bucketArn}/${this.IMAGE_TO_LABEL}`]
+            })
+          ],
+          outputPath: '$.CelebrityFaces..Name'
       }),
-      timeout:Duration.seconds(30)
+      timeout: Duration.seconds(30)
     })
-    // created feature request for CallAwsService to auto detects the required roles based on service:action
-    this.imageBucket.grantRead(serviceIntegrationStepFunction);
 
-    new CfnOutput(this,'ArnForServiceIntegration',{
-      value: serviceIntegrationStepFunction.stateMachineArn,
-      description: 'ARN for executiong the StepFunction from AWS CLI'
-    });
+    new CfnOutput(this,'ArnForServiceIntegration',{value: stepFunction.stateMachineArn });
   }
     
 }

@@ -1,10 +1,10 @@
-# Replace AWS Lambda by AWS Step Functions SDK integrations
-This project is the CDK implementation of ['service-integration'](../../patterns/extract_send_message.md) pattern. This pattern shows how we replace AWS Lambda by AWS Step Functions SDK integrations to call any of 200+ AWS services directly from your state machine. 
+# Replace Lambda with Service Integration
+This project is the CDK implementation of ['replace-lambda-with-service-integration'](../../patterns/extract_send_message.md) pattern. This pattern shows how you can use service integration provided by AWS Step Function to call any of 200+ AWS services directly from your state machine. 
 
 ## How it works
-We will deploy 2 AWS Step Functions that will detect labels in an image with confidence score > 80.
-- first Step Function calls AWS Lambda which then calls AWS Rekognition Service *detectLabel* API
-- second *Refactored*  Step Function replaces Lambda to call *detectLabel* directly using [SDK Service Integration](https://docs.aws.amazon.com/step-functions/latest/dg/supported-services-awssdk.html)
+The stacks deploy 2 AWS Step Functions that will detect and list the name of celebrities in given image.
+- first Step Function calls AWS Lambda which then calls AWS Rekognition Service *recognizeCelebrities* API
+- second *Refactored*  Step Function replaces Lambda to call *recognizeCelebrities* directly using [SDK Service Integration](https://docs.aws.amazon.com/step-functions/latest/dg/supported-services-awssdk.html)
 
 ---
 ## Deploy the infrastructure
@@ -25,7 +25,7 @@ Now, lets deploy / redeploy this Stack to your AWS Account.
 cdk deploy
 ```
 
-Copy value for `ArnForLambdaIntegration` and `ArnForServiceIntegration` from CDK deploy output.
+Copy value for `ArnForLambdaIntegration` and `ArnForServiceIntegration` from CDK deploy `Outputs`.
 We will be using this to execute the step function in section below.
 
 ---
@@ -46,8 +46,10 @@ Replace the {executionARN} placeholder using executionArn from above. Now run th
 ```aws stepfunctions describe-execution --execution-arn {executionARN}```  
 
 Ouput:
-You should see 4 labels in JSON:
-*Person, Human, Clothing, and Apparel* 
+[
+  "Jeff Bezos",
+  "Andy Jassy"
+]
 
 2. Now repeat the steps using ```ArnForServiceIntegration``` to execute the StepFunction that uses Step Fuction SDK Service Integration 
 
@@ -55,12 +57,11 @@ You should see 4 labels in JSON:
 ```aws stepfunctions describe-execution --execution-arn {executionARN}```
 
 Ouput:
-You should see same 4 labels detected in JSON:
-Person, Human, Clothing, and Apparel
+[
+  "Jeff Bezos",
+  "Andy Jassy"
+]
 
-
---- 
-Hence confirming that refactoring did not alter the behavior.
 
 ---
 ## Cleanup

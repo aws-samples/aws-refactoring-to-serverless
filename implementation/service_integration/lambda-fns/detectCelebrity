@@ -1,0 +1,30 @@
+const aws = require('aws-sdk');
+const rekognition = new aws.Rekognition();
+
+
+exports.handler = async (event,context, callback) => {
+	console.log(event)
+
+	const bucket = event.s3Bucket;
+	const imageName = event.imageName;
+
+	var params = {
+		Image: {
+			S3Object: {
+				Bucket: bucket,
+				Name: imageName
+			}
+		}
+	};
+
+	try {
+		var response = await rekognition.recognizeCelebrities(params).promise();
+		if (response.CelebrityFaces) {
+			var celebrityNames =	response.CelebrityFaces.map(celeberity =>  celeberity.Name);
+			callback(null, celebrityNames);
+		}		
+	} catch (err) {
+		callback(err);
+	}
+
+}
