@@ -2,9 +2,7 @@ const aws = require('aws-sdk');
 const sqs = new aws.SQS();
 
 exports.handler = async (event) => {
-    console.log('Order Received')
-
-    response = {
+    var response = {
         action: 'build_pizza',
         type: 'Cheese'
       };

@@ -1,5 +1,5 @@
 {
-  "app": "npx ts-node --prefer-ts-exts bin/service_integration.ts",
+  "app": "npx ts-node --prefer-ts-exts bin/service-integration.ts",
   "watch": {
     "include": [
       "**"

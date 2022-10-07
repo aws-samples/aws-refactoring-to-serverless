@@ -1,0 +1,26 @@
+const aws = require('aws-sdk');
+const rekognition = new aws.Rekognition();
+
+
+exports.handler = async (event,context, callback) => {
+
+    const bucket = event.s3Bucket;
+	const imageName = event.imageName;
+
+	var params = {
+		Image: {
+			S3Object: {
+				Bucket:bucket,
+				Name: imageName
+			}
+		},
+		MaxLabels: 1,
+	};
+
+	try {
+        const result = await rekognition.detectLabels(params).promise();
+		callback(null, result);
+	} catch (err) {
+		callback(err);
+	}
+}

@@ -1,13 +1,13 @@
 # Extract  AWS Lambda by AWS Step Functions SDK integrations
-This project is the CDK implementation of ['Extract Send Message'](../../patterns/extract_send_message.md) pattern. This patterns shows how you use a Lambda Destination in CDK to send message to SQS and make the application topology explicit.
+This project is the CDK implementation of ['Extract Send Message'](../../patterns/extract_send_message.md) pattern. This patterns shows how can you Lambda Destination in CDK to send message to SQS and make the application topology explicit.
 
 
 ## How it works
-We have OrderPizza Lambda that processes the request and then sends message to SQS to downstream processing.
+BakePizza Lambda processes incoming request and then sends message to SQS for downstream processing.
 
-Project uses 2 CDK stacks to demonstrate before and after refactoring:
-- [lib/send-message-from-code.ts](lib/send-message-from-code.ts) This stack creates a Lambda which publishes message to SQS directly from code.
-- [lib/send-message-from-destionation.ts](lib/send-message-from-code.ts) This stack creates a Lambda where message sending is extracted from code and wired in CDK using Lambda Destinat  
+The code will deploy 2 versions of this Lambda:
+- bakePizza_original: Here the Lambda publishes message to SQS from code.
+- bakePizza_refactored: Only contains application logic. Message sending is extracted from Lambda and wired in CDK [service_integraiton-stack-refactored.ts]
 
 ---
 ## Deploy the infrastructure
@@ -33,13 +33,13 @@ cdk deploy --all
 
 - First, lets invoke the lambda that sends message from code:
 ``` 
-aws lambda invoke --function-name OrderPizza --invocation-type Event --payload '{}' output.json
+aws lambda invoke --function-name bakePizza_original --invocation-type Event --payload '{}' output.json
 ```
-You should see StatusCode:200
+You should see StatusCode:202
 
 - Next, lets test the lambda which is refactored to uses Lambda Destination
  ``` 
-aws lambda invoke --function-name OrderPizzaUsingDestination --invocation-type Event --payload '{}' output.json
+aws lambda invoke --function-name bakePizza_refactored --invocation-type Event --payload '{}' output.json
 ``` 
 
 You should see StatusCode:202     
@@ -51,13 +51,11 @@ You should see StatusCode:202
 
 Login to your AWS console and navigate to Amazon SQS.  
 You should see 2 Queues.
+- PizzaQueue
+- PizzaQueue_Refactored
 
-![](pizzaQueue.png)
-
-Inspect the message on each Queue using 'Poll Messages'  
-
-![](message-send.png)
-
+Inspect the message on each Queue using 'Poll Messages'. You should see a message send from respective Lambda function.
+{"action":"build_pizza","type":"Cheese"}
 
 ## Cleanup
 

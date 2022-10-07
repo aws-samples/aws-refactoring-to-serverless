@@ -1,10 +1,14 @@
 # Replace Lambda with Service Integration
-This project is the CDK implementation of ['replace-lambda-with-service-integration'](../../patterns/extract_send_message.md) pattern. This pattern shows how you can use service integration provided by AWS Step Function to call any of 200+ AWS services directly from your state machine. 
+This project is the CDK implementation of ['replace-lambda-with-service-integration'](../../patterns/extract_send_message.md) pattern. This pattern shows how you can use AWS SDK Service Integration to call any of 200+ AWS services directly from your Step Function. 
 
 ## How it works
-The stacks deploy 2 AWS Step Functions that will detect and list the name of celebrities in given image.
-- first Step Function calls AWS Lambda which then calls AWS Rekognition Service *recognizeCelebrities* API
-- second *Refactored*  Step Function replaces Lambda to call *recognizeCelebrities* directly using [SDK Service Integration](https://docs.aws.amazon.com/step-functions/latest/dg/supported-services-awssdk.html)
+StepFunction does 'food quality control' to ensure that only pizzas are baked.
+It uses Rekognition to scan and detect object in an image. If it detects a pizza then process succeeds.
+
+
+The code will deploy 2 versions of the StepFunction:
+- FoodQualityControl-Original: It uses AWS Lambda to invoke AWS Rekognition Service to get labels from the image.
+- FoodQualityControl-Refactored:  This version replaces Lambda to call *detectLabels* directly using [SDK Service Integration](https://docs.aws.amazon.com/step-functions/latest/dg/supported-services-awssdk.html)
 
 ---
 ## Deploy the infrastructure
@@ -22,22 +26,22 @@ This will install the necessary CDK, project dependencies, build the TypeScript 
 
 Now, lets deploy / redeploy this Stack to your AWS Account.
 ``` 
-cdk deploy
+cdk deploy --all
 ```
 
-Copy value for `ArnForLambdaIntegration` and `ArnForServiceIntegration` from CDK deploy `Outputs`.
-We will be using this to execute the step function in section below.
+Copy value for `ArnForStepFunction_Orginal` and `ArnForStepFunction_Refactored` from CDK deploy `Outputs`.
+We will be using the ARNs to execute the Step Function in section below.
 
 ---
 ## Testing it out
 1. Run the following AWS CLI command to start the Step Functions . Note, you must edit the {ArnForLambdaIntegration} placeholder with the ARN of the deployed Step Functions workflow. This is provided in the stack outputs.
 
-```aws stepfunctions start-execution --name "test" --state-machine-arn {ArnForLambdaIntegration}```  
+```aws stepfunctions start-execution --name "test" --state-machine-arn {ArnForStepFunction_Orginal}```  
 
 Output:
 ```
 {
-    "executionArn": "arn:aws:states:us-west-2:593184816077:execution:workflowWithLambdaED2D644B-4n0OwyNtNA4p:test",
+    "executionArn": "arn:aws:states:us-west-2:xxx:execution:FoodQualityControl-Original:test",
     "startDate": "2022-09-12T12:36:44.112000-07:00"
 }
 ```
@@ -46,23 +50,18 @@ Replace the {executionARN} placeholder using executionArn from above. Now run th
 ```aws stepfunctions describe-execution --execution-arn {executionARN}```  
 
 Ouput:
-[
-  "Jeff Bezos",
-  "Andy Jassy"
-]
+You should see that the StepFunction has SUCCEEDED with "output": "{\"food\":\"Pizza\"}", 
 
 2. Now repeat the steps using ```ArnForServiceIntegration``` to execute the StepFunction that uses Step Fuction SDK Service Integration 
 
-```aws stepfunctions start-execution --name "test" --state-machine-arn {ArnForServiceIntegration}```  
+```aws stepfunctions start-execution --name "test" --state-machine-arn {ArnForStepFunction_Refactored}```  
 ```aws stepfunctions describe-execution --execution-arn {executionARN}```
 
-Ouput:
-[
-  "Jeff Bezos",
-  "Andy Jassy"
-]
+The step function should SUCCEED with similar output as first one.
 
 
 ---
+
+
 ## Cleanup
 ```cdk destroy```

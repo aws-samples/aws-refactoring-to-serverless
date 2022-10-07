@@ -1,12 +1,10 @@
 import { Stack, StackProps } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 import { Function, Runtime, Code } from "aws-cdk-lib/aws-lambda"
-
 import {Queue} from 'aws-cdk-lib/aws-sqs';
 
-//Before Refactoring
-export class SendMessageFromCodeStack extends Stack {
-  private orderPizzaLambda: Function
+export class SendMessageStackOriginal extends Stack {
+  private bakePizzaLambda: Function
   private pizzaQueue: Queue
 
   constructor(scope: Construct, id: string, props: StackProps) {
@@ -17,17 +15,17 @@ export class SendMessageFromCodeStack extends Stack {
     });
 
 
-    this.orderPizzaLambda = new Function(this, 'OrderPizzaLambda', {
-      functionName: `OrderPizza`,
+    this.bakePizzaLambda = new Function(this, 'bakePizzaLambda', {
+      functionName: `bakePizza_original`,
       runtime: Runtime.NODEJS_14_X,           
       code: Code.fromAsset('lambda-fns/send-message-from-code'),         
-      handler: 'orderPizza.handler',           
+      handler: 'bakePizza.handler',           
       environment: {
         QUEUE_URL: this.pizzaQueue.queueUrl
       },
     });
 
-    this.pizzaQueue.grantSendMessages(this.orderPizzaLambda);    
+    this.pizzaQueue.grantSendMessages(this.bakePizzaLambda);    
   }
 
 }
