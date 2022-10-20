@@ -35,16 +35,16 @@ These are some very initial refactoring ideas. The goal of the project would be 
 
 | Name | Description | Status |
 | ---- | ---- | ---- |
-| Extract Function Invocation | Instead calling one Lambda function directly from another, use Lambda Destinations instead | In Progress |
+| Extract Function Invocation | Instead calling one Lambda function directly from another, use Lambda Destinations instead | Catalog Only |
 | [Extract Send Message](patterns/extract_send_message.md) | Instead sending SQS messages via code, use Lambda Destinations instead | Implemented |
 | Extract Message Filter | Eliminate invalid messages with EvenBridge instead of conditional statements | Catalog only | 
 | Replace Event Pattern with Lambda | If an event pattern can no longer be implemented in EventBridge, build it in Lambda instead | Catalog only |
 | Replace Map with Scatter-Gather | Instead of making parallel invocations from a StepFunctions `Map` step, send a message to SNS  | Catalog only |
 | [Replace Lambda with Service Integration](patterns/service_integration.md) | Service integratoin allows direct calls to any API from StepFunctions without the need for an additional Lambda function | Implemented |
-| Direct database access | Replace a Lambda function that only reads from DynamoDB with Step Functions' `getItem` task  | Catalog Only |
+| Direct database access | Replace a Lambda function that only reads from DynamoDB with Step Functions' `getItem` task  | In Progress (abelfs@) |
 | Convert Orchestration to Choreography | Replace central workflow with message flow  | Catalog only |
 | Convert Choreography to Orchestration | Replace message flow with central workflow | Catalog only |
-| Replace Polling with Wait State | Instead of polling for results, use StepFunctions Wait State and Task Tokens  | In Progress |
+| Replace Polling with Wait State | Instead of polling for results, use StepFunctions Wait State and Task Tokens  | In Progress (raether@) |
 
 ## Refactoring Catalog Format
 
