@@ -1,8 +1,8 @@
 {
-  "name": "replace-polling-with-wait",
+  "name": "replace-polling-with-callback",
   "version": "0.1.0",
   "bin": {
-    "replace-polling-with-wait": "bin/replace-polling-with-wait.js"
+    "replace-polling-with-callback": "bin/replace-polling-with-callback.js"
   },
   "scripts": {
     "build": "tsc",
