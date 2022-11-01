@@ -9,3 +9,4 @@ cdk.out
 
 # Ignore js lambda functions
 !lambda/*/*.js
+output.json
