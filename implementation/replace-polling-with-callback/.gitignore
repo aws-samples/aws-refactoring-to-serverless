@@ -9,4 +9,5 @@ node_modules
 cdk.out
 
 # js lambda functions
-!lambda-fns/*
+!lambda-fns/polling/*
+!lambda-fns/processing/*
