@@ -6,7 +6,7 @@ import {
 import { LambdaDestination } from 'aws-cdk-lib/aws-lambda-destinations';
 import { Construct } from 'constructs';
 
-export class FunctionInvocationStack extends Stack {
+export class FunctionInvocationRefactoredStack extends Stack {
   constructor(scope: Construct, id: string, props?: StackProps) {
     super(scope, id, props);
 
@@ -15,33 +15,21 @@ export class FunctionInvocationStack extends Stack {
     /* COMMON:
      Destination Lambda Fuction logs the received event */
     const destinationFn = new lambda.Function(this, 'destinationFn', {
-      functionName: `destinationFn`,
+      functionName: `destinationFnRefactored`,
       runtime: lambda.Runtime.NODEJS_14_X,
       code: lambda.Code.fromAsset('lambda/destination'),
       handler: 'index.handler',
     });
 
-    /* BEFORE: 
-    Invocation Lambda Fuction before refactoring.
-    This function invokes the destination as part of the code. */
-    const beforeRefactoringFn = new lambda.Function(this, 'invocationBeforeFn', {
-      functionName: 'invocationBeforeFn',
-      runtime: lambda.Runtime.NODEJS_14_X,
-      code: lambda.Code.fromAsset('lambda/invocation-before'),
-      handler: 'index.handler',
-      environment: { FUNCTION_NAME: destinationFn.functionName },
-    });
-    destinationFn.grantInvoke(beforeRefactoringFn);
-
     /* AFTER:
     Invocation Lambda Fuction after refactoring.
     The invokation destination is extracted from the function code and now configured in CDK code. */
-    new lambda.Function(this, 'invocationAfter', {
-      functionName: 'invocationAfterFn',
+    new lambda.Function(this, 'invocationRefactored', {
+      functionName: 'invocationFnRefactored',
       runtime: lambda.Runtime.NODEJS_14_X,
-      code: lambda.Code.fromAsset('lambda/invocation-after'),
+      code: lambda.Code.fromAsset('lambda/invocation-refactored'),
       handler: 'index.handler',
-      onSuccess: new LambdaDestination(destinationFn, {
+      onSuccess: new LambdaDestination(destinationFn, { // Uses CDK's Lambda Destination  
         responseOnly: true,
       }),
     }); 

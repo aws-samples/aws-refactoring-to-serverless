@@ -38,12 +38,12 @@ Use a Lambda Destination to send the message and configure the Lambda destinatio
 In CDK, you either pass the destination on the Lambda Function constructor or add it later via the [`LambdaDestination`](https://docs.aws.amazon.com/cdk/api/v2/docs/aws-cdk-lib.aws_lambda_destinations.LambdaDestination.html) resource.
 
 ```
-new lambda.Function(this, 'invocationAfter', {
-      functionName: 'invocationAfter',
+    new lambda.Function(this, 'invocationRefactored', {
+      functionName: 'invocationFnRefactored',
       runtime: lambda.Runtime.NODEJS_14_X,
-      code: lambda.Code.fromAsset('lambda/invocation-after'),
+      code: lambda.Code.fromAsset('lambda/invocation-refactored'),
       handler: 'index.handler',
-      onSuccess: new LambdaDestination(destinationFn, {
+      onSuccess: new LambdaDestination(destinationFn, { // Uses CDK's Lambda Destination  
         responseOnly: true,
       }),
     }); 

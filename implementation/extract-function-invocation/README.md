@@ -1,14 +1,13 @@
-# Description 
+# Extract AWS Lambda Function Invokation using Lambda Destinations
+This project is the CDK implementation of ['Extract Function Invocation'](../../patterns/extract_function_invocation.md) pattern. This patterns shows how can you Lambda Destination in CDK to send message to AWS Lambda and make the application topology explicit.
 
-This stack contains two AWS Lambda functions that demonstrate before/after implementing Lambda Destinations to invoke a Lambda Destination function.
+## How it works
+The Invocation Lambda Function adds an order id to the incoming pizza order event and then invokes a second Lambda Function for further processing.
 
-* `bin/extract-function-invocation.ts` is the entrypoint of the CDK application. 
-* `lib/extract-function-invocation-stack.ts`: This is where the CDK application's main stack if defined. The stack provisions: 
-    * 1 Lambda function serving as the onSuccess destination
-    * 2 Lambda functions to invoke the destination function to demonstrate code before/after the refactoring
-* `lambda/destination/index.js`: This is the destination function to be invoked. It receives the event and logs a message about the sender based on the event content
-* `lambda/invocation-before/index.js`: This function invokes the destination in code using the AWS SDK for JavaScript
-* `lambda/invocation-after/index.js`: This function invokes the destination via the onSuccess Lambda Destination configuration in CDK
+The code will deploy 2 versions of the Invocation Lambda:
+- invocationFnOriginal: Here the Lambda invokes the second Lambda from code.
+- invocationFnRefactored: Only contains application logic. Function invocation sending is extracted from Lambda and [wired in CDK](./lib/extract-function-invocation-refactored.ts).
+
 
 ## Requirements 
 
@@ -40,19 +39,15 @@ cdk deploy
 2. Select `y` to create the stack:
 `Do you wish to deploy these changes (y/n)?`
 
-3. You should see:
- ✅  FunctionInvocationStack
-
-
 ## Test the functionality using the AWS CLI 
 
 First, let's test the lambda that has logic in code:
 ``` 
 aws lambda invoke \
---function-name invocationBeforeFn \
+--function-name invocationFnOriginal \
 --invocation-type Event \
 --cli-binary-format raw-in-base64-out \
---payload '{ "Sender": "Invocation in Code" }' \
+--payload '{ "Order": "Pizza cheese original from code" }' \
 output.json
 ```
 You should see: 
@@ -65,10 +60,10 @@ You should see:
 Next, let's test the refactored lambda invocation using Lambda Destinations
  ``` 
 aws lambda invoke \
---function-name invocationAfterFn \
+--function-name invocationFnRefactored \
 --invocation-type Event \
 --cli-binary-format raw-in-base64-out \
---payload '{ "Sender": "Invocation in CDK" }' \
+--payload '{ "Order": "Pizza funghi refactored from CDK" }' \
 output.json
  ``` 
 You should see:
@@ -78,17 +73,36 @@ You should see:
 }
 ``` 
 
-*Note*: Lambda base64 encoded payloads. Hence, `--cli-binary-format raw-in-base64-out` to send it as clear text.
+*Note*: 
+- Lambda base64 encoded payloads. Hence, `--cli-binary-format raw-in-base64-out` to send it as clear text.
+- We used `--invocation-type Event`  above because Lambda Destination only supports Asynchronous invocation.
 
 ## Verify
 
 1. Login to your AWS console and navigate to `CloudFormation`
-2. Select the stack `FunctionInvocationStack` and navigate to `Resources`
-3. Select the destination function holding the Physical ID `destinationFn`
+2. Select the stack and navigate to `Resources`
+3. Select the destination function 
 4. On the Function page select `Monitor` and click on `View logs in CloudWatch` and select the recent Log Stream
 5. Verify that you can find both invocations in the log Messages: 
-    - `INFO Destination received event from: Invocation in Code`
-    - `INFO Destination received event from: Invocation in CDK`
+
+Original example:
+```
+Destination received event: 
+{
+    "Order": "Pizza cheese original from code",
+    "OrderId": 17
+}
+```
+
+
+Refactored example:
+```
+Destination received event: 
+{
+    "Order": "Pizza funghi refactored from CDK",
+    "OrderId": 94
+}
+```
 
 ## Clean up
 
@@ -98,7 +112,4 @@ cdk destroy
 ```
 
 2. Select `y` to delete the stack:
-`Are you sure you want to delete: FunctionInvocationStack (y/n)?`
-
-3. You should see:
-`FunctionInvocationStack: destroying...`
+`Are you sure you want to delete: STACK_NAME (y/n)?`
