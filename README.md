@@ -44,7 +44,7 @@ These are some very initial refactoring ideas. The goal of the project would be 
 | Direct database access | Replace a Lambda function that only reads from DynamoDB with Step Functions' `getItem` task  | In Progress (abelfs@) |
 | Convert Orchestration to Choreography | Replace central workflow with message flow  | Catalog only |
 | Convert Choreography to Orchestration | Replace message flow with central workflow | Catalog only |
-| Replace Polling with Wait State | Instead of polling for results, use StepFunctions Wait State and Task Tokens  | In Progress (raether@) |
+| [Replace Polling with Callback](patterns/replace_polling_with_callback.md) | Instead of polling for results, use StepFunctions Wait for a Callback with the Task Token  | Implemented |
 
 ## Refactoring Catalog Format
 
