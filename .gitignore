@@ -2,4 +2,4 @@
 !jest.config.js
 *.d.ts
 node_modules
-.DS_Store
+.DS_Strore
