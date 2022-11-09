@@ -30,7 +30,7 @@ export class FunctionInvocationRefactoredStack extends Stack {
       code: lambda.Code.fromAsset('lambda/invocation-refactored'),
       handler: 'index.handler',
       onSuccess: new LambdaDestination(destinationFn, { // Uses CDK's Lambda Destination  
-        responseOnly: true,
+        responseOnly: true, // Allows to auto-extract the response payload from the invocation record
       }),
     }); 
 
