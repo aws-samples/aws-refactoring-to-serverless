@@ -87,21 +87,13 @@ You should see:
 
 Original example:
 ```
-Destination received event: 
-{
-    "Order": "Pizza cheese original from code",
-    "OrderId": 17
-}
+Destination received event with id: 17 and order: Pizza cheese original from code
 ```
 
 
 Refactored example:
 ```
-Destination received event: 
-{
-    "Order": "Pizza funghi refactored from CDK",
-    "OrderId": 94
-}
+Destination received event with id: 94 and order: Pizza funghi refactored from CDK
 ```
 
 ## Clean up
