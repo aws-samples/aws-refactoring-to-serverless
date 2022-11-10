@@ -31,7 +31,7 @@ The skeleton for this pattern can be found at [Extract Send Message](patterns/ex
 
 ## A Strawman Catalog
 
-These are some very initial refactoring ideas. The goal of the project would be to find many more and document them:
+Below are few refactoring ideas. The goal of the project is to find many more and document them:
 
 | Name | Description | Status |
 | ---- | ---- | ---- |
@@ -57,13 +57,12 @@ Each pattern in the catalog adheres to the following format:
 * Considerations - things to keep in mind when using this refactoring
 * Related Refactorings - If someone uses this one, what other refactoring could logically follow?
 
-## Contributing
+---
 
-This project is open for contributions. 
-* Each contributor should implement and document one refactoring from the list above. 
-* The implementation of the 'before' and 'after' examples can be in Python or Typescript
-* The 'after' example uses CDK
-* The documentation is in markdown
-* The examples might require some scaffolding, shich we don't include in the documentation. We currently copy the code into the documentation manually. In the future we might implement a build system that extracts relevant code snippets.
-* We aim to build running examples that include a test rig to show that the behavior before and after is identical.
+## Contributors
+Gregor Hohpe, Enterprise Strategist, AWS  
+Sindhu Pillai, Sr. Solutions Architect, AWS  
+Svenja Raether,Associate ProServe Specialist, AWS  
 
+***Interested in Contributing?*** 
+More details [here](CONTRIBUTING.md)
