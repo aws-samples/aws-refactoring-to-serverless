@@ -1,6 +1,6 @@
 # Replace Lambda with Service Integration
 
-SKETCH
+![](service_integration.png)
 
 ## Description
 
@@ -9,7 +9,15 @@ Prior to the release of Set Functions' [Service Integration](https://docs.aws.am
 An example might look as follows:
 
 ```
-# Call and API - Rekognition as plausible example?
+const aws = require('aws-sdk');
+const rekognition = new aws.Rekognition();
+
+
+exports.handler = async (event,context, callback) => {
+    ...
+    result = await rekognition.detectLabels(params).promise();
+    ...
+}
 ```
 
 ## Solution
