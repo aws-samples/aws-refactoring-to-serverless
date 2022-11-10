@@ -9,7 +9,7 @@ import { Construct } from 'constructs';
 
 
 export class ServiceIntegrationStackOriginal extends Stack {
-  private IMAGE_TO_LABEL: String = 'food.jpeg';
+  private IMAGE_TO_LABEL: String = '255911618.jpeg';
   private BUCKET_NAME: string = "service-integration-original";
 
   constructor(scope: Construct, id: string, props: StackProps) {

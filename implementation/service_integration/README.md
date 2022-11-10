@@ -29,11 +29,14 @@ Now, lets deploy / redeploy this Stack to your AWS Account.
 cdk deploy --all
 ```
 
-Copy value for `ArnForStepFunction_Orginal` and `ArnForStepFunction_Refactored` from CDK deploy `Outputs`.
+From the CDK Outputs, 
+Copy value for `ArnForStepFunctionOrginal` and `ArnForStepFunctionRefactored`.
 We will be using the ARNs to execute the Step Function in section below.
 
 ---
 ## Testing it out
+You have 2 choices to run the step functions: 1) AWS Console 2) via AWS CLI.
+To test via CLI, follow instructions below:
 1. Run the following AWS CLI command to start the Step Functions . Note, you must edit the {ArnForLambdaIntegration} placeholder with the ARN of the deployed Step Functions workflow. This is provided in the stack outputs.
 
 ```aws stepfunctions start-execution --name "test" --state-machine-arn {ArnForStepFunction_Orginal}```  

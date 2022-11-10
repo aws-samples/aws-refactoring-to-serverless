@@ -3,15 +3,11 @@ const rekognition = new aws.Rekognition();
 
 
 exports.handler = async (event,context, callback) => {
-
-    const bucket = event.s3Bucket;
-	const imageName = event.imageName;
-
 	var params = {
 		Image: {
 			S3Object: {
-				Bucket:bucket,
-				Name: imageName
+				Bucket:event.s3Bucket,
+				Name: event.imageName
 			}
 		},
 		MaxLabels: 1,

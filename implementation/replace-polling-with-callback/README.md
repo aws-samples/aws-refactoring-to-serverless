@@ -50,7 +50,7 @@ aws stepfunctions start-execution \
 --input "{\"name\" : \"pizza_callback\", \"order\" : \"pizza margherita\", \"waitTime\" : \"5\"}"
 ```
 
-You should seefollowing output in in the AWS CLI:
+You should see following output in in the AWS CLI:
 ``` 
 {
     "executionArn": <execution-arn>,
@@ -65,7 +65,7 @@ aws stepfunctions start-execution \
 --input "{\"name\" : \"pizza_callback\", \"order\" : \"pizza funghi\"}"
 ```
 
-You should seefollowing output in in the AWS CLI:
+You should see following output in in the AWS CLI:
 ```  
 {
     "executionArn": <execution-arn>,
