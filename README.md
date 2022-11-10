@@ -35,7 +35,7 @@ Below are few refactoring ideas. The goal of the project is to find many more an
 
 | Name | Description | Status |
 | ---- | ---- | ---- |
-| Extract Function Invocation | Instead calling one Lambda function directly from another, use Lambda Destinations instead | Catalog Only |
+| Extract Function Invocation | Instead calling one Lambda function directly from another, use Lambda Destinations instead | In Progress  |
 | [Extract Send Message](patterns/extract_send_message.md) | Instead sending SQS messages via code, use Lambda Destinations instead | Implemented |
 | Extract Message Filter | Eliminate invalid messages with EvenBridge instead of conditional statements | Catalog only | 
 | Replace Event Pattern with Lambda | If an event pattern can no longer be implemented in EventBridge, build it in Lambda instead | Catalog only |
