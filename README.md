@@ -31,11 +31,11 @@ The skeleton for this pattern can be found at [Extract Send Message](patterns/ex
 
 ## A Strawman Catalog
 
-Below are few refactoring ideas. The goal of the project is to find many more and document them:
+Below are few refactoring patterns.
 
 | Name | Description | Status |
 | ---- | ---- | ---- |
-| Extract Function Invocation | Instead calling one Lambda function directly from another, use Lambda Destinations instead | In Progress  |
+| [Extract Function Invocation](patterns/extract_function_invocation.md) | Instead calling one Lambda function directly from another, use Lambda Destinations instead | Implemented  |
 | [Extract Send Message](patterns/extract_send_message.md) | Instead sending SQS messages via code, use Lambda Destinations instead | Implemented |
 | Extract Message Filter | Eliminate invalid messages with EvenBridge instead of conditional statements | Catalog only | 
 | Replace Event Pattern with Lambda | If an event pattern can no longer be implemented in EventBridge, build it in Lambda instead | Catalog only |
@@ -48,7 +48,7 @@ Below are few refactoring ideas. The goal of the project is to find many more an
 
 ## Refactoring Catalog Format
 
-Each pattern in the catalog adheres to the following format:
+Each pattern in this catalog adheres to the following format:
 
 * Name - an evocative name is important for the community to adopt the vocabulary. A builder should be able to say “I think we should extract this invocation into a destination”
 * Diagram / Sketch - a visual that captures the essence of the pattern. It doesn’t have to be a class diagram or full-on architecture diagram. Recognizability is most important: can a developer see what the refactoring suggests just from the visual
