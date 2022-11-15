@@ -42,16 +42,16 @@ aws dynamodb scan --table-name OrdersTable
 ``` 
 
 3. Now, lets test the original State Machine using the orderId you retrieved in the previous step. This version invokes a Lambda that executes the read operation in DynamoDB:
-- Go to the AWS Console and then to Step Functions
-- Click on the StateMachineOriginal State Machine
-- Click the Start Execution button and enter this input: `{"orderId": "[REPLACE WITH YOUR ORDER ID]"}`
-- After a few seconds you should be able to see the Pizza Order details in State Machine output details.
+    - Go to the AWS Console and then to Step Functions
+    - Click on the StateMachineOriginal State Machine
+    - Click the Start Execution button and enter this input: `{"orderId": "[REPLACE WITH YOUR ORDER ID]"}`
+    - After a few seconds you should be able to see the Pizza Order details in State Machine output details.
 
 4. Lastly, lets test refactored State Machine using the same orderId. This version uses the DynamoGetItem integration to execute the read operation in DynamoDB without the need of using a Lambda function:
-- Go to the AWS Console and then to Step Functions
-- Click on the StateMachineRefactored State Machine
-- Click the Start Execution button and enter this input: `{"orderId": "[REPLACE WITH YOUR ORDER ID]"}`
-- After a few seconds you should be able to see the Pizza Order details in State Machine output details.
+    - Go to the AWS Console and then to Step Functions
+    - Click on the StateMachineRefactored State Machine
+    - Click the Start Execution button and enter this input: `{"orderId": "[REPLACE WITH YOUR ORDER ID]"}`
+    - After a few seconds you should be able to see the Pizza Order details in State Machine output details.
 
 *Note*: Since the refactored version executes the read operation directly in DynamoDB, it will return the results faster.
 

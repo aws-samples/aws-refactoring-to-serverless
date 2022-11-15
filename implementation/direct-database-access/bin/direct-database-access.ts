@@ -3,13 +3,13 @@ import 'source-map-support/register';
 import * as cdk from 'aws-cdk-lib';
 import { Table } from 'aws-cdk-lib/aws-dynamodb';
 
-import { DirectDatabaseAccessStack } from '../lib/direct-database-access-stack';
+import { BaseStack } from '../lib/base-stack';
 import { ReadDynamoDBStackOriginal } from '../lib/read-dynamodb-stack-original';
 import { ReadDynamoDBStackRefactored } from '../lib/read-dynamodb-stack-refactored';
 
 const app = new cdk.App();
 
-const baseStack = new DirectDatabaseAccessStack(app, 'DirectDatabaseAccessStack');
+const baseStack = new BaseStack(app, 'BaseStack');
 
 new ReadDynamoDBStackOriginal(app, 'ReadDynamoDBStackOriginal', {
     dynamoTable: baseStack.dynamoTable
