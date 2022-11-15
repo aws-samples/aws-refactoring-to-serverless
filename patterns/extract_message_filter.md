@@ -3,7 +3,7 @@
 
 ## Description
 
-In publish-subscribe model, if you have subscribers filtering out messsages based on data in then message, then we can extract that filtering logic from the consumers to EventBridge.
+In publish-subscribe model, if you have subscribers filtering out messsages based on payload data, then you can extract that filtering logic from the consumers to EventBridge.
 
 An example of consumer code might look like below:
 

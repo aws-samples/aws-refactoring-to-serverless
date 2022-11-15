@@ -10,7 +10,7 @@ By presenting our design guidance in form of refactorings we can address an audi
 
 ## Refactoring to Serverless Patterns: An Example
 
-I routinely see Lambda code that performs functions that could be more easily and more reliably performed by using a platform feature. For example, the following code was taken from a GitHub example:
+We routinely see Lambda code that performs functions that could be more easily and more reliably performed by using a platform feature. For example, the following code was taken from a GitHub example:
 
 ```
 queue_name = os.environ['SQS_NAME']

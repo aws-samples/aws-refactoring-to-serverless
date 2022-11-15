@@ -1,18 +1,13 @@
 # Extract function invocation
 
-
-The picture shows an AWS Lambda function asynchronously invoking another function. When the function returns a success response or exits without throwing an error, Lambda sends a record of the invocation to an EventBridge event bus.
-
-<p align="center">
-<img src="DestinationToLambda.png" alt="Async Function Invocation" width="400" align="middle"/>
+<p>
+<img src="DestinationToLambda.png" alt="Async Function Invocation" width="400"/>
 </p>
 
 
 ## Description 
 
-Invoking Lambda functions asynchronously from within the function code hides the application topology inside the code. You can configure separate destinations for events that fail processing and events that are successfully processed.
-
-The example might look like: 
+Invoking Lambda functions asynchronously from within the function code hides the application topology inside the code. An example might look as follows: 
 ``` 
 const aws = require('aws-sdk');
 const lambda = new aws.Lambda();
@@ -33,21 +28,9 @@ exports.handler = async function(event, context) {
 
 ## Solution
 
-Use a Lambda Destination to send the message and configure the Lambda destination in CloudFormation or CDK to make the application topology explicit.
+Use a Lambda Destination to send the message asynchronously and configure the Lambda destination in CloudFormation or CDK to make the application topology explicit.
 
-In CDK, you either pass the destination on the Lambda Function constructor or add it later via the [`LambdaDestination`](https://docs.aws.amazon.com/cdk/api/v2/docs/aws-cdk-lib.aws_lambda_destinations.LambdaDestination.html) resource.
-
-```
-    new lambda.Function(this, 'invocationRefactored', {
-      functionName: 'invocationFnRefactored',
-      runtime: lambda.Runtime.NODEJS_14_X,
-      code: lambda.Code.fromAsset('lambda/invocation-refactored'),
-      handler: 'index.handler',
-      onSuccess: new LambdaDestination(destinationFn, { // Uses CDK's Lambda Destination  
-        responseOnly: true,
-      }),
-    }); 
-```
+Find the [CDK implementation of this pattern here](/implementation/extract-function-invocation/README.md).
 
 ## Considerations
 
