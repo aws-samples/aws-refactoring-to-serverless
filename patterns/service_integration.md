@@ -29,6 +29,7 @@ For CDK implementation of this pattern, [please see here](/implementation/servic
 
 ### Advantages
 * You eliminate a run-time element (AWS Lambda) and thus reduce cost and run-time complexity.
+* You reduce a little latency by eliminating the extra service hop.
 
 ### Limitation
 * You might lose the ability to decouple the API syntax from Step Functions, e.g. by setting defaults or post-processing results in the Lambda function.

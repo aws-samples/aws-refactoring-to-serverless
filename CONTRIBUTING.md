@@ -4,7 +4,20 @@ Thank you for your interest in contributing to our project. Whether it's adding 
 
 Please read through this document before submitting any pull requests to ensure we have all the necessary information to effectively respond to your bug report or contribution.
 
-## Adding new pattern or implementing code for pattern
+
+## Adding a new pattern
+
+Each pattern in this catalog adheres to the following format:
+
+* Name - an evocative name is important for the community to adopt the vocabulary. A builder should be able to say “I think we should extract this invocation into a destination”
+* Diagram / Sketch - a visual that captures the essence of the pattern. It doesn’t have to be a class diagram or full-on architecture diagram. Recognizability is most important: can a developer see what the refactoring suggests just from the visual
+* Description - one paragraph describing what the refactoring suggests, including the benefits
+* Implementation - a longer description that explains how to do it
+* Considerations - things to keep in mind when using this refactoring
+* Related Refactorings - If someone uses this one, what other refactoring could logically follow?
+
+
+## Implementing code for existing pattern
 
 * Each contributor should implement and document one refactoring from Strawman Catalog. 
 * The implementation of the 'before' and 'after' examples can be in Python or Typescript
