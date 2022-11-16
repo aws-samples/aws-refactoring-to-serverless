@@ -1,6 +1,6 @@
 # Replace Lambda with Service Integration
 
-![](service_integration.png)
+![](images/service_integration.png)
 
 ## Description
 As part of your AWS Step Functions workflow, if you want to integrate with other AWS Services like Amazon Rekognition to detect object in an image (diagram above), run an AWS Batch job and then perform actions based on results, or run an Amazon Elastic Container Service (Amazon ECS) task and wait for it to complete, you had to write a custom AWS Lambda function to handle each step of that service integration.
@@ -22,7 +22,7 @@ exports.handler = async (event,context, callback) => {
 ## Solution
 Use Step Functions' [SDK Service Integration](https://docs.aws.amazon.com/step-functions/latest/dg/supported-services-awssdk.html) to directly call each AWS Service's API directly from your worklow.
 
-For CDK implementation of this pattern, [please see here](/implementation/service_integration/README.md).
+For CDK implementation of this pattern, [please see here](/implementation/service_integration/#).
 
 
 ## Considerations 

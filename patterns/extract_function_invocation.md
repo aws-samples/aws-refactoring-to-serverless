@@ -1,7 +1,7 @@
 # Extract function invocation
 
 <p>
-<img src="DestinationToLambda.png" alt="Async Function Invocation" width="400"/>
+<img src="images/DestinationToLambda.png" alt="Async Function Invocation" width="400"/>
 </p>
 
 
@@ -28,9 +28,9 @@ exports.handler = async function(event, context) {
 
 ## Solution
 
-Use a Lambda Destination to send the message asynchronously and configure the Lambda destination in CloudFormation or CDK to make the application topology explicit.
+Use [Lambda Destination ](https://aws.amazon.com/blogs/compute/introducing-aws-lambda-destinations/) to send the message asynchronously and configure the Lambda destination in CloudFormation or CDK to make the application topology explicit.
 
-Find the [CDK implementation of this pattern here](/implementation/extract-function-invocation/README.md).
+Find the [CDK implementation of this pattern here](/implementation/extract-function-invocation/).
 
 ## Considerations
 

@@ -1,6 +1,6 @@
 # Extract Send Message 
 
-![](message-send.png)
+![](images/message-send.png)
 
 ## Description
 

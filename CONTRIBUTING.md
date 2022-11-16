@@ -19,7 +19,7 @@ Each pattern in this catalog adheres to the following format:
 
 ## Implementing code for existing pattern
 
-* Each contributor should implement and document one refactoring from Strawman Catalog. 
+* Each contributor should implement and document one refactoring from the [Pattern Catalog](README.md#Refactoring-Patterns). 
 * The implementation of the 'before' and 'after' examples can be in Python or Typescript
 * The 'after' example should use CDK
 * The documentation is in markdown

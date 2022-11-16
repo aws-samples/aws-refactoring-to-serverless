@@ -7,7 +7,7 @@ Step Functions provide integration patterns to interact with services invoked. W
 An example might look as follows:
 
 <p align="center">
-<img src="replace_polling_before.png" alt="Callback Step Functions" width="400"/>
+<img src="images/replace_polling_before.png" alt="Callback Step Functions" width="400"/>
 </p>
 
 
@@ -17,11 +17,11 @@ Use [Step Function's Callback Integration Pattern](https://docs.aws.amazon.com/s
 
 
 <p align="center">
-<img src="replace_polling_refactored.png" alt="Callback Step Functions" width="400"/>
+<img src="images/replace_polling_refactored.png" alt="Callback Step Functions" width="400"/>
 </p>
 
 
-For a CDK implementation written in Typescript, please see [replace_polling_with_callback](../implementation/replace-polling-with-callback/README.md).
+For a CDK implementation written in Typescript, please see [replace_polling_with_callback](../implementation/replace-polling-with-callback/#).
 
 ## Considerations 
 
