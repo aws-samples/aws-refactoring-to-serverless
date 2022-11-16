@@ -31,10 +31,9 @@ cdk deploy --all
 ## Testing it out
 
 1. First, lets create a new Pizza Order in DynamoDB:
-``` 
-aws lambda invoke --function-name lambdaWriteDynamoDB --invocation-type Event --payload '{ "productType": "pizza" }' output.json
-```
-You should see StatusCode:202
+    - Go to the AWS Console and then to Step Functions
+    - Click on the StateMachineCreateOrder State Machine
+    - Click the Start Execution button, keep the default values in the dialog and click the Start Execution button again
 
 2. Next, lets retrieve the orderId value for the newly created Pizza Order:
  ``` 
@@ -45,13 +44,13 @@ aws dynamodb scan --table-name OrdersTable
     - Go to the AWS Console and then to Step Functions
     - Click on the StateMachineOriginal State Machine
     - Click the Start Execution button and enter this input: `{"orderId": "[REPLACE WITH YOUR ORDER ID]"}`
-    - After a few seconds you should be able to see the Pizza Order details in State Machine output details.
+    - After a few seconds you should be able to see the Pizza Order details in State Machine output details
 
-4. Lastly, lets test refactored State Machine using the same orderId. This version uses the DynamoGetItem integration to execute the read operation in DynamoDB without the need of using a Lambda function:
+4. Lastly, lets test the refactored State Machine using the same orderId. This version uses the DynamoGetItem integration to execute the read operation in DynamoDB without the need of using a Lambda function:
     - Go to the AWS Console and then to Step Functions
     - Click on the StateMachineRefactored State Machine
     - Click the Start Execution button and enter this input: `{"orderId": "[REPLACE WITH YOUR ORDER ID]"}`
-    - After a few seconds you should be able to see the Pizza Order details in State Machine output details.
+    - After a few seconds you should be able to see the Pizza Order details in State Machine output details
 
 *Note*: Since the refactored version executes the read operation directly in DynamoDB, it will return the results faster.
 

@@ -1,9 +1,9 @@
 import { Construct } from 'constructs';
-import { CfnOutput, Duration, RemovalPolicy, Stack, StackProps} from 'aws-cdk-lib';
-import { Runtime } from 'aws-cdk-lib/aws-lambda';
-import { NodejsFunction } from 'aws-cdk-lib/aws-lambda-nodejs';
+import { CfnOutput, RemovalPolicy, Stack, StackProps} from 'aws-cdk-lib';
 import { Table, BillingMode, AttributeType } from 'aws-cdk-lib/aws-dynamodb';
-import path = require('path');
+import * as sfn from 'aws-cdk-lib/aws-stepfunctions';
+import * as tasks from 'aws-cdk-lib/aws-stepfunctions-tasks';
+import {v4 as uuid} from 'uuid';
 
 export class BaseStack extends Stack {
   public readonly dynamoTable: Table;
@@ -19,24 +19,20 @@ export class BaseStack extends Stack {
       removalPolicy: RemovalPolicy.DESTROY
     });
     
-    // Lambda function to write to DynamoDB
-    const lambdaWriteDynamoDB = new NodejsFunction(this, 'lambdaWriteDynamoDB', {
-      functionName: 'lambdaWriteDynamoDB',
-      runtime: Runtime.NODEJS_16_X,
-      memorySize: 128,
-      timeout: Duration.seconds(3),
-      entry: path.join(__dirname, '../lambda/write-dynamodb.ts'),
-      handler: 'main',
-      environment: {
-        DatabaseTable: this.dynamoTable.tableName
-      }
+    // Step Functions executes DynamoPutItem task without Lambda
+    const stateMachine = new sfn.StateMachine(this, 'StateMachineCreateOrder', {
+      definition: new tasks.DynamoPutItem(this, "WriteDynamoDBTask", {
+        table: this.dynamoTable,
+        item: {
+          orderId: tasks.DynamoAttributeValue.fromString(uuid()),
+          productType: tasks.DynamoAttributeValue.fromString("pizza"),
+          quantity: tasks.DynamoAttributeValue.fromNumber(1),
+        },
+      })
     });
-    
-    // Grant permissions for Lambda
-    this.dynamoTable.grantWriteData(lambdaWriteDynamoDB);
     
     // Outputs
     new CfnOutput(this, 'DynamoDbTableName', { value: this.dynamoTable.tableName });
-    new CfnOutput(this, 'WriteDynamoDBLambdaFunctionArn', { value: lambdaWriteDynamoDB.functionArn });
+    new CfnOutput(this, 'StateMachineCreateOrderArn', { value: stateMachine.stateMachineArn });
   }
 }

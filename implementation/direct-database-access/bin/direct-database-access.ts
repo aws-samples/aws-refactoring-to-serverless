@@ -1,7 +1,6 @@
 #!/usr/bin/env node
 import 'source-map-support/register';
 import * as cdk from 'aws-cdk-lib';
-import { Table } from 'aws-cdk-lib/aws-dynamodb';
 
 import { BaseStack } from '../lib/base-stack';
 import { ReadDynamoDBStackOriginal } from '../lib/read-dynamodb-stack-original';
