@@ -21,6 +21,12 @@ For a CDK implementation written in Typescript, please see [/implementation/dire
 
 * Lowers cost by reducing the use of cloud resources.
 
+### Limitations
+
+* It might not be applicable where the Lambda function performs a transformation after data has been read from DynamoDB
+
+* It might not be applicable where the Lambda function performs a transformation before creating a new item in DynamoDB
+
 ### Applicability
 
 * This refactoring can be applied to workloads that use Lambda functions to execute DynamoDB operations. 
