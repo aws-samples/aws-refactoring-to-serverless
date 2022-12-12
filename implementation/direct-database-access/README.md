@@ -1,5 +1,5 @@
 # Execute read operations directly in DynamoDB using Step Functions integrations
-This project is the CDK implementation of ['Direct Database Access'](../../patterns/docs/direct_database_access.md) pattern. This pattern shows how you can execute read operations in DynamoDB without the need of using Lambda and helps to simplify the implementation.
+This project is the CDK implementation of ['Direct Database Access'](../../patterns/direct_database_access.md) pattern. This pattern shows how you can execute read operations in DynamoDB without the need of using Lambda and helps to simplify the implementation.
 
 
 ## How it works
