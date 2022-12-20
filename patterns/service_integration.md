@@ -40,5 +40,4 @@ For CDK implementation of this pattern, [please see here](/implementation/servic
 * Cost: If you can replace the Lambda invocation with a single Step Functions state, the Step Functions cost remains but you save the Lambda execution cost. if you require an additional step, e.g. a pass state, standard workflows cost $0.025 per 1,000 state transitions, or roughly 1.5 Lambda GB-second. Express Workflow pricing matches Lambda pricing per GB-sec \[validate\]
 
 ## Related Refactorings
-* Direct database access
-
+[Direct database access](patterns/direct_database_access.md)

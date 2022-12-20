@@ -1,5 +1,5 @@
 # Replace Lambda with Service Integration
-This project is the CDK implementation of ['replace-lambda-with-service-integration'](../../patterns/extract_send_message.md) pattern. This pattern shows how you can use AWS SDK Service Integration to call any of 200+ AWS services directly from your Step Function. 
+This project is the CDK implementation of [Replace Lambda With Service Integration](/patterns/service_integration.md) pattern. This pattern shows how you can use AWS SDK Service Integration to call any of 200+ AWS services directly from your Step Function. 
 
 ## How it works
 StepFunction does 'food quality control' to ensure that only pizzas are baked.
