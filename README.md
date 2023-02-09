@@ -22,6 +22,7 @@ By presenting our design guidance in form of refactorings we can address an audi
 | Replace Map with Scatter-Gather | Instead of making parallel invocations from a StepFunctions `Map` step, send a message to SNS  | In progress (abelfs@) |
 | Convert Orchestration to Choreography | Replace central workflow with message flow  | Not Started |
 | Convert Choreography to Orchestration | Replace message flow with central workflow | Not Started |
+| Replace code needed for point to point integration|Use Amazon EventBridge Pipes to replace code when sending data from DynamoDB Stream to SNS.|Not Started|
 
 
 ## Contributors
