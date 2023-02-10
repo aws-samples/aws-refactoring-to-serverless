@@ -12,22 +12,24 @@ By presenting our design guidance in form of refactorings we can address an audi
 
 | Name | Description | Status |
 | ---- | ---- | ---- |
-| [Extract Function Invocation](patterns/extract_function_invocation.md) | Instead calling one Lambda function directly from another, use Lambda Destinations instead | 
-| [Extract Send Message](patterns/extract_send_message.md) | Instead sending SQS messages via code, use Lambda Destinations instead | 
-| [Replace Lambda with Service Integration](patterns/service_integration.md) | Service integratoin allows direct calls to any API from StepFunctions without the need for an additional Lambda function | 
-| [Replace Polling with Callback](patterns/replace_polling_with_callback.md) | Instead of polling for results, use StepFunctions Wait for a Callback with the Task Token  |
-| [Direct database access](patterns/direct_database_access.md) | Replace a Lambda function that only reads from DynamoDB with Step Functions' `getItem` task  |
+| [Extract Function Invocation](patterns/extract_function_invocation.md) | Instead calling one Lambda function directly from another, use Lambda Destinations instead | Implemented|
+| [Extract Send Message](patterns/extract_send_message.md) | Instead sending SQS messages via code, use Lambda Destinations instead |  Implemented|
+| [Replace Lambda with Service Integration](patterns/service_integration.md) | Service integratoin allows direct calls to any API from StepFunctions without the need for an additional Lambda function |  Implemented|
+| [Replace Polling with Callback](patterns/replace_polling_with_callback.md) | Instead of polling for results, use StepFunctions Wait for a Callback with the Task Token  | Implemented|
+| [Direct database access](patterns/direct_database_access.md) | Replace a Lambda function that only reads from DynamoDB with Step Functions' `getItem` task  | Implemented|
 | Extract Message Filter | Eliminate invalid messages with EventBridge instead of conditional statements | Not Started | 
+| Send Message via Pipes|For Point-to-Point integration, use Amazon EventBridge Pipes to replace Lambda when sending from DynamoDB Stream to SNS.|Not Started|
 | Replace Event Pattern with Lambda | If an event pattern can no longer be implemented in EventBridge, build it in Lambda instead | Not Started |
 | Replace Map with Scatter-Gather | Instead of making parallel invocations from a StepFunctions `Map` step, send a message to SNS  | In progress (abelfs@) |
 | Convert Orchestration to Choreography | Replace central workflow with message flow  | Not Started |
 | Convert Choreography to Orchestration | Replace message flow with central workflow | Not Started |
-| Send Message via Pipes|For Point-to-Point integration, use Amazon EventBridge Pipes to replace Lambda when sending from DynamoDB Stream to SNS.|Not Started|
 
 
-## Contributors
+## Owners
 Gregor Hohpe, Enterprise Strategist, AWS  
 Sindhu Pillai, Sr. Solutions Architect, AWS  
+
+## Contributors
 Svenja Raether,Associate ProServe Specialist, AWS  
 Abel Fresnillo Silva, Sr. Solutions Architect, AWS
 
