@@ -20,10 +20,10 @@ Each pattern in this catalog adheres to the following format:
 ## Implementing code for existing pattern
 
 * Each contributor should implement and document one refactoring from the [Pattern Catalog](README.md#Refactoring-Patterns). 
-* The implementation of the 'before' and 'after' examples can be in Python or Typescript
+* The implementation of the 'before' and 'after' examples can be in Typescript
 * The 'after' example should use CDK
-* The documentation is in markdown
-* We aim to build running examples that include a test rig to show that the behavior before and after is identical.
+* The README should show how to run the project, and how behavior 'before' and 'after' is identical.
+* From security, you must run your project through [cdk-nag](https://github.com/cdklabs/cdk-nag) and address critical findings.
 
 
 ## Reporting Bugs
@@ -41,19 +41,18 @@ When filing an issue, please check existing open, or recently closed, issues to 
 
 ## Contribute via Pull Requests
 Before sending us a pull request, please ensure that:
-
 1. You are working against the latest source on the *main* branch.
-2. You check existing open, and recently merged, pull requests to make sure someone else hasn't addressed the problem already.
-3. You open an issue to discuss any significant work - we would hate for your time to be wasted.
+2. For bugs: Please check existing open, and recently merged pull requests to ensure someone else hasn't addressed the problem already.
+3. For implementing new patterns: Please reach to owners of this repo and provide short description - we would hate for your time to be wasted.
 
 To send us a pull request, please:
 
 1. Fork the repository.
-2. Modify the source; please focus on the specific change you are contributing. If you also reformat all the code, it will be hard for us to focus on your change.
-3. Ensure local tests pass.
+2. Modify the source; please focus on the specific change you are contributing. If you reformat all the code, it will be hard for us to focus on your change.
+3. Run [cdk-nag](https://github.com/cdklabs/cdk-nag) for your project and ensure all critical findings are addressed.
 4. Commit to your fork using clear commit messages.
-5. Send us a pull request, answering any default questions in the pull request interface.
-6. Pay attention to any automated CI failures reported in the pull request, and stay involved in the conversation.
+5. Send us a pull request, include the output of `cdk-nag`.
+6. Pay attention to comments to your pull request, and stay involved in the conversation.
 
 GitHub provides additional document on [forking a repository](https://help.github.com/articles/fork-a-repo/) and
 [creating a pull request](https://help.github.com/articles/creating-a-pull-request/).
