@@ -1,8 +1,7 @@
-const aws = require('aws-sdk');
-const lambda = new aws.Lambda();
+const { LambdaClient, InvokeCommand } = require('@aws-sdk/client-lambda');
+const lambda = new LambdaClient();
 
 exports.handler = async function (event, context) {
-
     try {
         // Add a ramdom order id 
         event['OrderId'] = Math.floor(Math.random() * 101);
@@ -12,9 +11,9 @@ exports.handler = async function (event, context) {
             InvocationType: 'Event',
             Payload: JSON.stringify(event),
         };
-        // Invoke the destination function 
-        await lambda.invoke(params).promise(); // Invokes the destination function in code
-        return { }; 
+        const command = new InvokeCommand(params);
+        await lambda.send(command);
+        return event; 
     } catch {
         throw new Error('Failure'), 'Could not invoke the destination Lambda function in code.';
     }
