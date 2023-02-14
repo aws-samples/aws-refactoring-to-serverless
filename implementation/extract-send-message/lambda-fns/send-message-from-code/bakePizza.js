@@ -1,5 +1,5 @@
-const aws = require('aws-sdk');
-const sqs = new aws.SQS();
+const { SQSClient, SendMessageCommand } = require('@aws-sdk/client-sqs');
+const sqsClient = new SQSClient()
 
 exports.handler = async (event) => {
     var response = {
@@ -12,7 +12,7 @@ exports.handler = async (event) => {
         MessageBody: JSON.stringify(response)
     };
 
-    await sqs.sendMessage(params).promise();
+    await sqsClient.send(new SendMessageCommand(params));
 
     return {response};
 }
