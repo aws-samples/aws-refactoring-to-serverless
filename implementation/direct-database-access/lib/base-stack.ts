@@ -3,6 +3,7 @@ import { CfnOutput, RemovalPolicy, Stack, StackProps} from 'aws-cdk-lib';
 import { Table, BillingMode, AttributeType } from 'aws-cdk-lib/aws-dynamodb';
 import * as sfn from 'aws-cdk-lib/aws-stepfunctions';
 import * as tasks from 'aws-cdk-lib/aws-stepfunctions-tasks';
+import { NagSuppressions } from 'cdk-nag'
 import {v4 as uuid} from 'uuid';
 
 export class BaseStack extends Stack {
@@ -18,9 +19,12 @@ export class BaseStack extends Stack {
       billingMode: BillingMode.PAY_PER_REQUEST,
       removalPolicy: RemovalPolicy.DESTROY
     });
-    
+
+  
+ 
     // Step Functions executes DynamoPutItem task without Lambda
     const stateMachine = new sfn.StateMachine(this, 'StateMachineCreateOrder', {
+      stateMachineName: 'StateMachineCreateOrder',
       definition: new tasks.DynamoPutItem(this, "WriteDynamoDBTask", {
         table: this.dynamoTable,
         item: {

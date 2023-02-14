@@ -14,6 +14,7 @@ export class ReadDynamoDBStackRefactored extends Stack {
     
     // Step Functions executes DynamoGetItem task without Lambda
     const stateMachine = new sfn.StateMachine(this, 'StateMachineRefactored', {
+      stateMachineName: 'StateMachineRefactored',
       definition: new tasks.DynamoGetItem(this, "ReadDynamoDBTask", {
         table: props.dynamoTable,
         key: { "orderId": tasks.DynamoAttributeValue.fromString(sfn.JsonPath.stringAt('$.orderId')) },

@@ -22,10 +22,9 @@
     "typescript": "~3.9.7"
   },
   "dependencies": {
-    "@aws-cdk/aws-lambda": "^1.177.0",
-    "@aws-cdk/aws-stepfunctions": "^1.177.0",
-    "@aws-cdk/aws-stepfunctions-tasks": "^1.177.0",
-    "aws-cdk-lib": "2.46.0",
+    "aws-cdk-lib": "^2.63.1",
+    "cdk": "^2.64.0",
+    "cdk-nag": "^2.22.6",
     "constructs": "^10.0.0",
     "source-map-support": "^0.5.21",
     "uuid": "^9.0.0"
