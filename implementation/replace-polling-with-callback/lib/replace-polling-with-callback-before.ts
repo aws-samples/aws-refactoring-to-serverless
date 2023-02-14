@@ -7,7 +7,7 @@ import {
     aws_lambda as lambda,
     aws_stepfunctions as sfn,
     aws_stepfunctions_tasks as tasks,
-    aws_lambda_destinations as destinations
+    aws_iam as iam
 } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 import * as path from 'path';
@@ -25,15 +25,25 @@ export class PollingExample extends Stack {
             deliveryDelay: Duration.seconds(15),
         });
 
-        // lambda function to process the message
+        const pizzaBakingLambdaRole = new iam.Role(this, 'pizzaBakingLambdaRole', {
+            assumedBy: new iam.ServicePrincipal('lambda.amazonaws.com'),
+        });
+
+        pizzaBakingLambdaRole.addToPolicy(new iam.PolicyStatement({
+            actions: ['logs:CreateLogGroup', 'logs:CreateLogStream', 'logs:PutLogEvents'],
+            resources: ['arn:aws:logs:' + this.region + ':' + this.account + ':log-group:/aws/lambda/pizzaBakingFn:*'],
+        }))
+
+        // lambda function that processes the pizza order
         const bakingFn = new lambda.Function(this, 'pizzaBakingFn', {
             functionName: 'pizzaBakingFn',
-            runtime: lambda.Runtime.NODEJS_16_X,
+            runtime: lambda.Runtime.NODEJS_18_X,
             handler: 'before.handler',
             code: lambda.Code.fromAsset(path.join(__dirname, '../lambda-fns/processing')),
             environment: {
                 QUEUE_URL: outputQueue.queueUrl
             },
+            role: pizzaBakingLambdaRole
         });
 
         // add queue as an event source for the lambda function
@@ -43,16 +53,26 @@ export class PollingExample extends Stack {
         // grant send permissions to the lambda function
         outputQueue.grantSendMessages(bakingFn);
 
-        // lambda function to poll the output queue
+        const pollingLambdaRole = new iam.Role(this, 'pollingLambdaRole', {
+            assumedBy: new iam.ServicePrincipal('lambda.amazonaws.com'),
+        });
+
+        pollingLambdaRole.addToPolicy(new iam.PolicyStatement({
+            actions: ['logs:CreateLogGroup', 'logs:CreateLogStream', 'logs:PutLogEvents'],
+            resources: ['arn:aws:logs:' + this.region + ':' + this.account + ':log-group:/aws/lambda/pollingFn:*'],
+        }))
+
+        // lambda function to check status
         const pollingFn = new lambda.Function(this, 'pollingFn', {
             functionName: `pollingFn`,
-            runtime: lambda.Runtime.NODEJS_16_X,
-            handler: 'before.handler',
+            runtime: lambda.Runtime.NODEJS_18_X,
+            handler: 'checkStatus.handler',
             code: lambda.Code.fromAsset(path.join(__dirname, '../lambda-fns/polling')),
             environment: {
                 QUEUE_URL: outputQueue.queueUrl
             },
-            timeout: Duration.seconds(30)
+            timeout: Duration.seconds(30),
+            role: pollingLambdaRole
         });
 
         // grant consume permissions to the lambda function
@@ -70,11 +90,11 @@ export class PollingExample extends Stack {
             resultPath: '$.guid',
         });
 
-        const waitX = new sfn.Wait(this, 'Wait X Seconds', {
-            time: sfn.WaitTime.secondsPath('$.waitTime'),
+        const waitX = new sfn.Wait(this, 'Wait 5 Seconds', {
+            time: sfn.WaitTime.duration(Duration.seconds(5)),
         });
 
-        const getStatus = new tasks.LambdaInvoke(this, 'Polling from queue', {
+        const getStatus = new tasks.LambdaInvoke(this, 'Get Pizza Status', {
             lambdaFunction: pollingFn,
             resultPath: '$.status',
             payloadResponseOnly: true
@@ -99,13 +119,12 @@ export class PollingExample extends Stack {
         });
 
         // state machine 
-        new sfn.StateMachine(this, 'StateMachine', {
-            stateMachineName: 'PizzaPolling',
+        const stateMachine = new sfn.StateMachine(this, 'StateMachine', {
+            stateMachineName: 'StepFunctionWithPolling',
             definition: submitTask
                 .next(waitX)
-                .next(getStatus)
+                .next(getStatus) //poll
                 .next(new sfn.Choice(this, 'Pizza ready?')
-                    // Look at the "status" field
                     .when(sfn.Condition.stringEquals('$.status.status', 'FAILED'), fail)
                     .when(sfn.Condition.stringEquals('$.status.status', 'SUCCEEDED'), succeed)
                     .otherwise(waitX)),

@@ -7,7 +7,7 @@ The State Machine receives a new pizza order which is written to an SQS queue an
 
 
 The code will deploy two versions of the AWS Step Function State Machines. 
-- Order pizza and poll for the result: This uses step function's Wait state and a Lambda invocation to periodically pull for the result, wait a specified time, and retry until to receive the result.
+- Order pizza and poll for the result: This uses step function's Wait state and a Lambda invocation to periodically pull for the result, waits for 5 sec, and retry until to receive the result.
 - Order pizza with a callback: This uses step function's Wait for a Callback with the Task Token to receive the result. [replace-polling-with-callback-refactored.ts]
 
 
@@ -47,7 +47,7 @@ cdk deploy --all
 ``` 
 aws stepfunctions start-execution \
 --state-machine-arn <state-machine-arn> \
---input "{\"name\" : \"pizza_callback\", \"order\" : \"pizza margherita\", \"waitTime\" : \"5\"}"
+--input "{\"name\" : \"pizza_callback\", \"order\" : \"pizza margherita\"}"
 ```
 
 You should see following output in in the AWS CLI:

@@ -1,5 +1,5 @@
-const aws = require('aws-sdk');
-const sqs = new aws.SQS();
+const { SQSClient, ReceiveMessageCommand,DeleteMessageCommand } = require('@aws-sdk/client-sqs');
+const sqsClient = new SQSClient()
 
 exports.handler = async function (event, context) {
 
@@ -12,7 +12,8 @@ exports.handler = async function (event, context) {
             WaitTimeSeconds: 5
         };
 
-        const receivedMessages = await sqs.receiveMessage(params).promise();
+        const receivedMessages = await sqsClient.send(new ReceiveMessageCommand(params));
+
         console.log(JSON.stringify(receivedMessages));
 
         if (receivedMessages.Messages) {
@@ -21,7 +22,7 @@ exports.handler = async function (event, context) {
                 QueueUrl: process.env.QUEUE_URL,
                 ReceiptHandle: receivedMessages.Messages[0].ReceiptHandle
             };
-            const deletedMessages = await sqs.deleteMessage(deleteParams).promise();
+            const deletedMessages = await sqsClient.send(new DeleteMessageCommand(deleteParams));
             console.info('Delete messages return:', JSON.stringify(deletedMessages));
 
             // return message 
@@ -45,6 +46,4 @@ exports.handler = async function (event, context) {
             status: 'FAILED',
         }
     }
-
-    // Do something
 };

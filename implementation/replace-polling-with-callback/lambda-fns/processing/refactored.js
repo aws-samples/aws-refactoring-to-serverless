@@ -1,8 +1,7 @@
-console.log('Loading function');
-const aws = require('aws-sdk');
+const { SFNClient, SendTaskSuccessCommand } = require("@aws-sdk/client-sfn");
+const client = new SFNClient();
 
-exports.handler = (event, context, callback) => {
-    const stepfunctions = new aws.StepFunctions();
+exports.handler = async function (event, context) {
 
     for (const record of event.Records) {
         const messageBody = JSON.parse(record.body);
@@ -20,15 +19,10 @@ exports.handler = (event, context, callback) => {
                 taskToken: messageBody.taskToken
             };
 
-            stepfunctions.sendTaskSuccess(params, (err, data) => {
-                if (err) {
-                    console.error(err.message);
-                    callback(err.message);
-                    return;
-                }
-                console.log(data);
-                callback(null);
-            });
+            //directly send task message to stepfunction
+            const command = new SendTaskSuccessCommand(params);
+            await client.send(command);
+            
         } catch (error) {
             throw new console.error(error.message);
         }

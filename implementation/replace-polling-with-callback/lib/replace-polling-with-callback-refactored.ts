@@ -7,6 +7,7 @@ import {
   aws_lambda as lambda,
   aws_stepfunctions as sfn,
   aws_stepfunctions_tasks as tasks,
+  aws_iam as iam
 } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 import * as path from 'path';
@@ -19,12 +20,22 @@ export class CallbackExample extends Stack {
       queueName: 'pizzaOrderQueueRefactored'
     });
 
-    // lambda function
+    const pizzaBakingRefactoredLambdaRole = new iam.Role(this, 'pizzaBakingRefactoredLambdaRole', {
+      assumedBy: new iam.ServicePrincipal('lambda.amazonaws.com'),
+    });
+
+    pizzaBakingRefactoredLambdaRole.addToPolicy(new iam.PolicyStatement({
+      actions: ['logs:CreateLogGroup', 'logs:CreateLogStream', 'logs:PutLogEvents'],
+      resources: ['arn:aws:logs:' + this.region + ':' + this.account + ':log-group:/aws/lambda/pizzaBakingFnRefactored:*'],
+    }))
+
+    // lambda function that processes the pizza order
     const fn = new lambda.Function(this, 'pizzaBakingFn', {
       functionName: 'pizzaBakingFnRefactored',
-      runtime: lambda.Runtime.NODEJS_16_X,
+      runtime: lambda.Runtime.NODEJS_18_X,
       handler: 'refactored.handler',
       code: lambda.Code.fromAsset(path.join(__dirname, '../lambda-fns/processing')),
+      role:pizzaBakingRefactoredLambdaRole
     })
 
     // add queue as an event source for the lambda function
@@ -63,7 +74,7 @@ export class CallbackExample extends Stack {
 
     // state machine 
     const stateMachine = new sfn.StateMachine(this, 'StateMachine', {
-      stateMachineName: 'PizzaCallback',
+      stateMachineName: 'StepFunctionWithCallback',
       definition: submitTask.next(succeed),
       timeout: Duration.seconds(30)
     });

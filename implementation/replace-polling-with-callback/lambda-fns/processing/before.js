@@ -1,5 +1,5 @@
-const aws = require('aws-sdk');
-const sqs = new aws.SQS();
+const { SQSClient, SendMessageCommand } = require('@aws-sdk/client-sqs');
+const sqsClient = new SQSClient()
 
 exports.handler = async (event, context) => {
 
@@ -7,7 +7,7 @@ exports.handler = async (event, context) => {
         const messageBody = JSON.parse(record.body);
 
         try {
-            // process order and return pizza  
+            // process order 
             const output = {
                 "name": "lambda pizza baking service",
                 "message": "pizza is ready - enjoy!",
@@ -19,10 +19,9 @@ exports.handler = async (event, context) => {
                 MessageBody: JSON.stringify(output)
             };
         
-            await sqs.sendMessage(params).promise();
+            //sends message to sqs
+            await sqsClient.send(new SendMessageCommand(params));
 
-            // return the result
-            // return JSON.stringify(output);
 
         } catch (error) {
             console.error(error.message);
