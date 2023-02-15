@@ -18,29 +18,50 @@ export class ServiceIntegrationStackOriginal extends Stack {
     const imageBucket = new s3.Bucket(this, 'DestinationBucket', {
       bucketName: this.BUCKET_NAME,
       removalPolicy: RemovalPolicy.DESTROY,
+      blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL,
       autoDeleteObjects: true,
     });
 
-    const s3Object = new s3deploy.BucketDeployment(this, 'DeployImage', {
+    const s3BucketDeployLambdaRole = new iam.Role(this, 'S3BucketDeployDefaultLambdaRole', {
+      assumedBy: new iam.ServicePrincipal('lambda.amazonaws.com')
+    })
+    s3BucketDeployLambdaRole.addToPolicy(new iam.PolicyStatement({
+      actions: ['logs:CreateLogGroup', 'logs:CreateLogStream', 'logs:PutLogEvents'],
+      resources: ['arn:aws:logs:' + this.region + ':' + this.account + ':log-group:/aws/lambda/ServiceIntegrationStack*'],
+    }))
+
+    new s3deploy.BucketDeployment(this, 'DeployImage', {  
       sources: [s3deploy.Source.asset('./images')],
       destinationBucket: imageBucket,
+      role: s3BucketDeployLambdaRole
     });
 
-    const detectObjectInImageLambda = new lambda.Function(this, 'detectObjectInImage', {
-      functionName: 'detectObjectInImage',
-      runtime: lambda.Runtime.NODEJS_14_X,
-      code: lambda.Code.fromAsset('lambda-fns'),
-      handler: 'detectObjectInImage.handler'
+    const detectObjectInImageLambdaRole = new iam.Role(this, 'detectObjectInImageLambdaRole', {
+      assumedBy: new iam.ServicePrincipal('lambda.amazonaws.com'),
     });
 
-    const rekognitionPolicy = new iam.PolicyStatement({
+    detectObjectInImageLambdaRole.addToPolicy(new iam.PolicyStatement({
+      actions: ['logs:CreateLogGroup', 'logs:CreateLogStream', 'logs:PutLogEvents'],
+      resources: ['arn:aws:logs:' + this.region + ':' + this.account + ':log-group:/aws/lambda/detectObjectInImage:*'],
+    }))
+
+    detectObjectInImageLambdaRole.addToPolicy(new iam.PolicyStatement({
       actions: [
         "s3:GetObject",
         "rekognition:DetectLabels"],
       resources: ['*'] //rekognition requires 'all'
-    })
+    }))
 
-    detectObjectInImageLambda.addToRolePolicy(rekognitionPolicy)
+    const detectObjectInImageLambda = new lambda.Function(this, 'detectObjectInImage', {
+      functionName: 'detectObjectInImage',
+      runtime: lambda.Runtime.NODEJS_18_X,
+      code: lambda.Code.fromAsset('lambda-fns'),
+      handler: 'detectObjectInImage.handler',
+      role: detectObjectInImageLambdaRole
+    });
+
+    
+
 
     const detectObject = new tasks.LambdaInvoke(this, 'Detect Object', {
       lambdaFunction: detectObjectInImageLambda,

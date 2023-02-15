@@ -18,12 +18,23 @@ export class ServiceIntegrationStackRefactored extends Stack {
     const imageBucket = new s3.Bucket(this, 'DestinationBucket', {
       bucketName: this.BUCKET_NAME,
       removalPolicy: RemovalPolicy.DESTROY,
+      blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL,
       autoDeleteObjects: true,
     });
 
-    const s3Object = new s3deploy.BucketDeployment(this, 'DeployImage', {
+    const s3BucketDeployLambdaRole = new iam.Role(this, 'S3BucketDeployDefaultLambdaRole', {
+      assumedBy: new iam.ServicePrincipal('lambda.amazonaws.com')
+    })
+
+    s3BucketDeployLambdaRole.addToPolicy(new iam.PolicyStatement({
+      actions: ['logs:CreateLogGroup', 'logs:CreateLogStream', 'logs:PutLogEvents'],
+      resources: ['arn:aws:logs:' + this.region + ':' + this.account + ':log-group:/aws/lambda/ServiceIntegrationStack*'],
+    }))
+
+    new s3deploy.BucketDeployment(this, 'DeployImage', {
       sources: [s3deploy.Source.asset('./images')],
       destinationBucket: imageBucket,
+      role: s3BucketDeployLambdaRole
     });
     
     const detectObject = new tasks.CallAwsService(this, 'Detect Object',{
@@ -37,7 +48,7 @@ export class ServiceIntegrationStackRefactored extends Stack {
             }
           }
         },
-        iamResources:['*'],          
+        iamResources:['*'],   //rekognition requires '*'       
         additionalIamStatements: [
           new iam.PolicyStatement({
           actions: ['s3:getObject'],

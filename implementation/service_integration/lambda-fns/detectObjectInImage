@@ -1,6 +1,5 @@
-const aws = require('aws-sdk');
-const rekognition = new aws.Rekognition();
-
+const { RekognitionClient, DetectLabelsCommand } = require("@aws-sdk/client-rekognition");
+const client = new new RekognitionClient();
 
 exports.handler = async (event,context, callback) => {
 	var params = {
@@ -14,7 +13,7 @@ exports.handler = async (event,context, callback) => {
 	};
 
 	try {
-        const result = await rekognition.detectLabels(params).promise();
+        const result = await client.send(new DetectLabelsCommand(params));
 		callback(null, result);
 	} catch (err) {
 		callback(err);
