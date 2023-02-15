@@ -21,9 +21,9 @@ Each pattern in this catalog adheres to the following format:
 
 * Each contributor should implement and document one refactoring from the [Pattern Catalog](README.md#Refactoring-Patterns). 
 * The implementation of the 'before' and 'after' examples can be in Typescript
-* The 'after' example should use CDK
+* The 'after' example should use AWS CDK
 * The README should show how to run the project, and how behavior 'before' and 'after' is identical.
-* From security, you must run your project through [cdk-nag](https://github.com/cdklabs/cdk-nag) and address critical findings.
+* From security compliance, you must add [cdk-nag](https://github.com/cdklabs/cdk-nag) and address critical findings.
 
 
 ## Reporting Bugs
@@ -42,16 +42,16 @@ When filing an issue, please check existing open, or recently closed, issues to 
 ## Contribute via Pull Requests
 Before sending us a pull request, please ensure that:
 1. You are working against the latest source on the *main* branch.
-2. For bugs: Please check existing open, and recently merged pull requests to ensure someone else hasn't addressed the problem already.
-3. For implementing new patterns: Please reach to owners of this repo and provide short description - we would hate for your time to be wasted.
+2. *For bugs:* Please check existing open, and recently merged pull requests to ensure someone else hasn't addressed the problem already.
+3. *For implementing new patterns:* Please reach to owners of this repo and provide short description - we would hate for your time to be wasted.
 
 To send us a pull request, please:
 
 1. Fork the repository.
 2. Modify the source; please focus on the specific change you are contributing. If you reformat all the code, it will be hard for us to focus on your change.
-3. Run [cdk-nag](https://github.com/cdklabs/cdk-nag) for your project and ensure all critical findings are addressed.
+3. Run [cdk-nag](https://github.com/cdklabs/cdk-nag) and ensure all critical findings are addressed. Add reasoning when supressing a rule.
 4. Commit to your fork using clear commit messages.
-5. Send us a pull request, include the output of `cdk-nag`.
+5. Send us a pull request and include the output of `cdk-nag`.
 6. Pay attention to comments to your pull request, and stay involved in the conversation.
 
 GitHub provides additional document on [forking a repository](https://help.github.com/articles/fork-a-repo/) and
