@@ -1,5 +1,5 @@
 const { RekognitionClient, DetectLabelsCommand } = require("@aws-sdk/client-rekognition");
-const client = new new RekognitionClient();
+const client = new RekognitionClient();
 
 exports.handler = async (event,context, callback) => {
 	var params = {

@@ -16,8 +16,7 @@ const NagSupressionList = [
     { id: 'AwsSolutions-SF1', reason: 'This is demo stack, hence ignoring Cloudwatch logging for StepFunction' },
     { id: 'AwsSolutions-SF2', reason: 'This is demo stack, hence ignoring X-Ray tracing' },
     { id: 'AwsSolutions-S1', reason: 'This is demo stack, no need to enable server access logs' },
-    { id: 'AwsSolutions-S10', reason: 'This is a demo stack, no need for SSL access. The public access is disabled'},
-    { id: 'AwsSolutions-IAM5', reason: 'Reviewed IAM permissons manually to make sure the wild card permissions are on narrowed resource' },
+    { id: 'AwsSolutions-IAM5', reason: 'Reviewed IAM permissons manually to make sure the wild card permissions are on narrowed resource' }
 ]
 
 NagSuppressions.addStackSuppressions(imageProcessingOriginal, NagSupressionList)

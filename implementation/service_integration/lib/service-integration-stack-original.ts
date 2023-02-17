@@ -10,16 +10,15 @@ import { Construct } from 'constructs';
 
 export class ServiceIntegrationStackOriginal extends Stack {
   private IMAGE_TO_LABEL: String = '255911618.jpeg';
-  private BUCKET_NAME: string = "service-integration-original";
 
   constructor(scope: Construct, id: string, props: StackProps) {
     super(scope, id, props);
 
     const imageBucket = new s3.Bucket(this, 'DestinationBucket', {
-      bucketName: this.BUCKET_NAME,
       removalPolicy: RemovalPolicy.DESTROY,
       blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL,
       autoDeleteObjects: true,
+      enforceSSL: true
     });
 
     const s3BucketDeployLambdaRole = new iam.Role(this, 'S3BucketDeployDefaultLambdaRole', {
