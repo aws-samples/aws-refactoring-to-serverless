@@ -7,7 +7,7 @@ BakePizza Lambda processes incoming request and then sends message to SQS for do
 
 The code will deploy 2 versions of this Lambda:
 - bakePizza_original: Here the Lambda publishes message to SQS from code.
-- bakePizza_refactored: Only contains application logic. Message sending is extracted from Lambda and wired in CDK [service_integraiton-stack-refactored.ts]
+- bakePizza_refactored: Only contains application logic. Message sending is extracted from Lambda and wired in CDK
 
 ---
 ## Deploy the infrastructure

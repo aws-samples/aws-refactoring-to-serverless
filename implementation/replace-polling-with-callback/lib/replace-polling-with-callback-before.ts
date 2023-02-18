@@ -16,14 +16,45 @@ export class PollingExample extends Stack {
     constructor(scope: Construct, id: string, props?: StackProps) {
         super(scope, id, props);
         // sqs queues
-        const orderQueue = new sqs.Queue(this, 'pizzaOrderQueue', {
-            queueName: 'pizzaOrderQueue'
+
+        const orderDLQ = new sqs.Queue(this, 'orderDLQ', {
+            queueName: "pizzaOrderDLQ"
         });
+
+        const orderQueue = new sqs.Queue(this, 'pizzaOrderQueue', {
+            queueName: 'pizzaOrderQueue',
+            deadLetterQueue: {
+                queue: orderDLQ,
+                maxReceiveCount: 3,
+            }
+        });
+
+        const outputDLQ = new sqs.Queue(this, 'outputDLQ', {
+            queueName: "pizzaOutputDLQ"
+        });
+
 
         const outputQueue = new sqs.Queue(this, 'outputQueue', {
             queueName: 'pizzaOutputQueue',
             deliveryDelay: Duration.seconds(15),
+            deadLetterQueue: {
+                queue: outputDLQ,
+                maxReceiveCount: 3,
+            }
         });
+
+        const SQSQueueSSLRequestsOnlyPolicy = new iam.PolicyStatement({
+            actions: ['sqs:*'],
+            effect: iam.Effect.DENY,
+            principals: [new iam.AnyPrincipal()],
+            conditions: { Bool: { 'aws:SecureTransport': 'false' } },
+            resources: ['*'],
+        });
+
+        //Adding SSL policy from the standpoint of best practices
+        [orderQueue, outputQueue, orderDLQ, outputDLQ].forEach(queue => {
+            queue.addToResourcePolicy(SQSQueueSSLRequestsOnlyPolicy)
+        })
 
         const pizzaBakingLambdaRole = new iam.Role(this, 'pizzaBakingLambdaRole', {
             assumedBy: new iam.ServicePrincipal('lambda.amazonaws.com'),

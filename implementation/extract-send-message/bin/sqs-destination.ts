@@ -13,9 +13,8 @@ const sendMessageOriginalStack = new SendMessageStackOriginal(app, 'SendMessageO
 const sendMessageRefactoredStack = new SendMessageStackRefactored(app, 'SendMessageRefactored', {});
 
 const NagSupressionList = [
-    { id: 'AwsSolutions-SQS3', reason: 'This is demo stack, hence ignoring DLQ aspect' },
-    { id: 'AwsSolutions-SQS4', reason: 'This is demo stack, hence ignoring enforce SSL aspect' },
-    { id: 'AwsSolutions-IAM5', reason: 'CloudWatch log-group arn has :*, hence wildcard cannot be avoided.' },
+    { id: 'AwsSolutions-SQS3', reason: 'Already have a DLQ created, hence ignoring DLQ aspect' },
+    { id: 'AwsSolutions-IAM5', reason: 'CloudWatch log-group arn has :*, hence wildcard cannot be avoided.' }
 ]
 
 NagSuppressions.addStackSuppressions(sendMessageOriginalStack, NagSupressionList)

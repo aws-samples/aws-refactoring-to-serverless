@@ -16,9 +16,31 @@ export class CallbackExample extends Stack {
   constructor(scope: Construct, id: string, props?: StackProps) {
     super(scope, id, props);
     // sqs queues
-    const orderQueue = new sqs.Queue(this, 'pizzaOrderQueue', {
-      queueName: 'pizzaOrderQueueRefactored'
+
+    const orderDLQ = new sqs.Queue(this, 'orderDLQ', {
+      queueName: "pizzaRefactoredDLQ"
     });
+
+    const orderQueue = new sqs.Queue(this, 'pizzaOrderQueue', {
+      queueName: 'pizzaOrderQueueRefactored',
+      deadLetterQueue: {
+        queue: orderDLQ,
+        maxReceiveCount: 3,
+      }
+    });
+
+    const SQSQueueSSLRequestsOnlyPolicy = new iam.PolicyStatement({
+      actions: ['sqs:*'],
+      effect: iam.Effect.DENY,
+      principals: [new iam.AnyPrincipal()],
+      conditions: { Bool: { 'aws:SecureTransport': 'false' } },
+      resources: ['*'],
+    });
+
+    //Adding SSL policy from the standpoint of best practices
+    [orderQueue, orderDLQ].forEach(queue => {
+      queue.addToResourcePolicy(SQSQueueSSLRequestsOnlyPolicy)
+    })
 
     const pizzaBakingRefactoredLambdaRole = new iam.Role(this, 'pizzaBakingRefactoredLambdaRole', {
       assumedBy: new iam.ServicePrincipal('lambda.amazonaws.com'),

@@ -6,14 +6,37 @@ import { Queue } from 'aws-cdk-lib/aws-sqs';
 
 export class SendMessageStackOriginal extends Stack {
   private bakePizzaLambda: Function
-  private pizzaQueue: Queue
+
 
   constructor(scope: Construct, id: string, props: StackProps) {
     super(scope, id, props);
 
-    this.pizzaQueue = new Queue(this, 'PizzaQueue',{
-      queueName: "PizzaQueue"
+    const deadLetterQueue = new Queue(this, 'PizzaQueueDLQ', {
+      queueName: "PizzaDLQ"
     });
+
+    const pizzaQueue = new Queue(this, 'PizzaQueue', {
+      queueName: "PizzaQueue",
+      deadLetterQueue: {
+        queue: deadLetterQueue,
+        maxReceiveCount: 3,
+      }
+    });
+
+
+    //Adding SSL policy from the standpoint of best practices
+    const SQSQueueSSLRequestsOnlyPolicy = new iam.PolicyStatement({
+      actions: ['sqs:*'],
+      effect: iam.Effect.DENY,
+      principals: [new iam.AnyPrincipal()],
+      conditions: { Bool: { 'aws:SecureTransport': 'false' } },
+      resources: ['*'],
+    })
+
+    pizzaQueue.addToResourcePolicy(SQSQueueSSLRequestsOnlyPolicy)
+
+    deadLetterQueue.addToResourcePolicy(SQSQueueSSLRequestsOnlyPolicy)
+
 
     const bakePizzaLambdaRole = new iam.Role(this, 'QueueConsumerFunctionRole', {
       assumedBy: new iam.ServicePrincipal('lambda.amazonaws.com'),
@@ -30,12 +53,12 @@ export class SendMessageStackOriginal extends Stack {
       code: Code.fromAsset('lambda-fns/send-message-from-code'),
       handler: 'bakePizza.handler',
       environment: {
-        QUEUE_URL: this.pizzaQueue.queueUrl
+        QUEUE_URL: pizzaQueue.queueUrl
       },
       role: bakePizzaLambdaRole
     });
 
-    this.pizzaQueue.grantSendMessages(this.bakePizzaLambda);
+    pizzaQueue.grantSendMessages(this.bakePizzaLambda);
   }
 
 }
