@@ -58,7 +58,7 @@ export class ServiceIntegrationStackRefactored extends Stack {
 
       const extractName = new sfn.Pass(this, 'Extract Name', {
         parameters: { 
-          "food.$": "$.Labels[0].Name"
+          "contains.$": "States.ArrayContains($.Labels..Name,'Pizza')"
         }
       });
 
@@ -69,7 +69,7 @@ export class ServiceIntegrationStackRefactored extends Stack {
       const definition = detectObject
       .next(extractName)
       .next(new sfn.Choice(this, 'Is Pizza?')
-        .when(sfn.Condition.stringEquals('$.food', 'Pizza'), passed)
+        .when(sfn.Condition.booleanEquals('$.contains', true), passed)
         .otherwise(failed)
       )
   

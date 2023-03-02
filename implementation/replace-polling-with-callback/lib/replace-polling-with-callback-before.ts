@@ -117,7 +117,7 @@ export class PollingExample extends Stack {
                 "input.$": "$",
                 "title": 'Pizza order submitted..'
             }),
-            timeout: Duration.seconds(30),
+            taskTimeout: sfn.Timeout.duration(Duration.seconds(30)),
             resultPath: '$.guid',
         });
 
