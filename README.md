@@ -18,7 +18,7 @@ Because of these benefits, refactoring should be an integral part of serverless 
 
 
 ## About this repo:
-This repo contains sample [AWS CDK](https://docs.aws.amazon.com/cdk/v2/guide/home.html) implementation for the refactorings.  
+This repo is AWS CDK implementation for the patterns in [Refactorings to Serverless](https://serverlessland.com/refactoring-serverless/intro).  
 
 
 | Name | Description |
