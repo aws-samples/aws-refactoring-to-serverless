@@ -1,6 +1,6 @@
 # Replace Polling with Callback
 
-This project is the CDK implementation of the pattern ['Replace Polling with Callback'](../../patterns/replace_polling_with_callback.md). It shows how you can use AWS Step Function's 'Wait for task token' integration pattern which calls a service with a task token and waits until that token is returned with a payload.
+This project is the CDK implementation of the pattern ['Replace Polling with Callback'](https://serverlessland.com/refactoring-serverless/replace-polling-with-callback). It shows how you can use AWS Step Function's 'Wait for task token' integration pattern to calls a service with a task token and wait until that token is returned with a payload.
 
 ## How it works
 The State Machine receives a new pizza order which is written to an SQS queue and processed by a Lambda Function responsible for pizza baking which can take it's time. The workflow returns a success message once the pizza is ready. 

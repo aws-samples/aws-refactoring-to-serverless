@@ -1,9 +1,9 @@
 # Replace Lambda with Service Integration
-This project is the CDK implementation of [Replace Lambda With Service Integration](/patterns/service_integration.md) pattern. This pattern shows how you can use AWS SDK Service Integration to call any of 200+ AWS services directly from your Step Function. 
+This project is the CDK implementation of [Replace Lambda With Service Integration](https://serverlessland.com/refactoring-serverless/service-integration) pattern. This pattern shows how you can use AWS SDK Service Integration to call any of 200+ AWS services directly from your Step Function. 
 
 ## How it works
 StepFunction does 'food quality control' to ensure that only pizzas are baked.
-It uses Rekognition to scan and detect object in an image. If it detects a pizza then process succeeds.
+It uses Rekognition to scan and detect object in an image in S3 bucket. If it detects a pizza then worklow succeeds.
 
 
 The code will deploy 2 versions of the StepFunction:

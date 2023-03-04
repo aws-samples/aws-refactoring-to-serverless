@@ -1,5 +1,5 @@
 # Extract AWS Lambda Function Invokation using Lambda Destinations
-This project is the CDK implementation of ['Extract Function Invocation'](../../patterns/extract_function_invocation.md) pattern. This patterns shows how can you Lambda Destination in CDK to send message to AWS Lambda and make the application topology explicit.
+This project is the CDK implementation of ['Extract Function Invocation'](https://serverlessland.com/refactoring-serverless/extract-function-invocation) pattern. It shows how can you Lambda Destination in CDK to send message to AWS Lambda and make the application topology explicit.
 
 ## How it works
 The Invocation Lambda Function adds an order id to the incoming pizza order event and then invokes a second Lambda Function for further processing.

@@ -1,5 +1,5 @@
 # Extract  AWS Lambda by AWS Step Functions SDK integrations
-This project is the CDK implementation of ['Extract Send Message'](../../patterns/extract_send_message.md) pattern. This patterns shows how can you Lambda Destination in CDK to send message to SQS and make the application topology explicit.
+This project is the CDK implementation of ['Extract Send Message'](https://serverlessland.com/refactoring-serverless/extract-send-message) pattern. It shows how can you use Lambda Destination in CDK to send message asynchronously to SQS and make the application topology explicit.
 
 
 ## How it works
