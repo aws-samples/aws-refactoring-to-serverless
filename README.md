@@ -28,6 +28,7 @@ This repo is AWS CDK implementation for the patterns in [Refactorings to Serverl
 | [Replace Lambda with Service Integration](patterns/service_integration.md) | Service integration allows direct calls to any AWS Service API from StepFunctions without the need for an additional Lambda function |
 | [Replace Polling with Callback](patterns/replace_polling_with_callback.md) | Instead of polling for results, use StepFunctions Wait for a Callback with the Task Token  |
 | [Direct database access](patterns/direct_database_access.md) | Replace a Lambda function that only reads from DynamoDB with Step Functions' `getItem` task  |
+| [Replace Map with Scatter-Gather](patterns/map_to_scatter_gather.md) | Instead of making parallel invocations from a StepFunctions `Map` step, send a message to SNS  |
 
 
 ## Owners
@@ -37,6 +38,7 @@ Sindhu Pillai, Sr. Solutions Architect, AWS
 ## Contributors
 Svenja Raether,Associate ProServe Specialist, AWS  
 Abel Fresnillo Silva, Sr. Solutions Architect, AWS
+Agostino Di Figlia, Sr. Cloud Application Architect, AWS
 
 ## Interested in Contributing?
 More details [here](CONTRIBUTING.md)
