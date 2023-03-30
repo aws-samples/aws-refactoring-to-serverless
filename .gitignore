@@ -3,3 +3,6 @@
 *.d.ts
 node_modules
 .DS_Store
+**/.venv/
+**/cdk.out
+**/__pycache__/
