@@ -30,7 +30,7 @@ This repo is AWS CDK implementation for the patterns in [Refactorings to Serverl
 | [Direct database access](patterns/direct_database_access.md) | Replace a Lambda function that only reads from DynamoDB with Step Functions' `getItem` task  |
 | [Extract Send Message to DynamoDB Stream](patterns/send-message-via-pipes.md) | Instead of a Lambda function sending a message after updating DynamoDB, use DynamoDB Streams plus EventBridge Pipes|
 | [Orchestration to Choreography](patterns/orchestration_%20to_choreography.md) | Convert the collaboration pattern from orchestration to choreography |
-
+| [Replace Map with Scatter-Gather](patterns/map_to_scatter_gather.md) | Instead of making parallel invocations from a StepFunctions `Map` step, send a message to SNS  |
 
 
 
@@ -43,6 +43,7 @@ Svenja Raether,Associate ProServe Specialist, AWS
 Abel Fresnillo Silva, Sr. Solutions Architect, AWS  
 Eugene Kim, Sr. Solutions Architect, AWS  
 Pengfei Zhang, Sr. Solutions Architect, AWS
+Agostino Di Figlia, Sr. Cloud Application Architect, AWS
 
 ## Interested in Contributing?
 More details [here](CONTRIBUTING.md)
