@@ -1,0 +1,6 @@
+[{
+    "Source": "ecommerce.application",
+    "DetailType": "user.review",
+    "Detail": "{\"productId\": \"12345\",\"rating\": 4.5,\"reviewText\": \"Great product!\",\"reviewer\": {\"userId\": \"67890\",\"email\": \"example@example.com\",\"signupDate\": \"2023-04-01T00:00:00Z\",\"purchaseHistory\": [{\"orderId\": \"10001\",\"orderDate\": \"2023-04-01T02:30:00Z\",\"items\": [{\"productId\": \"12345\", \"quantity\": 1}]}]}}"
+}
+]
