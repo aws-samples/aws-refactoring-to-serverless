@@ -38,11 +38,8 @@ class LambdaStates(Construct):
         super().__init__(scope, id_)
         
         requester_destination = None
-        env_req = {}
         if requester_sns_topic is not None:
             requester_destination = destinations.SnsDestination(requester_sns_topic)
-        else:
-            env_req = {"MAX_SCATTER": self.node.try_get_context("max_scatter")}
             
         self.requester = lambda_.Function(
             self,
@@ -52,29 +49,32 @@ class LambdaStates(Construct):
             code=lambda_.Code.from_asset(str(pathlib.Path(__file__).parent.joinpath("requester").resolve())),
             handler="app.lambda_handler",
             on_success=requester_destination,
-            environment=env_req if env_req else None,
             tracing=lambda_.Tracing.ACTIVE
         )
         
         # necessary since lambda destinations only works with asynchronous invocations. Using lambda with SQS is synchronous (https://docs.aws.amazon.com/lambda/latest/dg/with-sqs.html). 
         responder_destination = None
-        env_resp = {}
         if responder_sqs_queue is not None:
             responder_destination = destinations.SqsDestination(responder_sqs_queue) 
-            env_resp = {
-                "SQS_QUEUE_URL": responder_sqs_queue.queue_url
-            }
-            
-        self.responder = lambda_.Function(
-            self,
-            f"responder",
-            runtime=lambda_.Runtime.PYTHON_3_9,
-            # reserved_concurrent_executions=lambda_reserved_concurrency,
-            code=lambda_.Code.from_asset(str(pathlib.Path(__file__).parent.joinpath("responder").resolve())),
-            handler="app.lambda_handler",
-            on_success=responder_destination,
-            environment=env_resp,
-            tracing=lambda_.Tracing.ACTIVE
+        
+        # list of responders based on recipients defined in cdk.json 
+        
+        recipients_list = self.node.try_get_context("recipients")
+        self.responder = []
+        for recipient in recipients_list:
+            env = dict(recipients_list[recipient])
+            env['vendor'] = recipient
+            self.responder.append(lambda_.Function(
+                self,
+                f"responder-{recipient}",
+                runtime=lambda_.Runtime.PYTHON_3_9,
+                # reserved_concurrent_executions=lambda_reserved_concurrency,
+                code=lambda_.Code.from_asset(str(pathlib.Path(__file__).parent.joinpath("responder").resolve())),
+                handler="app.lambda_handler",
+                on_success=responder_destination,
+                environment= env,
+                tracing=lambda_.Tracing.ACTIVE
+            )
         )
         
         self.aggregator = lambda_.Function(
