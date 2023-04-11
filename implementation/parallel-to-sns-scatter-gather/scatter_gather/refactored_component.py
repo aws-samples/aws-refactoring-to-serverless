@@ -23,7 +23,7 @@ from aws_cdk import (
     Stack,
     aws_sqs as sqs,
     aws_sns as sns,
-    aws_lambda_destinations as destinations,
+    # aws_lambda_destinations as destinations,
     aws_sns_subscriptions as subscriptions,
     aws_lambda_event_sources as _event,
     Duration,
@@ -32,12 +32,11 @@ from aws_cdk import (
 from constructs import Construct
 from scatter_gather.lambda_.infrastructure import LambdaStates
 
-class ScatterGatherStack(Stack):
+class RefactoredlScatterGatherStack(Stack):
 
     def __init__(self, scope: Construct, construct_id: str, **kwargs) -> None:
         super().__init__(scope, construct_id, **kwargs)
-
-        max_scatter = int(self.node.try_get_context("max_scatter"))
+            
         sns_fanout = sns.Topic(
             self, "ScatterTopic",
             topic_name="scatter-topic"
@@ -47,20 +46,14 @@ class ScatterGatherStack(Stack):
         sqs_aggregator = sqs.Queue(self, "sqs-aggregator", visibility_timeout=Duration.seconds(90))
         lambdas = LambdaStates(self, "refactor-lambda", requester_sns_topic=sns_fanout, responder_sqs_queue=sqs_aggregator)
         
-        sqs_queues = []
-        for queue_num in range(0, max_scatter):
-            t_queue = sqs.Queue(self, f"sqs-{queue_num}")
-            sns_fanout.add_subscription(subscriptions.SqsSubscription(t_queue,
-                                                             raw_message_delivery=True,
-                                                            )
-                                        )
-            t_queue.grant_consume_messages(lambdas.responder)
-            lambdas.responder.add_event_source(_event.SqsEventSource(t_queue))
-            sqs_queues.append(t_queue)
+        for responder in lambdas.responder:
+            sns_fanout.add_subscription(subscriptions.LambdaSubscription(responder))
         
+        lambdas.aggregator.add_event_source(_event.SqsEventSource(queue=sqs_aggregator, batch_size=len(lambdas.responder), max_batching_window=Duration.minutes(1)))
         
-        lambdas.aggregator.add_event_source(_event.SqsEventSource(queue=sqs_aggregator, batch_size=max_scatter, max_batching_window=Duration.minutes(1)))
-        
-        
-        CfnOutput(self, "ResponderFunctionName", value=lambdas.responder.function_name)
+        resp_index = 1
+        for responder in lambdas.responder:
+            CfnOutput(self, f"ResponderFunctionName-{resp_index}", value=responder.function_name)
+            resp_index +=1
+            
         CfnOutput(self, "RequesterFunctionName", value=lambdas.requester.function_name)
