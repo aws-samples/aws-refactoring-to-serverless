@@ -1,13 +1,13 @@
 # Send messages via EventBridge Pipes
-This project is the CDK implementation of ['Send Message via Pipes'](../../patterns/send_message_pipes.md) pattern. This patterns shows hpw you can reduce your application code and improve consistency by utilizing EventBridge Pipes.
+This project is the CDK implementation of ['Send Message via Pipes'](https://github.com/aws-samples/aws-refactoring-to-serverless/blob/main/patterns/send-message-via-pipes.md) pattern. This patterns shows how you can reduce your application code and improve consistency by utilizing EventBridge Pipes.
 
 
 ## How it works
-The purpose of the application is to save an order and send order details for further processing.
+The purpose of the application is to persist an order in DB and then send order details for further processing.
 
 The code will deploy 2 versions of this application:
 - process-order-original: The lambda code in this version saves an item into a DynamoDB table and sends a message to an event bus.
-- process-order-refactored: Message sending is removed from the code in this version. DynamoDB stream and EventBridge pipes take care of that.
+- process-order-refactored: Message sending is removed from the Lambda code in this version. DynamoDB stream and EventBridge pipes take care of that.
 
 ---
 ## Deploy the applications
