@@ -2,7 +2,7 @@
 # -*- coding:utf-8 -*-
 ###
 # File: app.py
-# Created Date: Thursday, March 16th 2023, 4:53:36 pm
+# Created Date: Thursday, March 16th 2023, 4:54:04 pm
 # Author: Agostino Di Figlia
 # -----
 # Copyright (c) 2023 Amazon Web Services
@@ -20,34 +20,29 @@
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 ###
 import json
-import boto3
-import os
-import sys
 import logging
-import uuid
+import boto3
 
 logging.basicConfig(format='%(asctime)s %(levelname)-8s %(message)s', level=logging.INFO, datefmt='%Y-%m-%d %H:%M:%S')
 logging.getLogger().setLevel(logging.INFO)
 
-client_sns = boto3.client('sns')
-
-MAX_SCATTER = os.getenv('MAX_SCATTER')
+sqs = boto3.client('sqs')
 
 def lambda_handler(event, context):
+    logging.info("Received event: " + json.dumps(event, indent=2))
+    quotes = []
+    for record in event['Records']:
+        body = json.loads(record['body'])
+        logging.info(f"body: {body}")
+        message_body = json.loads(body['responsePayload']['body'])
+        logging.info(f"message_body: {message_body}")
+        quote= message_body['data']
+        quotes.append(quote)
     
-    uuid_quote = uuid.uuid4()
-    # assumption data is present in event
-    event['data']['uuid'] = str(uuid_quote)
-    message = event
     
-    if MAX_SCATTER is not None:
-        message = []
-        for n in range(0,int(MAX_SCATTER)):
-            message.append(event)
-            
-
-    # Return a response
+    logging.info(f"quotes:{quotes}")
+    
     return {
         'statusCode': 200,
-        'body': json.dumps(message)
+        'body': json.dumps(quotes)
     }

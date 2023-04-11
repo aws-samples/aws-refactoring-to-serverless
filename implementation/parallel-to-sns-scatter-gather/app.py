@@ -7,19 +7,19 @@ from cdk_nag import (
     NagPackSuppression
     )
 
-from scatter_gather.sfn_map_component import SFNScatterGatherStack
-from scatter_gather.refactored_component import ScatterGatherStack
+from scatter_gather.original_component import OriginalScatterGatherStack
+from scatter_gather.refactored_component import RefactoredlScatterGatherStack
 
 
 app = cdk.App()
 cdk.Aspects.of(app).add(AwsSolutionsChecks(verbose=False))
 
-sfn_scatter_gather = SFNScatterGatherStack(app, "ScatterGatherStack",
+sfn_scatter_gather = OriginalScatterGatherStack(app, "ScatterGatherWithParallelStack",
                       env=cdk.Environment(
                             account=os.environ["CDK_DEFAULT_ACCOUNT"],
                             region=os.environ["CDK_DEFAULT_REGION"]))
 
-refactored_scatter_gather = ScatterGatherStack(app, "RefactoredScatterGather",
+refactored_scatter_gather = RefactoredlScatterGatherStack(app, "ScatterGatherWithSNSStack",
                       env=cdk.Environment(
                             account=os.environ["CDK_DEFAULT_ACCOUNT"],
                             region=os.environ["CDK_DEFAULT_REGION"]))                           
