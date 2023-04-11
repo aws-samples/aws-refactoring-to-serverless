@@ -34,10 +34,9 @@ def lambda_handler(event, context):
     for record in event['Records']:
         body = json.loads(record['body'])
         logging.info(f"body: {body}")
-        message_body = json.loads(body['responsePayload']['body'])
-        logging.info(f"message_body: {message_body}")
-        quote= message_body['data']
-        quotes.append(quote)
+        data = json.loads(body['responsePayload']['data'])
+        logging.info(f"data: {data}")
+        quotes.append(data)
     
     
     logging.info(f"quotes:{quotes}")

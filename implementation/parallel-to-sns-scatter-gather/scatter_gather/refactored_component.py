@@ -57,3 +57,4 @@ class RefactoredlScatterGatherStack(Stack):
             resp_index +=1
             
         CfnOutput(self, "RequesterFunctionName", value=lambdas.requester.function_name)
+        CfnOutput(self, "AggregatorFunctionName", value=lambdas.aggregator.function_name)
