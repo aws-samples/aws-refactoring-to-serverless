@@ -1,4 +1,4 @@
-# Replace Parallel state with SNS for Scatter-Gather pattern
+# Replace Map with Scatter-Gather
 
 ## Description
 
@@ -51,7 +51,7 @@ An example Workflow definition looks like that:
 
 AWS Step Functions Parallel state provides a powerful and flexible way to implement the Scatter-Gather pattern, but there are some limitations and considerations that you should be aware of:
 
-* Error Handling: If any of the parallel executions within a Parallel state fails, the entire state is considered as failed. However, you can use "Catch" and "Retry" fields to define custom error handling and retry policies for individual items.
+* Error Handling: If any of the parallel executions within a Map state fails, the entire state is considered as failed. However, you can use "Catch" and "Retry" fields to define custom error handling and retry policies for individual items.
 * Completion: The Parallel state will wait for all parallel executions to complete before it moves to the next state in the workflow. This can lead to increased processing time if some executions take significantly longer than others.
 * Cost: Step Functions has a cost associated with it based on the number of state transitions and the duration of execution. That could be the case for high-throughput scenarios.
 * Complexity: The implementation with AWS CDK for Step Functions Parallel state may be more complex due to the need to define the state machine, states, and transitions. However, it provides better control over the workflow orchestration and error handling.
@@ -160,11 +160,11 @@ CDK code to implement Scatter-Gather with SNS and SQS:
 
 ### Applicability
 
-AWS SNS is best suited for workflows that involve small or moderately sized messages in a structured format, are relatively simple in nature, and do not require a high degree of control and orchestration. It is suitable for loosely coupled systems, allowing for asynchronous processing. While SQS for aggregation does provide some error handling and fault tolerance features, such as retries and visibility timeouts, more complex error handling may be better managed by Step Functions. SNS integrates well with other AWS services, like Lambda, and can be more cost-effective for high-throughput scenarios. If your workflow requires more advanced features or capabilities, such as support for complex orchestration, advanced error handling, or processing large payloads, Step Functions may be a better option.
+AWS SNS and SQS are best suited for workflows that involve small or moderately sized messages in a structured format, are relatively simple in nature, and do not require a high degree of control and orchestration. They are suitable for loosely coupled systems, allowing for asynchronous processing and eventual consistency. While SQS does provide some error handling and fault tolerance features, such as retries and visibility timeouts, more complex error handling may be better managed by Step Functions. SNS and SQS work well with other AWS services, like Lambda, and can be more cost-effective for high-throughput scenarios. If your workflow requires more advanced features or capabilities, such as support for complex orchestration, advanced error handling, or processing large payloads, Step Functions may be a better option.
 
 ### Considerations
 
-Choosing between AWS Step Functions Parallel state and AWS SNS depends on your use case and requirements. Use Step Functions if you need a tightly orchestrated workflow with built-in scatter-gather and error handling capabilities. Choose SNS for loosely coupled, highly scalable, and asynchronous processing where you can manage the aggregation of results separately.
+Choosing between AWS Step Functions Map state and AWS SNS depends on your use case and requirements. Use Step Functions if you need a tightly orchestrated workflow with built-in scatter-gather and error handling capabilities. Choose SNS and SQS for loosely coupled, highly scalable, and asynchronous processing where you can manage the aggregation of results separately.
 
 ## Related Refactorings
 
