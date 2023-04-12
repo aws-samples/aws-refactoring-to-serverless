@@ -41,7 +41,8 @@ await eventBridge.putEvents(
 
 ## Solution
 
-Connect an Amazon EventBridge Pipes instance to a DynamoDB Stream (see [docs](https://docs.aws.amazon.com/eventbridge/latest/userguide/eb-pipes-dynamodb.html)) and remove message sending from the source code.
+Connect an Amazon EventBridge Pipes instance to a DynamoDB Stream (see [docs](https://docs.aws.amazon.com/eventbridge/latest/userguide/eb-pipes-dynamodb.html)) and use EventBridge Pipe to send message to target.
+You can find the CDK implementation of this solution [here](https://github.com/aws-samples/aws-refactoring-to-serverless/blob/main/implementation/send-message-via-pipes/README.md).
 
 ## Considerations 
 
@@ -53,7 +54,7 @@ Connect an Amazon EventBridge Pipes instance to a DynamoDB Stream (see [docs](ht
 
 ### Applicability
 
-* DynamoDB streams populate the event in the DynamoDB format, which isn't well suited for downstream consumers. Use thge Pipes transformation step to convert the event into a domain-oriented format withotu DynamoDB specifics.
+* DynamoDB streams populate the event in the DynamoDB format, which isn't well suited for downstream consumers. Use thge Pipes transformation step to convert the event into a domain-oriented format without DynamoDB specifics.
 
 * The additional Pipes instance will incur a run-time cost
 

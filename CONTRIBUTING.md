@@ -2,7 +2,9 @@
 
 Thank you for your interest in contributing to our project. Whether it's adding a new pattern, providing implementation for existing pattern, or bug report we greatly value feedback and contributions from our community.
 
-Please read through this document before submitting any pull requests to ensure we have all the necessary information to effectively respond to your bug report or contribution.
+Please reach out to Sindhu or Gregor with your intent **before** implementing a pattern. We would hate for your time to be wasted if someone else is already working on it.
+
+Also read through this document before submitting any pull requests to ensure we have all the necessary information to effectively respond to your bug report or contribution.
 
 
 ## Adding a new pattern
@@ -19,11 +21,10 @@ Each pattern in this catalog adheres to the following format:
 
 ## Implementing code for existing pattern
 
-* Each contributor should implement and document one refactoring from the [Pattern Catalog](README.md#Refactoring-Patterns). 
-* The implementation of the 'before' and 'after' examples can be in Typescript
+* The implementation of the 'before' and 'after' examples can be in Typescript or Python.
 * The 'after' example should use AWS CDK
-* The README should show how to run the project, and how behavior 'before' and 'after' is identical.
-* From security compliance, you must add [cdk-nag](https://github.com/cdklabs/cdk-nag) and address critical findings.
+* The README should include 1/before - after diagram 2/ steps on how to run the project 3/ how the behavior 'before' and 'after' is identical.
+* From security compliance, you must add [cdk-nag](https://github.com/cdklabs/cdk-nag) and address all critical findings.
 
 
 ## Reporting Bugs
