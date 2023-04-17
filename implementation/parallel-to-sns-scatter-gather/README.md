@@ -1,4 +1,4 @@
-# Replace Parallel state SNS for Scatter-Gather pattern
+# Replace Parallel state with SNS for Scatter-Gather pattern
 
 This project is the CDK implementation of ['Replace Parallel state with SNS for Scatter-Gather'](https://serverlessland.com/refactoring-serverless/parallel-to-sns-scatter-gather) pattern. It shows how yo can use SNS in CDK to replace AWS Step Functions `Parallel` state to implement the [Scatter-Gather](https://www.enterpriseintegrationpatterns.com/patterns/messaging/BroadcastAggregate.html) pattern.
 

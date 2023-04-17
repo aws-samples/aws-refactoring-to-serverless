@@ -1,4 +1,4 @@
-# Replace Parallel state SNS for Scatter-Gather pattern
+# Replace Parallel state with SNS for Scatter-Gather pattern
 
 ## Description
 
