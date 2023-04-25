@@ -1,25 +1,19 @@
 import * as cdk from 'aws-cdk-lib';
 import { Construct } from 'constructs';
-import * as dynamodb from 'aws-cdk-lib/aws-dynamodb';
+import * as s3 from 'aws-cdk-lib/aws-s3'
 import * as lambda from "aws-cdk-lib/aws-lambda"
-import { DynamoEventSource } from 'aws-cdk-lib/aws-lambda-event-sources';
+import * as eventsources from 'aws-cdk-lib/aws-lambda-event-sources'
+
 
 export class ExtractMessageFilterOriginalStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
 
-
-    const recordsTable = new dynamodb.Table(this, 'RecordsTable', {
-      tableName: 'RecordsTableOriginal',
-      partitionKey: {
-        name:'recordId', 
-        type: dynamodb.AttributeType.STRING
-      },
-      // enable streams
-      stream: dynamodb.StreamViewType.NEW_IMAGE,
+    const dataBucket = new s3.Bucket(this, 'DataBucket', {
       removalPolicy: cdk.RemovalPolicy.DESTROY
-    });
+    })
 
+    // downstream lambda functions
     const claimProcessor = new lambda.Function(this, 'ClaimProcessorLambda', {
       functionName: 'ClaimProcessorOriginal',
       runtime: lambda.Runtime.NODEJS_18_X,
@@ -41,6 +35,7 @@ export class ExtractMessageFilterOriginalStack extends cdk.Stack {
       handler: 'index.handler',
     });
 
+    // router lambda function 
     const router = new lambda.Function(this, 'RouterLambda', {
       functionName: 'Router',
       runtime: lambda.Runtime.NODEJS_18_X,
@@ -53,12 +48,15 @@ export class ExtractMessageFilterOriginalStack extends cdk.Stack {
       },
     });
 
-    router.addEventSource(new DynamoEventSource(recordsTable, {
-      startingPosition: lambda.StartingPosition.LATEST
+    // configure S3 notifications
+    router.addEventSource(new eventsources.S3EventSource(dataBucket, {
+      events: [s3.EventType.OBJECT_CREATED]
     }))
 
     claimProcessor.grantInvoke(router)
     mediaProcessor.grantInvoke(router)
     defaultProcessor.grantInvoke(router)
+
+    new cdk.CfnOutput(this, 'S3BucketName', { value: dataBucket.bucketName });
   }
 }
