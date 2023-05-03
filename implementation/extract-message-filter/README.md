@@ -117,7 +117,7 @@ Upload one more file:
 aws s3 cp <filename> s3://$BUCKET_REFACTORED/media/<filename>
 ```
 
-This time the media processor (/aws/lambda/MediaProcessorRefactored log group) lambda function is invoked along with the default processor lambda function:
+This time the media processor (/aws/lambda/MediaProcessorRefactored log group) lambda function is invoked along with the default processor lambda function, check the logs and you should see the following:
 
 ```json
 {
