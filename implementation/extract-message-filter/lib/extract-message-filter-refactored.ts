@@ -9,11 +9,7 @@ export class ExtractMessageFilterRefactoredStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
 
-    const dataBucket = new s3.Bucket(this, 'DataBucket', {
-      removalPolicy: cdk.RemovalPolicy.DESTROY,
-      eventBridgeEnabled: true
-    })
-
+    // downstream lambda functions
     const claimProcessor = new lambda.Function(this, 'ClaimProcessorLambda', {
       functionName: 'ClaimProcessorRefactored',
       runtime: lambda.Runtime.NODEJS_18_X,
@@ -34,6 +30,20 @@ export class ExtractMessageFilterRefactoredStack extends cdk.Stack {
       code: lambda.Code.fromAsset('lambda/default-processor'),
       handler: 'index.handler',
     });
+
+    const bucketName = 'extractmessagefilter-databucketrefactored' + this.account
+    const dataBucket = new s3.Bucket(this, 'DataBucket', {
+      removalPolicy: cdk.RemovalPolicy.DESTROY,
+      bucketName: bucketName
+    })
+
+    // configure s3 notifications using L1 construct, native implementation creates a custom resource to configure notifications
+    const cfnBucket = dataBucket.node.defaultChild as s3.CfnBucket
+    cfnBucket.notificationConfiguration = {
+      eventBridgeConfiguration: {
+        eventBridgeEnabled: true
+      }
+    }
 
     // rule for media processor
     const media_rule = new Rule(this, 'MediaRule', {
