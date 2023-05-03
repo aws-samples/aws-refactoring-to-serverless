@@ -15,9 +15,8 @@ const refactoredStack = new ExtractMessageFilterRefactoredStack(app, 'ExtractMes
 const NagSupressionList = [
     { id: 'AwsSolutions-S1', reason: 'S3 bucket is for demo purposes, not enabling server access logs' },
     { id: 'AwsSolutions-S2', reason: 'S3 bucket is for demo purposes, skipping public access restriction' },
-    { id: 'AwsSolutions-S10', reason: 'S3 bucket is for demo purposes, skipping SSL requirement' },
-    { id: 'AwsSolutions-IAM4', reason: 'This is a demo application, allowing use of AWS Managed policies' },
-    { id: 'AwsSolutions-IAM5', reason: 'This is a demo application, allowing wildcards in auto-generated IAM policies' },
+    { id: 'AwsSolutions-S10', reason: 'S3 bucket is for demo purposes, skipping the SSL requirement' },
+    { id: 'AwsSolutions-IAM4', reason: 'This is a demo application, allowing use of AWS Managed policies' }
 ]
 
 NagSuppressions.addStackSuppressions(originalStack, NagSupressionList)

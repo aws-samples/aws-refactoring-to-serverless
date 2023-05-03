@@ -2,16 +2,11 @@ import * as cdk from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 import * as s3 from 'aws-cdk-lib/aws-s3'
 import * as lambda from "aws-cdk-lib/aws-lambda"
-import * as eventsources from 'aws-cdk-lib/aws-lambda-event-sources'
-
+import * as iam from 'aws-cdk-lib/aws-iam';
 
 export class ExtractMessageFilterOriginalStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
-
-    const dataBucket = new s3.Bucket(this, 'DataBucket', {
-      removalPolicy: cdk.RemovalPolicy.DESTROY
-    })
 
     // downstream lambda functions
     const claimProcessor = new lambda.Function(this, 'ClaimProcessorLambda', {
@@ -45,17 +40,39 @@ export class ExtractMessageFilterOriginalStack extends cdk.Stack {
         claim_processor_lambda: claimProcessor.functionName,
         media_processor_lambda: mediaProcessor.functionName,
         default_processor_lambda: defaultProcessor.functionName
-      },
+      }
     });
 
-    // configure S3 notifications
-    router.addEventSource(new eventsources.S3EventSource(dataBucket, {
-      events: [s3.EventType.OBJECT_CREATED]
+    // allow router invoke downstream lambdas
+    router.addToRolePolicy(new iam.PolicyStatement({
+      actions: ['lambda:InvokeFunction'],
+      resources: [claimProcessor.functionArn, mediaProcessor.functionArn, defaultProcessor.functionArn]
     }))
 
-    claimProcessor.grantInvoke(router)
-    mediaProcessor.grantInvoke(router)
-    defaultProcessor.grantInvoke(router)
+    const bucketName = 'extractmessagefilter-databucketoriginal' + this.account
+    const dataBucket = new s3.Bucket(this, 'DataBucket', {
+      removalPolicy: cdk.RemovalPolicy.DESTROY,
+      bucketName: bucketName
+    })
+    
+    const lambdaPermission = new lambda.CfnPermission(this, 'routerLambdaS3Permission', {
+      action: 'lambda:InvokeFunction',
+      functionName: router.functionArn,
+      principal: 's3.amazonaws.com',
+      sourceAccount: this.account,
+      sourceArn: "arn:aws:s3:::" + bucketName
+    })
+
+    dataBucket.node.addDependency(lambdaPermission)
+
+    // configure s3 notifications using L1 construct, native implementation creates a custom resource to configure notifications
+    const cfnBucket = dataBucket.node.defaultChild as s3.CfnBucket
+    cfnBucket.notificationConfiguration = {
+      lambdaConfigurations: [{
+        event: "s3:ObjectCreated:*",
+        function: router.functionArn
+      }]
+    }
 
     new cdk.CfnOutput(this, 'S3BucketName', { value: dataBucket.bucketName });
   }
