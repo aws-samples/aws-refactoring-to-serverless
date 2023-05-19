@@ -79,7 +79,7 @@ export class OrchestrationStack extends Stack {
     functionName: `BankRecipientPawnshop`,
     runtime: lambda.Runtime.NODEJS_18_X,
     code: lambda.Code.fromAsset('lambda/orchestration'),
-    handler: 'Recipient.handler',
+    handler: 'RecipientBank.handler',
     role: orchestrationRole
   });
 
@@ -93,7 +93,7 @@ export class OrchestrationStack extends Stack {
     functionName: `BankRecipientPremium`,
     runtime: lambda.Runtime.NODEJS_18_X,
     code: lambda.Code.fromAsset('lambda/orchestration'),
-    handler: 'Recipient.handler',
+    handler: 'RecipientBank.handler',
     role: orchestrationRole
   });
 
@@ -107,7 +107,7 @@ export class OrchestrationStack extends Stack {
     functionName: `BankRecipientUniversal`,
     runtime: lambda.Runtime.NODEJS_18_X,
     code: lambda.Code.fromAsset('lambda/orchestration'),
-    handler: 'Recipient.handler',
+    handler: 'RecipientBank.handler',
     role: orchestrationRole
   });
 

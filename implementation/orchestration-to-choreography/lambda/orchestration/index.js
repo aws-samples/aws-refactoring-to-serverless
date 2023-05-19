@@ -2,7 +2,7 @@ function getRandomInt(min, max) {
     return min + Math.floor(Math.random() * (max-min));
 }
   
-export const handler = async(event) => {
+exports.handler = async(event) => {
     const response = {
         statusCode: 200,
         request_id: event.RequestId,
