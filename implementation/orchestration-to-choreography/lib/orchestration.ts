@@ -36,7 +36,6 @@ export class OrchestrationStack extends Stack {
       ],
   }))
 
-
   // Create the Lambda functions
   const getCreditScoreFn = new lambda.Function(this, 'getCreditScore', {
     functionName: `GetCreditScore`,
@@ -76,10 +75,10 @@ export class OrchestrationStack extends Stack {
 
   const bankRecipientUniversalFn = new lambda.Function(this, 'BankRecipientUniversal', {
     environment: {
-        max_loan_amount: "700000",
-        min_credit_score: "500",
-        bank_id: "Universal",
-        base_rate: "4"
+          max_loan_amount: "700000",
+          min_credit_score: "500",
+          bank_id: "Universal",
+          base_rate: "4"
     },
     functionName: `BankRecipientUniversal`,
     runtime: lambda.Runtime.NODEJS_18_X,
