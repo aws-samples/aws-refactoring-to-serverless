@@ -1,6 +1,6 @@
 function calcRate(amount, term, score, history) {
-    if (amount <= process.env.MAX_LOAN_AMOUNT && score >= process.env.MIN_CREDIT_SCORE) {
-      return parseFloat(process.env.BASE_RATE) + Math.random() * ((1000 - score) / 100.0);
+    if (amount <= process.env.max_loan_amount && score >= process.env.min_credit_score) {
+      return parseFloat(process.env.base_rate) + Math.random() * ((1000 - score) / 100.0);
     }
 }
   
@@ -10,7 +10,7 @@ exports.handler = async (event, context) => {
     const score = event.Credit.Score;
     const history = event.Credit.History;
 
-    const bankId = process.env.BANK_ID;
+    const bankId = process.env.bank_id;
 
     console.log('Loan Request over %d at credit score %d', amount, score);
     const rate = calcRate(amount, term, score, history);
