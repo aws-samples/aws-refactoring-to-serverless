@@ -1,6 +1,7 @@
 import {
     Stack,
     StackProps,
+    RemovalPolicy,
     aws_lambda as lambda,
     aws_iam as iam,
     aws_dynamodb as dynamodb,
@@ -9,7 +10,6 @@ import {
   } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 import { NagSuppressions } from 'cdk-nag'
-import { Step } from 'aws-cdk-lib/pipelines';
 
 export class OrchestrationStack extends Stack {
   constructor(scope: Construct, id: string, props?: StackProps) {
@@ -37,17 +37,28 @@ export class OrchestrationStack extends Stack {
       ],
   }))
 
-  const stepRole = new iam.CfnRole(this, 'stepRole', {
+  const stepRole = new iam.Role(this, 'stepRole', {
     path: "/service-role/",
-    roleName: "StepFunctions-LoanBroker-role-31dd8566",
-    assumeRolePolicyDocument: "{\"Version\":\"2012-10-17\",\"Statement\":[{\"Effect\":\"Allow\",\"Principal\":{\"Service\":\"states.amazonaws.com\"},\"Action\":\"sts:AssumeRole\"}]}",
-    maxSessionDuration: 3600,
-    managedPolicyArns: [
-        "arn:aws:iam::aws:policy/AmazonDynamoDBReadOnlyAccess",
-        "arn:aws:iam::564420990987:policy/service-role/LambdaInvokeScopedAccessPolicy-99c52ddc-924b-4bda-9645-263ed929a869",
-        "arn:aws:iam::564420990987:policy/service-role/XRayAccessPolicy-1ef2b9b3-079a-4bb1-a399-a352964beca1"
-    ]
-});
+    assumedBy: new iam.ServicePrincipal('states.amazonaws.com'),
+  });
+  
+  const policy = new iam.PolicyStatement({
+    actions: [
+      "dynamodb:Get*",
+      "lambda:InvokeFunction"
+    ],
+    resources: [
+      "arn:aws:dynamodb:*:*:table/*",
+      "arn:aws:lambda:*:*:function:*"
+    ], 
+    effect: iam.Effect.ALLOW
+  });
+  
+  const customPolicy = new iam.Policy(this, 'customPolicy', {
+    statements: [policy]
+  });
+  
+  customPolicy.attachToRole(stepRole);  
 
   // Create the Lambda functions
   const getCreditScoreFn = new lambda.Function(this, 'getCreditScore', {
@@ -106,7 +117,8 @@ export class OrchestrationStack extends Stack {
     partitionKey: {
       name: 'Type',
       type: dynamodb.AttributeType.STRING
-    }
+    },
+    removalPolicy: RemovalPolicy.DESTROY
   });
 
   // Create the Step Functions state machine
@@ -121,7 +133,7 @@ export class OrchestrationStack extends Stack {
 "Type": "Task",
 "Resource": "arn:aws:states:::lambda:invoke",
 "Parameters": {
-"FunctionName": "arn:aws:lambda:ap-southeast-1:564420990987:function:GetCreditScore:$LATEST",
+"FunctionName": "${getCreditScoreFn.functionArn}",
 "Payload": {
   "SSN.$": "$.SSN",
   "RequestId.$": "$$.Execution.Id"
@@ -218,7 +230,7 @@ export class OrchestrationStack extends Stack {
 }
 }
 `,
-    roleArn: stepRole.attrArn,
+    roleArn: stepRole.roleArn,
     stateMachineType: "STANDARD",
     loggingConfiguration: {
         includeExecutionData: false,
