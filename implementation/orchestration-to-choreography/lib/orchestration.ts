@@ -9,6 +9,7 @@ import {
   } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 import { NagSuppressions } from 'cdk-nag'
+import { Step } from 'aws-cdk-lib/pipelines';
 
 export class OrchestrationStack extends Stack {
   constructor(scope: Construct, id: string, props?: StackProps) {
@@ -35,6 +36,18 @@ export class OrchestrationStack extends Stack {
         'arn:aws:logs:' + this.region + ':' + this.account + ':log-group:/aws/lambda/BankRecipientUniversal:*'
       ],
   }))
+
+  const stepRole = new iam.CfnRole(this, 'stepRole', {
+    path: "/service-role/",
+    roleName: "StepFunctions-LoanBroker-role-31dd8566",
+    assumeRolePolicyDocument: "{\"Version\":\"2012-10-17\",\"Statement\":[{\"Effect\":\"Allow\",\"Principal\":{\"Service\":\"states.amazonaws.com\"},\"Action\":\"sts:AssumeRole\"}]}",
+    maxSessionDuration: 3600,
+    managedPolicyArns: [
+        "arn:aws:iam::aws:policy/AmazonDynamoDBReadOnlyAccess",
+        "arn:aws:iam::564420990987:policy/service-role/LambdaInvokeScopedAccessPolicy-99c52ddc-924b-4bda-9645-263ed929a869",
+        "arn:aws:iam::564420990987:policy/service-role/XRayAccessPolicy-1ef2b9b3-079a-4bb1-a399-a352964beca1"
+    ]
+});
 
   // Create the Lambda functions
   const getCreditScoreFn = new lambda.Function(this, 'getCreditScore', {
@@ -97,51 +110,122 @@ export class OrchestrationStack extends Stack {
   });
 
   // Create the Step Functions state machine
-  const stateMachine = new sfn.StateMachine(this, 'MyStateMachine', {
-    definition: sfn.Chain.start(
-      // Define your Step Functions steps here
-      new tasks.LambdaInvoke(this, 'Get Credit Score', {
-        lambdaFunction: getCreditScoreFn,
-        payload: sfn.TaskInput.fromObject ({
-          "SSN.$": "$.SSN",
-          "RequestId.$": "$$.Execution.Id"
-        }),
-        resultPath: '"$.Credit',
-        resultSelector: {
-          "Score.$": "$.Payload.body.score",
-          "History.$": "$.Payload.body.history"
-        }
-      }).next(
-        new tasks.DynamoGetItem(this, 'Fetch Bank Addresses', {
-          table: bankTable,
-          key: {
-            'Type': tasks.DynamoAttributeValue.fromString('Home')
-          },
-          resultSelector: {
-            'BankAddress.$': '$.Item.BankAddress.L[*].S'
-          },
-          resultPath: '$.Banks'
-        }),
-      ).next(
-        new sfn.Map(this, 'RequestQuotes', {
-          itemsPath: sfn.JsonPath.stringAt('$.Banks.BankAddress'),
-          resultPath: sfn.JsonPath.stringAt('$.Quotes'),
-        }).iterator(
-          new tasks.LambdaInvoke(this, 'Get Quote', {
-            lambdaFunction: lambda.Function.fromFunctionName(this, '$$Map.Item.Value', sfn.JsonPath.stringAt('$.function')),
-              payload: sfn.TaskInput.fromObject({
-                'SSN.$': sfn.JsonPath.stringAt('$.SSN'),
-                'Amount.$': sfn.JsonPath.stringAt('$.Amount'),
-                'Term.$': sfn.JsonPath.stringAt('$.Term'),
-                'Credit.$': sfn.JsonPath.stringAt('$.Credit'),
-              }),
-              resultSelector: {
-                'Quote.$': sfn.JsonPath.stringAt('$.Payload'),
-              },
-          })
-        )
-      )),
+  const StepFunctionsStateMachine = new sfn.CfnStateMachine(this, 'StepFunctionsStateMachine', {
+    stateMachineName: "LoanBroker",
+    definitionString: `
+{
+"Comment": "A description of my state machine",
+"StartAt": "Get Credit Score",
+"States": {
+"Get Credit Score": {
+"Type": "Task",
+"Resource": "arn:aws:states:::lambda:invoke",
+"Parameters": {
+"FunctionName": "arn:aws:lambda:ap-southeast-1:564420990987:function:GetCreditScore:$LATEST",
+"Payload": {
+  "SSN.$": "$.SSN",
+  "RequestId.$": "$$.Execution.Id"
+}
+},
+"Retry": [
+{
+  "ErrorEquals": [
+    "Lambda.ServiceException",
+    "Lambda.AWSLambdaException",
+    "Lambda.SdkClientException",
+    "Lambda.TooManyRequestsException"
+  ],
+  "IntervalSeconds": 2,
+  "MaxAttempts": 6,
+  "BackoffRate": 2
+}
+],
+"ResultPath": "$.Credit",
+"ResultSelector": {
+"Score.$": "$.Payload.body.score",
+"History.$": "$.Payload.body.history"
+},
+"Next": "Fetch Bank Addresses"
+},
+"Fetch Bank Addresses": {
+"Type": "Task",
+"Resource": "arn:aws:states:::dynamodb:getItem",
+"Parameters": {
+"TableName": "LoanBrokerBanks",
+"Key": {
+  "Type": {
+    "S": "Home"
+  }
+}
+},
+"ResultSelector": {
+"BankAddress.$": "$.Item.BankAddress.L[*].S"
+},
+"ResultPath": "$.Banks",
+"Next": "Request Quotes"
+},
+"Request Quotes": {
+"Type": "Map",
+"ItemProcessor": {
+"ProcessorConfig": {
+  "Mode": "INLINE"
+},
+"StartAt": "Get Quote",
+"States": {
+  "Get Quote": {
+    "Type": "Task",
+    "Resource": "arn:aws:states:::lambda:invoke",
+    "Parameters": {
+      "FunctionName.$": "$.function",
+      "Payload": {
+        "SSN.$": "$.SSN",
+        "Amount.$": "$.Amount",
+        "Term.$": "$.Term",
+        "Credit.$": "$.Credit"
+      }
+    },
+    "Retry": [
+      {
+        "ErrorEquals": [
+          "Lambda.ServiceException",
+          "Lambda.AWSLambdaException",
+          "Lambda.SdkClientException",
+          "Lambda.TooManyRequestsException"
+        ],
+        "IntervalSeconds": 2,
+        "MaxAttempts": 6,
+        "BackoffRate": 2
+      }
+    ],
+    "End": true,
+    "ResultSelector": {
+      "Quote.$": "$.Payload"
+    }
+  }
+}
+},
+"End": true,
+"ItemsPath": "$.Banks.BankAddress",
+"ItemSelector": {
+"function.$": "$$.Map.Item.Value",
+"SSN.$": "$.SSN",
+"Amount.$": "$.Amount",
+"Term.$": "$.Term",
+"Credit.$": "$.Credit"
+},
+"ResultPath": "$.Quotes"
+}
+}
+}
+`,
+    roleArn: stepRole.attrArn,
+    stateMachineType: "STANDARD",
+    loggingConfiguration: {
+        includeExecutionData: false,
+        level: "OFF"
+    }
     });
+  
   }
 }
 
