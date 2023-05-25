@@ -3,7 +3,7 @@ import 'source-map-support/register';
 import * as cdk from 'aws-cdk-lib';
 
 import { OrchestrationStack } from '../lib/orchestration';
-// import { ChoreographyStack } from '../lib/choreography';
+import { ChoreographyStack } from '../lib/choreography';
 import { NagSuppressions, AwsSolutionsChecks } from 'cdk-nag';
 import { Aspects } from 'aws-cdk-lib';
 
@@ -15,8 +15,8 @@ Aspects.of(app).add(new AwsSolutionsChecks({ verbose: true }))
 const orchestrationStack = new OrchestrationStack(app, 'OrchestrationStack', {
 });
 
-// const choreographyStack = new ChoreographyStack(app, 'ChoreographyStack', {
-// });
+const choreographyStack = new ChoreographyStack(app, 'ChoreographyStack', {
+});
 
 const NagSupressionList = [
     { id: 'AwsSolutions-SF1', reason: 'This is demo stack, hence not enabling Cloudwatch logging from StepFunction' },
@@ -26,4 +26,4 @@ const NagSupressionList = [
 ]
 
 NagSuppressions.addStackSuppressions(orchestrationStack, NagSupressionList)
-// NagSuppressions.addStackSuppressions(choreographyStack, NagSupressionList)
+NagSuppressions.addStackSuppressions(choreographyStack, NagSupressionList)

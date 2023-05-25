@@ -23,7 +23,7 @@ npm install
 
 This will install the necessary CDK, dependencies, build your TypeScript files and CloudFormation template.
 
-Next, deploy the 2 Stacks to your AWS Account.
+Next, deploy the 2 Stacks to your AWS Account (`OrchestrationStack` and `ChoreographyStack`):
 ``` 
 cdk deploy --all
 ```
@@ -70,13 +70,11 @@ aws dynamodb put-item --table-name LoanBrokerBanks --item '{"Type": {"S": "Home"
 }
  ```
 
-4. Lastly, lets test the refactored State Machine using the same orderId. This version uses the DynamoGetItem integration to execute the read operation in DynamoDB without the need of using a Lambda function:
-    - Go to the AWS Console and then to Step Functions
-    - Click on the StateMachineRefactored State Machine
-    - Click the Start Execution button and enter this input: `{"orderId": "[REPLACE WITH YOUR ORDER ID]"}`
-    - After a few seconds you should be able to see the Pizza Order details in State Machine output details
-
-*Note*: Since the refactored version executes the read operation directly in DynamoDB, it will return the results faster.
+3. Now, let's test the choreagraphy scenario and validate it can achieve the same functionality. We issue a message to SNS topic to trigger the distributed processing. At the end, the aggregated quote result is written into DynamoDB by an aggregation Lambda function.
+ ```
+aws sns publish --topic-arn arn:aws:sns:<region>:<AccountId>:MortgageQuoteRequest \
+  --message '{ "SSN": "123-45-6666", "Amount": 500000, "Term": 30, "Credit": { "Score": 803, "History": 22 } }'
+```
 
 ## Cleanup
 
