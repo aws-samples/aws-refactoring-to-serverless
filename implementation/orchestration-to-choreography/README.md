@@ -80,7 +80,7 @@ aws sns publish --topic-arn arn:aws:sns:<region>:<AccountId>:MortgageQuoteReques
     - Click on "Tables/Explore items" in the left-side menu
     - Select table MortgageQuotes
   One example looks like this.
-  [Convert Orchestration to Choreography](implementation/orchestration-to-choreography/images/quotes_result.jpg)
+  ![](images/quotes_result.jpg)
 
 ## Cleanup
 
