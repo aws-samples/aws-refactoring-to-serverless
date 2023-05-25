@@ -75,6 +75,12 @@ aws dynamodb put-item --table-name LoanBrokerBanks --item '{"Type": {"S": "Home"
 aws sns publish --topic-arn arn:aws:sns:<region>:<AccountId>:MortgageQuoteRequest \
   --message '{ "SSN": "123-45-6666", "Amount": 500000, "Term": 30, "Credit": { "Score": 803, "History": 22 } }'
 ```
+4. After a short while, you should be able to see the generated quotes from the three banks in table MortgageQuotes in DynamoDB.
+    - Go to the AWS Console and then to DynamoDB
+    - Click on "Tables/Explore items" in the left-side menu
+    - Select table MortgageQuotes
+  One example looks like this.
+  [Convert Orchestration to Choreography](implementation/orchestration-to-choreography/images/quotes_result.jpg)
 
 ## Cleanup
 
