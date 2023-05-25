@@ -79,8 +79,9 @@ aws sns publish --topic-arn arn:aws:sns:<region>:<AccountId>:MortgageQuoteReques
     - Go to the AWS Console and then to DynamoDB
     - Click on "Tables/Explore items" in the left-side menu
     - Select table MortgageQuotes
-  One example looks like this.
-  ![](images/quotes_result.jpg)
+    - One example looks like this:
+
+<p align="center"><img src="images/quotes_result.jpg" width="770" height="340"></p>
 
 ## Cleanup
 
