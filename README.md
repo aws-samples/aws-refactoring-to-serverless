@@ -41,7 +41,7 @@ Sindhu Pillai, Sr. Solutions Architect, AWS
 ## Contributors
 Svenja Raether,Associate ProServe Specialist, AWS  
 Abel Fresnillo Silva, Sr. Solutions Architect, AWS  
-Eugene Kim, Sr. Solutions Architect, AWS
+Eugene Kim, Sr. Solutions Architect, AWS  
 Pengfei Zhang, Sr. Solutions Architect, AWS
 
 ## Interested in Contributing?
