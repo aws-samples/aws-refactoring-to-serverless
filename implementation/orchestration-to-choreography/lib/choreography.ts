@@ -24,11 +24,11 @@ export class ChoreographyStack extends Stack {
       },
       {
         id: 'AwsSolutions-SQS3',
-        reason: 'No need to configure a DLQ'
+        reason: 'we do not configure a DLQ for simplicity'
       },
       {
         id: 'AwsSolutions-SQS4',
-        reason: 'No need for encryption of SQS'
+        reason: 'we do not do encryption of SQS for simplicity'
       }
     ]);
 
@@ -50,39 +50,43 @@ export class ChoreographyStack extends Stack {
         'arn:aws:logs:' + this.region + ':' + this.account + ':log-group:/aws/lambda/BankSnsUniversal:*',
         'arn:aws:logs:' + this.region + ':' + this.account + ':log-group:/aws/lambda/QuoteAggregator:*'
       ],
-  }))
+    }))
 
+    // Create SNS topic
     const SNSTopicPolicy = new sns.CfnTopicPolicy(this, 'SNSTopicPolicy', {
       policyDocument: {
-        "Version":"2008-10-17",
-        "Id":"__default_policy_ID",
-        "Statement":[
+        "Version": "2008-10-17",
+        "Id": "__default_policy_ID",
+        "Statement": [
           {
-            "Sid":"__default_statement_ID",
-            "Effect":"Allow",
-            "Principal":{"AWS":"*"},
-            "Action":["SNS:GetTopicAttributes","SNS:SetTopicAttributes","SNS:AddPermission","SNS:RemovePermission","SNS:DeleteTopic","SNS:Subscribe","SNS:ListSubscriptionsByTopic","SNS:Publish"],
-            "Resource":`${SNSTopic.attrTopicArn}`,
-            "Condition":{
-              "StringEquals":{"AWS:SourceOwner":`${this.account}`}
+            "Sid": "__default_statement_ID",
+            "Effect": "Allow",
+            "Principal": { "AWS": "*" },
+            "Action": ["SNS:GetTopicAttributes", "SNS:SetTopicAttributes", "SNS:AddPermission", "SNS:RemovePermission", "SNS:DeleteTopic", "SNS:Subscribe", "SNS:ListSubscriptionsByTopic", "SNS:Publish"],
+            "Resource": `${SNSTopic.attrTopicArn}`,
+            "Condition": {
+              "StringEquals": { "AWS:SourceOwner": `${this.account}` }
             }
           }
         ]
       },
       topics: [
-      SNSTopic.ref
+        SNSTopic.ref
       ]
     });
 
+    // Create DynamoDB Table
     const DynamoDBTable = new dynamodb.Table(this, 'DynamoDBTable', {
       partitionKey: { name: 'ID', type: dynamodb.AttributeType.STRING },
       tableName: "MortgageQuotes",
     });
 
+    // Create SQS queue
     const SQSQueue = new sqs.Queue(this, 'SQSQueue', {
       queueName: DynamoDBTable.tableName
     });
 
+    // Create Lambda functions
     const bankSnsPawnshopFn = new lambda.Function(this, 'BankSnsPawnshop', {
       environment: {
         max_loan_amount: "500000",
@@ -175,30 +179,10 @@ export class ChoreographyStack extends Stack {
       runtime: lambda.Runtime.PYTHON_3_10
     });
 
-    quoteAggregatorFn.addEventSource(new sources.SqsEventSource(SQSQueue, {batchSize: 3}));
+    // QuoteAggregation is triggered by SQS events
+    quoteAggregatorFn.addEventSource(new sources.SqsEventSource(SQSQueue, { batchSize: 3 }));
 
     DynamoDBTable.grantWriteData(quoteAggregatorFn);
-
-    const SQSQueuePolicy = new sqs.CfnQueuePolicy(this, 'SQSQueuePolicy', {
-      policyDocument: {
-        "Version":"2008-10-17",
-        "Id":`${SQSQueue.queueArn}`,
-        "Statement":[
-          {
-            "Sid":"BanksSendQuotes",
-            "Effect":"Allow",
-            "Principal": {
-              "AWS":`arn:aws:iam::${this.account}:root`
-            },
-            "Action":["SQS:SendMessage","SQS:ReceiveMessage","SQS:DeleteMessage","SQS:ChangeMessageVisibility"],
-            "Resource":`${SQSQueue.queueArn}`
-          }
-        ]
-      },
-      queues: [
-        "https://sqs.ap-southeast-1.amazonaws.com/564420990987/MortgageQuotes"
-      ]
-    });
-
+    
   }
 }
