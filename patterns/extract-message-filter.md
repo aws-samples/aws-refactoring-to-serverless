@@ -52,7 +52,7 @@ You can find the CDK implementation of this solution [here](https://github.com/a
 ### Advantages
 * The event filtering is now explicitly defined within automation code as opposed to in the aplication code. This makes the application topology more explicit.
 * Routing and filtering can be changed without changing the source code.
-
+* Configurable [retry policies and dead-letter queues](https://docs.aws.amazon.com/eventbridge/latest/userguide/eb-rule-dlq.html) per target.
 
 ### Applicability
 

@@ -31,7 +31,7 @@ cdk deploy --all
 
 Upload a file to the S3 bucket created in the original stack:
 ``` 
-BUCKET_ORIGINAL=$(aws cloudformation describe-stacks --stack-name ExtractMessageFilterOriginalStack --query Stacks[].Outputs[0].OutputValue --output text)
+BUCKET_ORIGINAL=$(aws cloudformation describe-stacks --stack-name ExtractMessageFilterOriginalStack --query 'Stacks[].Outputs[0].OutputValue' --output text)
 echo $BUCKET_ORIGINAL
 aws s3 cp <filename> s3://$BUCKET_ORIGINAL/media/<filename>
 ```
@@ -90,7 +90,7 @@ This time the router lambda function sent the event to the claim and the default
 Now, let's take a look at the refactored stack. Upload a file to the S3 bucket in the refactored stack:
 
 ```bash
-BUCKET_REFACTORED=$(aws cloudformation describe-stacks --stack-name ExtractMessageFilterRefactoredStack --query Stacks[].Outputs[0].OutputValue --output text)
+BUCKET_REFACTORED=$(aws cloudformation describe-stacks --stack-name ExtractMessageFilterRefactoredStack --query 'Stacks[].Outputs[0].OutputValue' --output text)
 echo $BUCKET_REFACTORED
 aws s3 cp <filename> s3://$BUCKET_REFACTORED/claims/<filename>
 ```
@@ -135,6 +135,11 @@ This time the media processor (/aws/lambda/MediaProcessorRefactored log group) l
 
 ## Cleanup
 
+Empty the buckets and destroy the stacks:
+
 ```bash
+aws s3 rm s3://$BUCKET_ORIGINAL --recursive
+aws s3 rm s3://$BUCKET_REFACTORED --recursive
+
 cdk destroy --all
 ```
