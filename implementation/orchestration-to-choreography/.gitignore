@@ -1,5 +1,3 @@
-lib/*.js
-bin/*.js
 !jest.config.js
 *.d.ts
 node_modules

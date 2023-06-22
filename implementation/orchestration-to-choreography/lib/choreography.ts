@@ -176,13 +176,13 @@ export class ChoreographyStack extends Stack {
       handler: "quoteAggregator.lambda_handler",
       code: lambda.Code.fromAsset('lambda/choreography'),
       role: choreographyRole,
-      runtime: lambda.Runtime.PYTHON_3_10
+      runtime: lambda.Runtime.PYTHON_3_9
     });
 
     // QuoteAggregation is triggered by SQS events
     quoteAggregatorFn.addEventSource(new sources.SqsEventSource(SQSQueue, { batchSize: 3 }));
 
     DynamoDBTable.grantWriteData(quoteAggregatorFn);
-    
+
   }
 }
