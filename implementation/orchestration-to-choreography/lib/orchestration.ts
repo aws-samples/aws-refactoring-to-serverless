@@ -71,8 +71,6 @@ export class OrchestrationStack extends Stack {
 
     const bankRecipientPawnshopFn = new lambda.Function(this, 'BankRecipientPawnshop', {
       environment: {
-        max_loan_amount: "500000",
-        min_credit_score: "400",
         bank_id: "PawnShop",
         base_rate: "5"
       },
@@ -85,8 +83,6 @@ export class OrchestrationStack extends Stack {
 
     const bankRecipientPremiumFn = new lambda.Function(this, 'BankRecipientPremium', {
       environment: {
-        max_loan_amount: "900000",
-        min_credit_score: "600",
         bank_id: "Premium",
         base_rate: "3"
       },
@@ -99,8 +95,6 @@ export class OrchestrationStack extends Stack {
 
     const bankRecipientUniversalFn = new lambda.Function(this, 'BankRecipientUniversal', {
       environment: {
-        max_loan_amount: "700000",
-        min_credit_score: "500",
         bank_id: "Universal",
         base_rate: "4"
       },

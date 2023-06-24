@@ -92,8 +92,6 @@ export class ChoreographyStack extends Stack {
     // Create Lambda functions
     const bankSnsPawnshopFn = new lambda.Function(this, 'BankSnsPawnshop', {
       environment: {
-        max_loan_amount: "500000",
-        min_credit_score: "400",
         bank_id: "PawnShop",
         base_rate: "5"
       },
@@ -113,8 +111,6 @@ export class ChoreographyStack extends Stack {
 
     const bankSnsPremiumFn = new lambda.Function(this, 'BankSnsPremium', {
       environment: {
-        max_loan_amount: "900000",
-        min_credit_score: "600",
         bank_id: "Premium",
         base_rate: "3"
       },
@@ -134,8 +130,6 @@ export class ChoreographyStack extends Stack {
 
     const bankSnsUniversalFn = new lambda.Function(this, 'BankSnsUniversal', {
       environment: {
-        max_loan_amount: "700000",
-        min_credit_score: "500",
         bank_id: "Universal",
         base_rate: "4"
       },
@@ -185,7 +179,7 @@ export class ChoreographyStack extends Stack {
     // QuoteAggregation is triggered by SQS events
     quoteAggregatorFn.addEventSource(new sources.SqsEventSource(SQSQueue, { batchSize: 3 }));
 
-    DynamoDBTable.grantWriteData(quoteAggregatorFn);
+    DynamoDBTable.grantFullAccess(quoteAggregatorFn);
 
     // Role for Step Function
     const stepRole = new iam.Role(this, 'stepRole', {
