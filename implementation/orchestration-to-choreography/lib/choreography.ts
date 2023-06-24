@@ -7,7 +7,9 @@ import {
   aws_sns as sns,
   aws_sqs as sqs,
   aws_lambda_destinations as destinations,
-  aws_lambda_event_sources as sources
+  aws_lambda_event_sources as sources,
+  aws_stepfunctions as sfn,
+  aws_stepfunctions_tasks as tasks
 } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 import { NagSuppressions } from 'cdk-nag'
@@ -45,6 +47,7 @@ export class ChoreographyStack extends Stack {
     choreographyRole.addToPolicy(new iam.PolicyStatement({
       actions: ['logs:CreateLogGroup', 'logs:CreateLogStream', 'logs:PutLogEvents'],
       resources: [
+        'arn:aws:logs:' + this.region + ':' + this.account + ':log-group:/aws/lambda/getCreditScoreSns:*',
         'arn:aws:logs:' + this.region + ':' + this.account + ':log-group:/aws/lambda/BankSnsPawnshop:*',
         'arn:aws:logs:' + this.region + ':' + this.account + ':log-group:/aws/lambda/BankSnsPremium:*',
         'arn:aws:logs:' + this.region + ':' + this.account + ':log-group:/aws/lambda/BankSnsUniversal:*',
@@ -184,5 +187,101 @@ export class ChoreographyStack extends Stack {
 
     DynamoDBTable.grantWriteData(quoteAggregatorFn);
 
+    // Role for Step Function
+    const stepRole = new iam.Role(this, 'stepRole', {
+      path: "/service-role/",
+      assumedBy: new iam.ServicePrincipal('states.amazonaws.com'),
+    });
+
+    const policy = new iam.PolicyStatement({
+      actions: [
+        "sns:Publish",
+        "lambda:InvokeFunction"
+      ],
+      resources: [
+        "arn:aws:sns:*:*:*",
+        "arn:aws:lambda:*:*:function:*"
+      ],
+      effect: iam.Effect.ALLOW
+    });
+
+    const customPolicy = new iam.Policy(this, 'customPolicy', {
+      statements: [policy]
+    });
+
+    customPolicy.attachToRole(stepRole);
+
+    // Create the Lambda functions
+    const getCreditScoreFn = new lambda.Function(this, 'getCreditScoreSns', {
+      functionName: `GetCreditScoreSns`,
+      runtime: lambda.Runtime.NODEJS_18_X,
+      code: lambda.Code.fromAsset('lambda/choreography'),
+      handler: 'index.handler',
+      role: choreographyRole,
+    });
+
+    // Create the Step Functions state machine to publish message to SNS
+    const StepFunctionsStateMachine = new sfn.CfnStateMachine(this, 'StepFunctionsStateMachine', {
+      stateMachineName: "LoanBroker-PubSub",
+      definitionString:`
+      {
+        "Comment": "A description of my state machine",
+        "StartAt": "Get Credit Score",
+        "States": {
+          "Get Credit Score": {
+            "Type": "Task",
+            "Resource": "arn:aws:states:::lambda:invoke",
+            "Parameters": {
+              "FunctionName": "${getCreditScoreFn.functionArn}",
+              "Payload": {
+                "SSN.$": "$.SSN",
+                "RequestId.$": "$$.Execution.Id"
+              }
+            },
+            "Retry": [
+              {
+                "ErrorEquals": [
+                  "Lambda.ServiceException",
+                  "Lambda.AWSLambdaException",
+                  "Lambda.SdkClientException",
+                  "Lambda.TooManyRequestsException"
+                ],
+                "IntervalSeconds": 2,
+                "MaxAttempts": 6,
+                "BackoffRate": 2
+              }
+            ],
+            "Next": "SNS Publish",
+            "ResultSelector": {
+              "Score.$": "$.Payload.body.score",
+              "History.$": "$.Payload.body.history"
+            },
+            "ResultPath": "$.Credit"
+          },
+          "SNS Publish": {
+            "Type": "Task",
+            "Resource": "arn:aws:states:::sns:publish",
+            "Parameters": {
+              "Message.$": "$",
+              "TopicArn": "arn:aws:sns:us-west-1:564420990987:MortgageQuoteRequest",
+              "MessageAttributes": {
+                "RequestId": {
+                  "DataType": "String",
+                  "StringValue.$": "$$.Execution.Id"
+                }
+              }
+            },
+            "End": true
+          }
+        }
+      }
+      `,
+      roleArn: stepRole.roleArn,
+      stateMachineType: "STANDARD",
+      loggingConfiguration: {
+        includeExecutionData: false,
+        level: "OFF"
+      }
+    });
   }
 }
