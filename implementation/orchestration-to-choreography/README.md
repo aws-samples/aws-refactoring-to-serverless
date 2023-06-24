@@ -70,18 +70,19 @@ aws dynamodb put-item --table-name LoanBrokerBanks --item '{"Type": {"S": "Home"
 }
  ```
 
-3. Now, let's test the choreagraphy scenario and validate it can achieve the same functionality. We issue a message to SNS topic to trigger the distributed processing. At the end, the aggregated quote result is written into DynamoDB by an aggregation Lambda function.
- ```
-aws sns publish --topic-arn arn:aws:sns:<region>:<AccountId>:MortgageQuoteRequest \
-  --message '{ "SSN": "123-45-6666", "Amount": 500000, "Term": 30, "Credit": { "Score": 803, "History": 22 } }'
-```
+3. Now, let's test the choreagraphy scenario and validate it can achieve the same functionality. We can perform the Step Functions State Machine defined to issue a message to SNS topic:
+    - Go to the AWS Console and then to Step Functions
+    - Click on the LoanBroker-PubSub State Machine
+    - Click the Start Execution button, name it as `mysnsrun`, and enter this input: `{"SSN": "123-45-6789", "Amount": 400000, "Term": 30 }`
+    - All the states should immediately turn green
+
 4. After a short while, you should be able to see the generated quotes from the three banks in table MortgageQuotes in DynamoDB.
     - Go to the AWS Console and then to DynamoDB
     - Click on "Tables/Explore items" in the left-side menu
     - Select table MortgageQuotes
-    - One example looks like this:
+    - One example is shown as below. We use the State Machine execution ID to uniquely identify this enquiry. The ID should be like "arn:aws:states:region-1:account-1:execution:LoanBroker-PubSub:mysnsrun".
 
-<p align="center"><img src="images/quotes_result.jpg" width="770" height="340"></p>
+<p align="center"><img src="images/quotes_result.jpg" width="770" height="30"></p>
 
 ## Cleanup
 
