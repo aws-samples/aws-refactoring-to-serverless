@@ -82,7 +82,7 @@ aws dynamodb put-item --table-name LoanBrokerBanks --item '{"Type": {"S": "Home"
     - Select table MortgageQuotes
     - One example is shown as below. We use the State Machine execution ID to uniquely identify this enquiry. The ID should be like "arn:aws:states:region-1:account-1:execution:LoanBroker-PubSub:mysnsrun".
 
-<p align="center"><img src="images/quotes_result.jpg" width="770" height="30"></p>
+<p align="center"><img src="images/quotes_result.jpg"></p>
 
 ## Cleanup
 
