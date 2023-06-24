@@ -11,10 +11,16 @@ def lambda_handler(event, context):
   for record in event['Records']:
     body = json.loads(record['body'])
     quote = body['responsePayload']
+    logger.info(quote)
+    requestId = quote['id']
     bankId = quote['bankId']
     rate = quote['rate']
     table = dynamo.Table('MortgageQuotes')
-    item = { 'ID': str(uuid.uuid4()), 'bankId': bankId, 'rate':"%.2f" % rate } 
+    
+    record = table.get_item(Key={'ID': quote['id'] }, ConsistentRead=True)
+    item = record.get('Item', { 'ID': quote['id'], 'Quotes': [] } )
+    item['Quotes'].append( { 'bankId': quote['bankId'], 'rate':"%.2f" % quote['rate'] }) 
+    
     logger.info(item)
     table.put_item(Item = item)
   return 0
