@@ -21,6 +21,4 @@ exports.handler = async (event, context) => {
     console.error('Error: ', err);
   }
  
-  
-
 };
