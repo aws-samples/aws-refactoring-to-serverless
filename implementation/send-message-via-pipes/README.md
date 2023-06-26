@@ -3,11 +3,11 @@ This project is the CDK implementation of ['Send Message via Pipes'](https://git
 
 
 ## How it works
-The purpose of the application is to persist an order in DB and then send order details for further processing.
+This sample application persists an order object in a DynamoDB table and also sends an order message as an event for other components to be notified.
 
-The code will deploy 2 versions of this application:
-- process-order-original: The lambda code in this version saves an item into a DynamoDB table and sends a message to an event bus.
-- process-order-refactored: Message sending is removed from the Lambda code in this version. DynamoDB stream and EventBridge pipes take care of that.
+The code deploys two versions of this application:
+- process-order-original: The lambda code saves an item into a DynamoDB table and separately sends an event message to an event bus.
+- process-order-refactored: The order event is published automatically via DynamoDB Streams and EventBridge Pipes. The code to send the message is removed from the Lambda function. 
 
 ---
 ## Deploy the applications
@@ -29,7 +29,7 @@ cdk deploy --all
 
 ## Testing
 
-- Before testing the applications, let's create additional EventBridge rules to send events to CloudWatch so we can review them (replace <account-id>):
+- Before testing the applications, add EventBridge rules to the bus to send events to CloudWatch for  review (replace <account-id>m with your 12-digit account ID number):
 
 ```
 # Original stack
@@ -42,6 +42,7 @@ aws events put-rule --name eventbridge-logs --event-pattern "{\"account\":[\"<ac
 aws events put-targets --rule eventbridge-logs --targets "Id"="1","Arn"="arn:aws:logs:us-east-1:<account-id>:log-group:/aws/events/eventbridge-logs-original" --event-bus-name OrdersEventBusOriginal
 
 # Same for the refactored stack
+
 aws logs create-log-group --log-group-name /aws/events/eventbridge-logs-refactored
 aws events put-rule --name eventbridge-logs --event-pattern "{\"account\":[\"<account-id>\"]}" --event-bus-name OrdersEventBusRefactored
 aws events put-targets --rule eventbridge-logs --targets "Id"="1","Arn"="arn:aws:logs:us-east-1:<account-id>:log-group:/aws/events/eventbridge-logs-refactored" --event-bus-name OrdersEventBusRefactored
@@ -53,19 +54,19 @@ aws events put-targets --rule eventbridge-logs --targets "Id"="1","Arn"="arn:aws
 aws lambda invoke \
     --function-name ProcessOrderOriginal \
     --invocation-type Event \
-    --payload '{ "orderId": "1", "productId": "1" }' \
+    --payload '{ "orderId": "1", "items": [ "A", "B", "C" ] }' \
     --cli-binary-format raw-in-base64-out \
     response.json
 
 ```
 You should see StatusCode:202
 
-- Next, let's invoke the refactored lambda 
+- Next, let's invoke the refactored lambda function
  ``` 
 aws lambda invoke \
     --function-name ProcessOrderRefactored \
     --invocation-type Event \
-    --payload '{ "orderId": "1", "productId": "1" }' \
+    --payload '{ "orderId": "1", "items": [ "A", "B", "C" ] }' \
     --cli-binary-format raw-in-base64-out \
     response.json
 ``` 
@@ -92,12 +93,22 @@ Each log group should have a log stream displaying a message that event bus rece
     "resources": [],
     "detail": {
         "orderId": "1",
-        "productId": "1"
+        "items": ["A","B","C"]
     }
 }
 ```
 
+You can also view the log data from the command line:
+```
+aws logs tail /aws/events/eventbridge-logs-original
+aws logs tail /aws/events/eventbridge-logs-refactored
+```
+
+Note that only INSERTs are processes, so if you invoke your Lambda functions multiple times, be sure to use a new orderId for each invocation.
+
 ## Cleanup
+
+You must manually delete the event bus rules and targets you created so that CDK can safely delete the event bus:
 
 ```
 aws logs delete-log-group --log-group-name /aws/events/eventbridge-logs-original

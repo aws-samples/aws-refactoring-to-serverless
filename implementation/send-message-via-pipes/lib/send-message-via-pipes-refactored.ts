@@ -110,13 +110,10 @@ export class SendMessageViaPipesRefactoredStack extends Stack {
           detailType: 'order-details',
           source: 'my-source',
         },
-        inputTemplate: `{
-          "orderId": "<$.dynamodb.NewImage.orderId.S>",
-          "productId": "<$.dynamodb.NewImage.productId.S>"
-        }`,
+        inputTemplate:
+          '{ "orderId": <$.dynamodb.NewImage.orderId.S>,' +
+          '  "items": <$.dynamodb.NewImage.items.L[*].S> }'
       },
     });
-
-    
   }
 }
