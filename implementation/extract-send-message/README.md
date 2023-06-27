@@ -59,7 +59,7 @@ Inspect the message on each Queue using 'Poll Messages'. You should see a messag
 
 ## Cleanup
 
-Remember to delete the reources when you are done:
+Remember to delete the resources when you are done:
 
 ```
 cdk destroy --all

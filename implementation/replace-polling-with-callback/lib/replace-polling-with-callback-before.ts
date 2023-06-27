@@ -15,8 +15,8 @@ import * as path from 'path';
 export class PollingExample extends Stack {
     constructor(scope: Construct, id: string, props?: StackProps) {
         super(scope, id, props);
-        // sqs queues
-
+        
+        // The queue (and DLQ) for new pizza orders
         const orderDLQ = new sqs.Queue(this, 'orderDLQ', {
             queueName: "pizzaOrderDLQ"
         });
@@ -29,10 +29,10 @@ export class PollingExample extends Stack {
             }
         });
 
+        // The queue (and DLQ) for completed pizza orders
         const outputDLQ = new sqs.Queue(this, 'outputDLQ', {
             queueName: "pizzaOutputDLQ"
         });
-
 
         const outputQueue = new sqs.Queue(this, 'outputQueue', {
             queueName: 'pizzaOutputQueue',
@@ -51,7 +51,7 @@ export class PollingExample extends Stack {
             resources: ['*'],
         });
 
-        //Adding SSL policy from the standpoint of best practices
+        // Adding SSL policy from the standpoint of best practices
         [orderQueue, outputQueue, orderDLQ, outputDLQ].forEach(queue => {
             queue.addToResourcePolicy(SQSQueueSSLRequestsOnlyPolicy)
         })
@@ -65,7 +65,7 @@ export class PollingExample extends Stack {
             resources: ['arn:aws:logs:' + this.region + ':' + this.account + ':log-group:/aws/lambda/pizzaBakingFn:*'],
         }))
 
-        // lambda function that processes the pizza order
+        // Lambda function that processes the pizza order
         const bakingFn = new lambda.Function(this, 'pizzaBakingFn', {
             functionName: 'pizzaBakingFn',
             runtime: lambda.Runtime.NODEJS_18_X,
@@ -77,11 +77,10 @@ export class PollingExample extends Stack {
             role: pizzaBakingLambdaRole
         });
 
-        // add queue as an event source for the lambda function
+        // add order queue as an event source for the lambda function
         bakingFn.addEventSource(new event.SqsEventSource(orderQueue, {
             batchSize: 1
         }));
-        // grant send permissions to the lambda function
         outputQueue.grantSendMessages(bakingFn);
 
         const pollingLambdaRole = new iam.Role(this, 'pollingLambdaRole', {
@@ -93,7 +92,7 @@ export class PollingExample extends Stack {
             resources: ['arn:aws:logs:' + this.region + ':' + this.account + ':log-group:/aws/lambda/pollingFn:*'],
         }))
 
-        // lambda function to check status
+        // lambda function to check queue for completed orders
         const pollingFn = new lambda.Function(this, 'pollingFn', {
             functionName: `pollingFn`,
             runtime: lambda.Runtime.NODEJS_18_X,
@@ -105,8 +104,6 @@ export class PollingExample extends Stack {
             timeout: Duration.seconds(30),
             role: pollingLambdaRole
         });
-
-        // grant consume permissions to the lambda function
         outputQueue.grantConsumeMessages(pollingFn);
 
         // state machine task 
@@ -132,7 +129,7 @@ export class PollingExample extends Stack {
         });
 
         // success state
-        const succeed = new sfn.Succeed(this, 'Order Suceeded', {
+        const succeed = new sfn.Succeed(this, 'Order Succeeded', {
             comment: 'Order proceeded - your pizza is ready!',
             outputPath: '$.status'
         });

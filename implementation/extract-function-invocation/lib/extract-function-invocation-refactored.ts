@@ -38,7 +38,7 @@ export class FunctionInvocationRefactoredStack extends Stack {
     });
 
     /* AFTER Refactoring
-    The invokation destination is extracted from the function code and now configured in CDK code. */
+    The invocation destination is extracted from the function code and now configured in CDK code. */
     
     const invocationFnRole = new iam.Role(this, 'InvocationFnRole', {
       assumedBy: new iam.ServicePrincipal('lambda.amazonaws.com')
