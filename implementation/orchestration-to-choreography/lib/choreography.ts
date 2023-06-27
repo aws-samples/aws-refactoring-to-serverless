@@ -257,7 +257,7 @@ export class ChoreographyStack extends Stack {
             "Resource": "arn:aws:states:::sns:publish",
             "Parameters": {
               "Message.$": "$",
-              "TopicArn": "arn:aws:sns:us-west-1:564420990987:MortgageQuoteRequest",
+              "TopicArn": "${SNSTopic.attrTopicArn}",
               "MessageAttributes": {
                 "RequestId": {
                   "DataType": "String",
