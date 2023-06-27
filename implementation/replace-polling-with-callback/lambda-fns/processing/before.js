@@ -22,7 +22,6 @@ exports.handler = async (event, context) => {
             //sends message to sqs
             await sqsClient.send(new SendMessageCommand(params));
 
-
         } catch (error) {
             console.error(error.message);
         }

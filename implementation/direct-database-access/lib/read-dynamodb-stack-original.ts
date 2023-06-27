@@ -54,7 +54,6 @@ export class ReadDynamoDBStackOriginal extends Stack {
     });
 
 
-
     // Outputs
     new CfnOutput(this, 'ReadDynamoDBLambdaFunctionArn', { value: lambdaReadDynamoDB.functionArn });
     new CfnOutput(this, 'StateMachineOriginalArn', { value: stateMachine.stateMachineArn });
