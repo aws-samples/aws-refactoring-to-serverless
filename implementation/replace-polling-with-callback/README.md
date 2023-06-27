@@ -1,19 +1,18 @@
 # Replace Polling with Callback
 
-This project is the CDK implementation of the pattern ['Replace Polling with Callback'](https://serverlessland.com/refactoring-serverless/replace-polling-with-callback). It shows how you can use AWS Step Function's 'Wait for task token' integration pattern to calls a service with a task token and wait until that token is returned with a payload.
+This project is the CDK implementation of the refactoring ['Replace Polling with Callback'](https://serverlessland.com/refactoring-serverless/replace-polling-with-callback). It shows how you can use AWS Step Function's 'Wait for task token' integration pattern to call a service with a task token and wait until that token is returned with a payload.
 
 ## How it works
-The State Machine receives a new pizza order which is written to an SQS queue and processed by a Lambda Function responsible for pizza baking which can take it's time. The workflow returns a success message once the pizza is ready. 
+The State Machine receives a new pizza order, which it writes to an SQS queue for processing by a Lambda Function responsible for pizza baking. This can take some time. The workflow returns a success message once the pizza is ready. 
 
-
-The code will deploy two versions of the AWS Step Function State Machines. 
-- Order pizza and poll for the result: This uses step function's Wait state and a Lambda invocation to periodically pull for the result, waits for 5 sec, and retry until to receive the result.
-- Order pizza with a callback: This uses step function's Wait for a Callback with the Task Token to receive the result. [replace-polling-with-callback-refactored.ts]
+The code deploys two versions of the AWS Step Function State Machines. 
+- Order pizza and poll for the result: This uses step function's Wait state and a Lambda invocation to periodically poll an SQS queue for the completed pizza order, waits for 5 sec, and retries until it receives the result.
+- Order pizza with a callback: This uses Step Function's Wait for a Callback task, which the baking function invokes, passing the Task Token.
 
 
 ## Deploy the infrastructure
 
-The [AWS CLI v2](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html) configured with certain permissions to create those resources. 
+Have the [AWS CLI v2](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html) configured with permissions to create those resources. 
 
 ### Build
 
@@ -24,7 +23,7 @@ npm run build
 cdk synth
 ```
 
-This will install the necessary CDK, this example's dependencies. It compiles typescript to js and emits the synthesized CloudFormation template for this stack.
+This will install this example's dependencies, compile typescript to js, and emit the synthesized CloudFormation template for this stack.
 
 ### Deploy
 
