@@ -12,7 +12,7 @@ export class BaseStack extends Stack {
   constructor(scope: Construct, id: string, props?: StackProps) {
     super(scope, id, props);
 
-    // DynamoDB Table
+    // Create a DynamoDB Table
     this.dynamoTable = new Table(this, 'OrdersTable', {
       tableName: 'OrdersTable',
       partitionKey: {name:'orderId', type: AttributeType.STRING},
@@ -20,9 +20,7 @@ export class BaseStack extends Stack {
       removalPolicy: RemovalPolicy.DESTROY
     });
 
-  
- 
-    // Step Functions executes DynamoPutItem task without Lambda
+    // Step Functions executes a DynamoPutItem task without Lambda
     const stateMachine = new sfn.StateMachine(this, 'StateMachineCreateOrder', {
       stateMachineName: 'StateMachineCreateOrder',
       definition: new tasks.DynamoPutItem(this, "WriteDynamoDBTask", {

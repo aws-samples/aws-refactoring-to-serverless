@@ -15,8 +15,8 @@ import * as path from 'path';
 export class CallbackExample extends Stack {
   constructor(scope: Construct, id: string, props?: StackProps) {
     super(scope, id, props);
-    // sqs queues
-
+    
+    // The queue (and DLQ) for new pizza orders
     const orderDLQ = new sqs.Queue(this, 'orderDLQ', {
       queueName: "pizzaRefactoredDLQ"
     });
@@ -51,8 +51,8 @@ export class CallbackExample extends Stack {
       resources: ['arn:aws:logs:' + this.region + ':' + this.account + ':log-group:/aws/lambda/pizzaBakingFnRefactored:*'],
     }))
 
-    // lambda function that processes the pizza order
-    const fn = new lambda.Function(this, 'pizzaBakingFn', {
+    // Lambda function that processes the pizza order
+    const bakingFn = new lambda.Function(this, 'pizzaBakingFn', {
       functionName: 'pizzaBakingFnRefactored',
       runtime: lambda.Runtime.NODEJS_18_X,
       handler: 'refactored.handler',
@@ -61,7 +61,7 @@ export class CallbackExample extends Stack {
     })
 
     // add queue as an event source for the lambda function
-    fn.addEventSource(new event.SqsEventSource(orderQueue, {
+    bakingFn.addEventSource(new event.SqsEventSource(orderQueue, {
       batchSize: 1
     }));
 
@@ -77,15 +77,15 @@ export class CallbackExample extends Stack {
       taskTimeout: sfn.Timeout.duration(Duration.seconds(30))
     });
 
-    const succeed = new sfn.Succeed(this, 'Order Suceeded', {
-      comment: 'Order proceeded - your pizza is ready!',
+    const succeed = new sfn.Succeed(this, 'Order Succeeded', {
+      comment: 'Order processed - your pizza is ready!',
       outputPath: '$.message'
     });
 
-    // send failure to sns topic
+    // Flag failure if waiting for callback timed out
     const fail = new sfn.Fail(this, 'Order Failed', {
       comment: 'Order declined - we could not process your order!',
-      cause: 'The order did not receive a reply from SQS-Lambda',
+      cause: 'The order did not receive a callback from the baking function',
       error: 'Callback timed out',
     });
 
@@ -102,7 +102,7 @@ export class CallbackExample extends Stack {
     });
 
     // grant task response to lambda function
-    stateMachine.grantTaskResponse(fn);
+    stateMachine.grantTaskResponse(bakingFn);
 
   }
 }
