@@ -11,7 +11,7 @@ exports.handler = async (event, context) => {
     TableName: process.env.TABLE_NAME,
     Item: {
       orderId: {S: event.orderId},
-      productId: {S: event.productId}
+      items: {L : event.items.map(x => ({S: x}))}
     }
   };
 
@@ -27,7 +27,7 @@ exports.handler = async (event, context) => {
           DetailType: 'order-details',
           Detail: JSON.stringify({
             orderId: event.orderId,
-            productId: event.productId
+            items: event.items
           }),
           EventBusName: process.env.EVENT_BUS_NAME
         },
