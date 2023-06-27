@@ -1,13 +1,13 @@
 # Extract  AWS Lambda by AWS Step Functions SDK integrations
-This project is the CDK implementation of ['Extract Send Message'](https://serverlessland.com/refactoring-serverless/extract-send-message) pattern. It shows how can you use Lambda Destination in CDK to send message asynchronously to SQS and make the application topology explicit.
+This project is the CDK implementation of ['Extract Send Message'](https://serverlessland.com/refactoring-serverless/extract-send-message) serverless refactoring. It shows how can you use a Lambda Destination in CDK instead of sending a message from your Lambda function code. The refactoring reduces application code and makes the application topology explicit.
 
 
 ## How it works
-BakePizza Lambda processes incoming request and then sends message to SQS for downstream processing.
+The `bakePizza` Lambda function processes incoming request and then sends message to SQS for downstream processing.
 
-The code will deploy 2 versions of this Lambda:
-- bakePizza_original: Here the Lambda publishes message to SQS from code.
-- bakePizza_refactored: Only contains application logic. Message sending is extracted from Lambda and wired in CDK
+The CDK code deploys 2 versions of this Lambda:
+- `bakePizza_original`: Here the Lambda publishes message to SQS from code.
+- `bakePizza_refactored`: Only contains application logic. Message sending is extracted from Lambda and wired in CDK
 
 ---
 ## Deploy the infrastructure
@@ -51,18 +51,16 @@ You should see StatusCode:202
 
 Login to your AWS console and navigate to Amazon SQS.  
 You should see 2 Queues.
-- PizzaQueue
-- PizzaQueue_Refactored
+- `PizzaQueue`
+- `PizzaQueue_Refactored`
 
-Inspect the message on each Queue using 'Poll Messages'. You should see a message send from respective Lambda function.
+Inspect the message on each Queue using 'Poll Messages'. You should see a message on each queue sent from the respective Lambda function.
 {"action":"build_pizza","type":"Cheese"}
 
 ## Cleanup
 
+Remember to delete the reources when you are done:
+
 ```
 cdk destroy --all
 ```
-
-## To-DO 
- 
-Add Unit Test

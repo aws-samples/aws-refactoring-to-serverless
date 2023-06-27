@@ -1,5 +1,5 @@
 # Send messages via EventBridge Pipes
-This project is the CDK implementation of ['Send Message via Pipes'](https://github.com/aws-samples/aws-refactoring-to-serverless/blob/main/patterns/send-message-via-pipes.md) pattern. This patterns shows how you can reduce your application code and improve consistency by utilizing EventBridge Pipes.
+This project is the CDK implementation of ['Send Message via Pipes'](https://github.com/aws-samples/aws-refactoring-to-serverless/blob/main/patterns/send-message-via-pipes.md) serverless refactoring using Node and TypeScript. It shows how you can reduce your application code and improve consistency by utilizing EventBridge Pipes.
 
 
 ## How it works
@@ -29,7 +29,7 @@ cdk deploy --all
 
 ## Testing
 
-- Before testing the applications, add EventBridge rules to the bus to send events to CloudWatch for  review (replace <account-id>m with your 12-digit account ID number):
+- Before testing the applications, add EventBridge rules to the bus to send events to CloudWatch for  review (replace `<account-id>` with your 12-digit account ID number):
 
 ```
 # Original stack
