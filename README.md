@@ -33,7 +33,6 @@ This repo is AWS CDK implementation for the patterns in [Refactorings to Serverl
 | [Replace Parallel with SNS Scatter-Gather](patterns/parallel_to_sns_scatter_gather.md) | Instead of making parallel invocations from a StepFunctions `Parallel` step, send a message to SNS  |
 
 
-
 ## Owners
 Gregor Hohpe, Enterprise Strategist, AWS  
 Sindhu Pillai, Sr. Solutions Architect, AWS  
