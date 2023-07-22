@@ -38,8 +38,7 @@
     "@aws-cdk/aws-s3:serverAccessLogsUseBucketPolicy": true,
     "@aws-cdk/aws-route53-patters:useCertificate": true,
     "@aws-cdk/customresources:installLatestAwsSdkDefault": false,
-    "max_scatter": "4",
-    "recipients": {
+    "car_rentals": {
       "Avis" : {
         "base_rate": "99"
       },

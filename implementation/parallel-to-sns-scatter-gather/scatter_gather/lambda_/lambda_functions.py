@@ -28,10 +28,8 @@ from aws_cdk import (
     aws_sns as sns,
     Duration
 )
-import os
 
-# check doc https://constructs.dev/packages/@aws-cdk/aws-batch-alpha/v/2.49.0-alpha.0#aws-batch-construct-library
-
+# CDK construct to create the lambda functions and destinations for both use cases
 class LambdaStates(Construct):
     
     def __init__(self, scope: Construct, id_: str, requester_sns_topic:sns.ITopic = None, responder_sqs_queue:sqs.IQueue = None, **kwargs) -> None:
@@ -40,35 +38,31 @@ class LambdaStates(Construct):
         requester_destination = None
         if requester_sns_topic is not None:
             requester_destination = destinations.SnsDestination(requester_sns_topic)
-            
+        
         self.requester = lambda_.Function(
             self,
             f"requester",
             runtime=lambda_.Runtime.PYTHON_3_9,
-            # reserved_concurrent_executions=lambda_reserved_concurrency,
             code=lambda_.Code.from_asset(str(pathlib.Path(__file__).parent.joinpath("requester").resolve())),
             handler="app.lambda_handler",
             on_success=requester_destination,
             tracing=lambda_.Tracing.ACTIVE
         )
         
-        # necessary since lambda destinations only works with asynchronous invocations. Using lambda with SQS is synchronous (https://docs.aws.amazon.com/lambda/latest/dg/with-sqs.html). 
         responder_destination = None
         if responder_sqs_queue is not None:
             responder_destination = destinations.SqsDestination(responder_sqs_queue) 
         
-        # list of responders based on recipients defined in cdk.json 
-        
-        recipients_list = self.node.try_get_context("recipients")
+        # list of responders based on vendors defined in cdk.json 
+        car_rental_list = self.node.try_get_context("car_rentals")
         self.responder = []
-        for recipient in recipients_list:
-            env = dict(recipients_list[recipient])
-            env['vendor'] = recipient
+        for vendor in car_rental_list:
+            env = dict(car_rental_list[vendor])
+            env['vendor'] = vendor
             self.responder.append(lambda_.Function(
                 self,
-                f"responder-{recipient}",
+                f"responder-{vendor}",
                 runtime=lambda_.Runtime.PYTHON_3_9,
-                # reserved_concurrent_executions=lambda_reserved_concurrency,
                 code=lambda_.Code.from_asset(str(pathlib.Path(__file__).parent.joinpath("responder").resolve())),
                 handler="app.lambda_handler",
                 on_success=responder_destination,
@@ -81,11 +75,10 @@ class LambdaStates(Construct):
             self,
             f"aggregator",
             runtime=lambda_.Runtime.PYTHON_3_9,
-            # reserved_concurrent_executions=lambda_reserved_concurrency,
             code=lambda_.Code.from_asset(str(pathlib.Path(__file__).parent.joinpath("aggregator").resolve())),
             handler="app.lambda_handler",
             tracing=lambda_.Tracing.ACTIVE,
-            timeout=Duration.seconds(30)
+            timeout=Duration.seconds(10)
         )
         
         

@@ -20,32 +20,27 @@
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 ###
 import json
-import boto3
-import os
-import sys
 import logging
 import uuid
 
 logging.basicConfig(format='%(asctime)s %(levelname)-8s %(message)s', level=logging.INFO, datefmt='%Y-%m-%d %H:%M:%S')
 logging.getLogger().setLevel(logging.INFO)
 
-client_sns = boto3.client('sns')
 
-# MAX_SCATTER = os.getenv('MAX_SCATTER')
-
+# Lambda function handler enriches the received event with an unique id for quote request and returns it
 def lambda_handler(event, context):
     
+    # create a unique id for the quote request
     uuid_quote = uuid.uuid4()
     # assumption data is present in event
-    event['data']['uuid'] = str(uuid_quote)
-    message = event
+    if 'data' in event:        
+        event['data']['uuid'] = str(uuid_quote)
+    else: 
+        raise Exception("data not found in event")
     
-    # if MAX_SCATTER is not None:
-    #     message = []
-    #     for n in range(0,int(MAX_SCATTER)):
-    #         message.append(event)
-            
-
+    message = event
+    logging.info(f"sending quote request: {message}")
+    
     # Return a response
     return {
         'statusCode': 200,

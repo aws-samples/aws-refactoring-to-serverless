@@ -27,43 +27,46 @@ import os
 logging.basicConfig(format='%(asctime)s %(levelname)-8s %(message)s', level=logging.INFO, datefmt='%Y-%m-%d %H:%M:%S')
 logging.getLogger().setLevel(logging.INFO)
 
-
+# get environment variables
 BASE_RATE = os.getenv('base_rate')
 VENDOR = os.getenv('vendor')
 
-
+# function generates the price quote for the rental company(vendor)
 def generate_quote(body):
     message_body = body
     daily_charge = int(BASE_RATE)
     logging.info(f"message_body (before): {message_body}")
-    logging.info(f"message_body[data]: {message_body['data']}")
+    # create price quote based on days of rental
     days = int(message_body['data']['days_rental'])
     message_body['data']['price_quote'] = daily_charge * days
     message_body['data']['vendor'] = VENDOR
     logging.info(f"message_body (after): {message_body}")
     return message_body
 
+# lambda function receives quote request from the customer and generates the price quote.
+# lambda functions supports both solutions step function and sns.
 def lambda_handler(event, context):
-    # Print the event object to the logs
-    logging.info("Received event: " + json.dumps(event, indent=2))
-    # if SQS_QUEUE_URL is not None:
+
+    logging.debug("Received event: " + json.dumps(event, indent=2))
+    # sns use case
     if 'Records' in event:
         for record in event['Records']:
             if 'Sns' in record:
                 sns_record = record['Sns']
-                logging.info(f"sns_record_body: {sns_record}")
+                logging.debug(f"sns_record_body: {sns_record}")
                 sns_message = json.loads(sns_record['Message'])
-                logging.info(f"sns_message: {sns_message}")
+                logging.debug(f"sns_message: {sns_message}")
                 body = sns_message['responsePayload']['body']
                 if (isinstance(body, str)):
                     body = json.loads(sns_message['responsePayload']['body'])
-                logging.info(f"body: {body}, {type(body)}")
+                logging.debug(f"body: {body}, {type(body)}")
                 
                 # generate quote here - for now just pass the received quote request
                 message_body = generate_quote(body)
-    else:
+    else: # step function use case
         message_body = generate_quote(event)
     
+    logging.info(f"message_body: {message_body}")
         
     # Return a response
     return {

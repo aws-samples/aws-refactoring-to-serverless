@@ -3,8 +3,8 @@ from aws_cdk import (
     CfnOutput
 )
 from constructs import Construct
-from scatter_gather.stepfunction.infrastructure import SFNWorkflow
-from scatter_gather.lambda_.infrastructure import LambdaStates
+from scatter_gather.stepfunction.stepfunctions_workflow import SFNWorkflow
+from scatter_gather.lambda_.lambda_functions import LambdaStates
 
 
 class OriginalScatterGatherStack(Stack):

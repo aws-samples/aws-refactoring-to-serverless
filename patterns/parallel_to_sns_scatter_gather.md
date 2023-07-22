@@ -1,15 +1,15 @@
-# Replace Parallel state with SNS for Scatter-Gather pattern
+# Replace Parallel state with SNS for Scatter-Gather refactoring
 
 ## Description
 
-AWS Step Functions Parallel-state can be used to implement the Scatter-Gather pattern: route a request message to multiple recipients and re-aggregates the responses into a single response message. There are two variants of the Scatter-Gather that use different mechanisms to send the request messages to the intended recipients:
+AWS Step Functions Parallel-state can be used to implement the Scatter-Gather integration pattern: route a request message to multiple recipients and re-aggregates the responses into a single response message. There are two variants of Scatter-Gather that use different mechanisms to send the request messages to the intended recipients:
 
 * Distribution via a Recipient List allows the Scatter-Gather to control the list of recipients but requires the Scatter-Gather to be aware of each recipient's message channel.
 * Auction-style Scatter-Gathers use a Publish-Subscribe Channel to broadcast the request to any interested participant. This option allows the Scatter-Gather to use a single channel but at the same time relinquishes control.
 
 AWS Step Function Parallel state executes a pre-defined set of AWS Lambda functions in parallel with same input message. The output of each Lambda function is collected and aggregated by the Parallel state, and returned as a single result.
 
-![AWS Step Functions Parallel step for Scatter-Gather pattern](images/sfn-parallel-scatter-gather.png)
+![AWS Step Functions Parallel step for Scatter-Gather refactoring](images/sfn-parallel-scatter-gather.png)
 
 An example Workflow definition looks like that:
 
@@ -58,86 +58,107 @@ AWS Step Functions Parallel state provides a powerful and flexible way to implem
 
 ## Solution
 
-Use AWS SNS to replace the Parallel state and implement Scatter-Gather pattern to simplify application complexity and architect for scale.
+Use AWS SNS to replace the Parallel state and implement Scatter-Gather pattern to simplify application complexity and architect for scale. The solution uses choreography for communication between components instead of orchestration as with AWS Step Functions.
 
-Replace Step Functions ```Parallel``` step, send a message to SNS
+Replace Step Functions ```Parallel``` step, send a message to SNS.
 
 ![replace parallel with sns scatter gather](images/refactoring-scatter-gather.png)
 
-Using SNS and fan-out to Lambda functions to implement Scatter-Gather can simplify application complexity by decoupling sub-tasks, providing scalability and flexibility, enabling reusability, and allowing for asynchronous processing. This can make it easier to develop, test, and maintain complex workflows, while also improving application performance and reliability.
+Using SNS and fan-out to Lambda functions to implement Scatter-Gather can simplify application complexity by decoupling sub-tasks, providing scalability and flexibility, enabling reusability, and allowing for asynchronous processing. This can make it easier to develop, test, and maintain complex workflows, while also improving application performance and reliability. However, the solution does not provide built-in aggregation of result messages and therefore implements aggregation using a DynamoDB table and a unique ID.
 
 Lambda functions invoked in scatter-gather pattern:
 
 ``` Python
+# CDK construct to create the lambda functions and destinations for both use cases
 class LambdaStates(Construct):
     
-  def __init__(self, scope: Construct, id_: str, requester_sns_topic:sns.ITopic = None, responder_sqs_queue:sqs.IQueue = None, **kwargs) -> None:
-      super().__init__(scope, id_)
-      
-      requester_destination = None
-      if requester_sns_topic is not None:
-          requester_destination = destinations.SnsDestination(requester_sns_topic)
-          
-      self.requester = lambda_.Function(
-          self,
-          f"requester",
-          runtime=lambda_.Runtime.PYTHON_3_9,
-          handler="app.lambda_handler",
-          on_success=requester_destination,
-          ...
-      )
-      
-      responder_destination = None
-      if responder_sqs_queue is not None:
-          responder_destination = destinations.SqsDestination(responder_sqs_queue) 
-      
-      # list of responders based on recipients defined in cdk.json 
-      
-      recipients_list = self.node.try_get_context("recipients")
-      self.responder = []
-      for recipient in recipients_list:
-          env = dict(recipients_list[recipient])
-          env['vendor'] = recipient
-          self.responder.append(lambda_.Function(
-              self,
-              f"responder-{recipient}",
-              runtime=lambda_.Runtime.PYTHON_3_9,              
-              handler="app.lambda_handler",
-              on_success=responder_destination,
-              environment= env,
-              ...
-          )
-      )
-      
-      self.aggregator = lambda_.Function(
-          self,
-          f"aggregator",
-          runtime=lambda_.Runtime.PYTHON_3_9,
-          code=lambda_.Code.from_asset(str(pathlib.Path(__file__).parent.joinpath("aggregator").resolve())),
-          handler="app.lambda_handler",
-          ...
-      )
+    def __init__(self, scope: Construct, id_: str, requester_sns_topic:sns.ITopic = None, responder_sqs_queue:sqs.IQueue = None, **kwargs) -> None:
+        super().__init__(scope, id_)
+        
+        requester_destination = None
+        if requester_sns_topic is not None:
+            requester_destination = destinations.SnsDestination(requester_sns_topic)
+            
+        self.requester = lambda_.Function(
+            self,
+            f"requester",
+            runtime=lambda_.Runtime.PYTHON_3_9,
+            code=lambda_.Code.from_asset(str(pathlib.Path(__file__).parent.joinpath("requester").resolve())),
+            handler="app.lambda_handler",
+            on_success=requester_destination,
+            tracing=lambda_.Tracing.ACTIVE
+        )
+        
+        responder_destination = None
+        if responder_sqs_queue is not None:
+            responder_destination = destinations.SqsDestination(responder_sqs_queue) 
+        
+        # list of responders based on vendors defined in cdk.json 
+        car_rental_list = self.node.try_get_context("car_rentals")
+        self.responder = []
+        for vendor in car_rental_list:
+            env = dict(car_rental_list[vendor])
+            env['vendor'] = vendor
+            self.responder.append(lambda_.Function(
+                self,
+                f"responder-{vendor}",
+                runtime=lambda_.Runtime.PYTHON_3_9,
+                code=lambda_.Code.from_asset(str(pathlib.Path(__file__).parent.joinpath("responder").resolve())),
+                handler="app.lambda_handler",
+                on_success=responder_destination,
+                environment= env,
+                tracing=lambda_.Tracing.ACTIVE
+            )
+        )
+        
+        self.aggregator = lambda_.Function(
+            self,
+            f"aggregator",
+            runtime=lambda_.Runtime.PYTHON_3_9,
+            code=lambda_.Code.from_asset(str(pathlib.Path(__file__).parent.joinpath("aggregator").resolve())),
+            handler="app.lambda_handler",
+            tracing=lambda_.Tracing.ACTIVE,
+            timeout=Duration.seconds(10)
+        )
 ```
 
 CDK code to implement Scatter-Gather with SNS and SQS:
 
 ``` Python
-    sns_fanout = sns.Topic(
-        self, "ScatterTopic",
-        topic_name="scatter-topic"
-    )
-            sqs_aggregator = sqs.Queue(self, "sqs-aggregator", visibility_timeout=Duration.seconds(90))
-    lambdas = LambdaStates(self, "refactor-lambda", requester_sns_topic=sns_fanout, responder_sqs_queue=sqs_aggregator)
-    
-    for responder in lambdas.responder:
-        sns_fanout.add_subscription(subscriptions.LambdaSubscription(responder))
-    
-    lambdas.aggregator.add_event_source(_event.SqsEventSource(queue=sqs_aggregator, batch_size=len(lambdas.responder), max_batching_window=Duration.minutes(1)))
-    
-    resp_index = 1
-    for responder in lambdas.responder:
-        CfnOutput(self, f"ResponderFunctionName-{resp_index}", value=responder.function_name)
-        resp_index +=1
+class RefactoredlScatterGatherStack(Stack):
+
+    def __init__(self, scope: Construct, construct_id: str, **kwargs) -> None:
+        super().__init__(scope, construct_id, **kwargs)
+        
+        # create sns topic for requester (car rentals request)
+        sns_fanout = sns.Topic(
+            self, "ScatterTopic",
+            topic_name="scatter-topic"
+        )
+        # create sqs queue for aggregator
+        sqs_aggregator = sqs.Queue(self, "sqs-aggregator", visibility_timeout=Duration.seconds(90))
+        lambdas = LambdaStates(self, "refactor-lambda", requester_sns_topic=sns_fanout, responder_sqs_queue=sqs_aggregator)
+        # subscribe resposnders (car rentals) to sns topic to receive quote request
+        for responder in lambdas.responder:
+            sns_fanout.add_subscription(subscriptions.LambdaSubscription(responder))
+        # subscribe aggregator to sqs queue containing generated price quotes
+        lambdas.aggregator.add_event_source(_event.SqsEventSource(queue=sqs_aggregator, batch_size=len(lambdas.responder), max_batching_window=Duration.minutes(1)))
+        
+        # crate responder functions (car rentals)
+        resp_index = 1
+        for responder in lambdas.responder:
+            CfnOutput(self, f"ResponderFunctionName-{resp_index}", value=responder.function_name)
+            resp_index +=1
+        
+        # create simple dynamoDB table named QuoteAggregatorTable
+        quote_table = dynamodb.Table(self, "QuoteAggregatorTable",
+            partition_key=dynamodb.Attribute(
+                name="quoteId",
+                type=dynamodb.AttributeType.STRING),
+            billing_mode=dynamodb.BillingMode.PAY_PER_REQUEST)
+        # grant read/write permissions to lambdas.aggregator
+        quote_table.grant_read_write_data(lambdas.aggregator)
+        lambdas.aggregator.add_environment("QUOTE_TABLE_NAME", quote_table.table_name)
 ```
 
 ### Assumptions
@@ -148,7 +169,6 @@ CDK code to implement Scatter-Gather with SNS and SQS:
 ### Advantages
 
 * Decoupling: By using SNS to fan-out messages between sub-tasks, you can decouple the individual sub-tasks from each other and add further sub-tasks, reducing the complexity of the overall workflow. This can make it easier to modify or replace individual sub-tasks without affecting the rest of the system.
-* Scalability: SNS provides a scalable and flexible architecture that can handle large volumes of messages and sub-tasks. This can make it easier to scale your application as your workload grows.
 * Asynchronous processing: By using SNS with event and lambda destinations, you can implement asynchronous processing workflow, which can improve application performance and responsiveness.
 * Complexity: The implementation with AWS CDK for SNS is relatively simpler, as you only need to define an SNS topic and subscribe one or more Lambda functions to that topic.
 
@@ -164,7 +184,7 @@ AWS SNS is best suited for workflows that involve small or moderately sized mess
 
 ### Considerations
 
-Choosing between AWS Step Functions Parallel state and AWS SNS depends on your use case and requirements. Use Step Functions if you need a tightly orchestrated workflow with built-in scatter-gather and error handling capabilities. Choose SNS for loosely coupled, highly scalable, and asynchronous processing where you can manage the aggregation of results separately.
+Choosing between AWS Step Functions Parallel state and AWS SNS depends on your use case and requirements. Use Step Functions if you need a tightly orchestrated workflow with built-in scatter-gather and error handling capabilities. Choose SNS for loosely coupled and asynchronous processing where you want to manage the aggregation of results separately.
 
 ## Related Refactorings
 

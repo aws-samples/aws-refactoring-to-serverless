@@ -22,26 +22,36 @@
 import json
 import logging
 import boto3
-
+import os
 logging.basicConfig(format='%(asctime)s %(levelname)-8s %(message)s', level=logging.INFO, datefmt='%Y-%m-%d %H:%M:%S')
 logging.getLogger().setLevel(logging.INFO)
 
-sqs = boto3.client('sqs')
+QUOTE_TABLE_NAME = os.environ['QUOTE_TABLE_NAME']
+ddb_table = boto3.resource('dynamodb').Table(QUOTE_TABLE_NAME)
 
+
+# The lambda function receives the message from the SQS event aggregates them and stores it in the DDB table
 def lambda_handler(event, context):
     logging.info("Received event: " + json.dumps(event, indent=2))
+    # aggregates the messages received from the SQS event
     quotes = []
     for record in event['Records']:
         body = json.loads(record['body'])
-        logging.info(f"body: {body}")
-        message_body = json.loads(body['responsePayload']['body'])
-        logging.info(f"message_body: {message_body}")
-        quote= message_body['data']
+        logging.debug(f"body: {body}")
+        # get the quote from the message body
+        quote = json.loads(body['responsePayload']['data'])
+        logging.info(f"quote: {quote}")
         quotes.append(quote)
+        # the quoteId is used to check if the quote is already stored in the DDB table
+        record = ddb_table.get_item(Key={'quoteId': quote['uuid']})
+        item = record.get('Item', { 'quoteId': quote['uuid'], 'Quotes': [] } )
+        item['Quotes'].append( { 'carType': quote['car_type'], 'rate':"%.2f" % quote['price_quote'], 'daysRental': quote['days_rental'], 'vendor': quote['vendor'] }) 
+        logging.info(f"item: {item}")
+        # write the quote in the DDB table
+        ddb_table.put_item(Item = item)
     
     
     logging.info(f"quotes:{quotes}")
-    
     return {
         'statusCode': 200,
         'body': json.dumps(quotes)
