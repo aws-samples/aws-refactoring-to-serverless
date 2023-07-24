@@ -63,6 +63,9 @@ class RefactoredlScatterGatherStack(Stack):
             partition_key=dynamodb.Attribute(
                 name="quoteId",
                 type=dynamodb.AttributeType.STRING),
+            sort_key=dynamodb.Attribute(
+                name="vendor",
+                type=dynamodb.AttributeType.STRING),
             billing_mode=dynamodb.BillingMode.PAY_PER_REQUEST)
         # grant read/write permissions to lambdas.aggregator
         quote_table.grant_read_write_data(lambdas.aggregator)

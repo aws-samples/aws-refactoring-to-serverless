@@ -32,7 +32,7 @@ BASE_RATE = os.getenv('base_rate')
 VENDOR = os.getenv('vendor')
 
 # function generates the price quote for the rental company(vendor)
-def generate_quote(body):
+def generate_price_quote(body):
     message_body = body
     daily_charge = int(BASE_RATE)
     logging.info(f"message_body (before): {message_body}")
@@ -43,6 +43,14 @@ def generate_quote(body):
     logging.info(f"message_body (after): {message_body}")
     return message_body
 
+def get_message_body_json(record):
+    sns_record = record['Sns']
+    sns_message = json.loads(sns_record['Message'])
+    body = sns_message['responsePayload']['body']
+    if (isinstance(body, str)):
+        body = json.loads(sns_message['responsePayload']['body'])
+    logging.debug(f"body: {body}, {type(body)}")
+    return body
 # lambda function receives quote request from the customer and generates the price quote.
 # lambda functions supports both solutions step function and sns.
 def lambda_handler(event, context):
@@ -52,19 +60,11 @@ def lambda_handler(event, context):
     if 'Records' in event:
         for record in event['Records']:
             if 'Sns' in record:
-                sns_record = record['Sns']
-                logging.debug(f"sns_record_body: {sns_record}")
-                sns_message = json.loads(sns_record['Message'])
-                logging.debug(f"sns_message: {sns_message}")
-                body = sns_message['responsePayload']['body']
-                if (isinstance(body, str)):
-                    body = json.loads(sns_message['responsePayload']['body'])
-                logging.debug(f"body: {body}, {type(body)}")
-                
+                body = get_message_body_json(record)                
                 # generate quote here - for now just pass the received quote request
-                message_body = generate_quote(body)
+                message_body = generate_price_quote(body)
     else: # step function use case
-        message_body = generate_quote(event)
+        message_body = generate_price_quote(event)
     
     logging.info(f"message_body: {message_body}")
         

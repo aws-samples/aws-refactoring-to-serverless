@@ -37,15 +37,14 @@ def lambda_handler(event, context):
     quotes = []
     for record in event['Records']:
         body = json.loads(record['body'])
-        logging.debug(f"body: {body}")
         # get the quote from the message body
         quote = json.loads(body['responsePayload']['data'])
         logging.info(f"quote: {quote}")
         quotes.append(quote)
         # the quoteId is used to check if the quote is already stored in the DDB table
-        record = ddb_table.get_item(Key={'quoteId': quote['uuid']})
-        item = record.get('Item', { 'quoteId': quote['uuid'], 'Quotes': [] } )
-        item['Quotes'].append( { 'carType': quote['car_type'], 'rate':"%.2f" % quote['price_quote'], 'daysRental': quote['days_rental'], 'vendor': quote['vendor'] }) 
+        ddb_record = ddb_table.get_item(Key={'quoteId': quote['uuid'], 'vendor': f"VENDOR#{quote['vendor']}"})
+        item = ddb_record.get('Item', { 'quoteId': quote['uuid'], 'vendor': f"VENDOR#{quote['vendor']}", 'Quotes': [] })
+        item['Quotes'].append( { 'carType': quote['car_type'], 'rate':"%.2f" % quote['price_quote'], 'daysRental': quote['days_rental'] }) 
         logging.info(f"item: {item}")
         # write the quote in the DDB table
         ddb_table.put_item(Item = item)

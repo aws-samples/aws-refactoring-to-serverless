@@ -13,11 +13,11 @@ The code deploys two stacks:
 1. ScatterGatherWithParallelStack
 2. ScatterGatherWithSNSStack
 
-Both stacks deploy 3 lambda functions (application code is re-used for both stacks), ```requester```, ```responder``` and ```aggregator```. The ```requester``` sends a request for quote message with an ```uuid```. Multiple ```responder```(Car Rental) process the message modifying the message adding a ```price_quote```. The Car Rentals configuration parameters are defined in the ```cdk.json``` file. Ultimately, the ```aggregator``` function aggregates the received quotes.
+Both stacks deploy 3 Lambda functions (application code is re-used for both stacks), ```requester```, ```responder``` and ```aggregator```. The ```requester``` sends a request for quote message with an ```uuid```. Multiple ```responder```(Car Rental) process the message modifying the message adding a ```price_quote```. The Car Rentals configuration parameters are defined in the ```cdk.json``` file. Ultimately, the quotes are aggregated by the ```aggregator``` function (applies only for ```ScatterGatherWithSNSStack```).
 
-ScatterGatherWithParallelStack deploys a Step Function workflow using the parallel state to send a quote request to ```responder```. Each ```responder``` adds a price_quote to the original message. When all parallel executions have completed the result is aggregated by the Step Function parallel state.
+ScatterGatherWithParallelStack deploys a Step Function workflow using the parallel state to send a quote request to ```responder```. Each ```responder``` returns a price_quote. The Step Functions parallel state aggregates the results from all responders.
 
-ScatterGatherWithSNSStack replaces the parallel state with SNS. The ```requester``` function sends a quote request to an SNS topic. The SNS topic is subscribed by 2 ```responder``` Lambda functions which add a price_quote and send the message to an SQS to aggregate the messages. The ```aggregator``` lambda function synchronously polls the SQS queue. In order to provide the same aggregation capability as the Step Functions parallel state the ```aggregator``` uses a DynamoDB table to aggregate the price_quotes based on the ```uuid```.
+ScatterGatherWithSNSStack replaces the parallel state with SNS. The ```requester``` function sends a quote request to an SNS topic. The SNS topic is subscribed by 2 ```responder``` Lambda functions which return a price_quote and send the message to an SQS queue to aggregate the messages. The ```aggregator``` Lambda function synchronously polls the SQS queue. In order to provide the same aggregation capability as the Step Functions parallel state the ```aggregator``` uses a DynamoDB table to aggregate the price_quotes based on the ```uuid```, ready to be fetched.
 
 ## Deploy the solution
 
@@ -83,7 +83,7 @@ You should see an output like that
 }
 ```
 
-* Next, lets test the refactored version that uses SNS and SQS to implement the Scatter-Gather patten. We will invoke the requester lambda that triggers the execution. Get the function name from the cdk deploy output (Get function name from stack outputs:```ScatterGatherWithSNSStack.RequesterFunctionName```).
+* Next, lets test the refactored version that uses SNS and SQS to implement the Scatter-Gather patten. We will invoke the requester Lambda that triggers the execution. Get the function name from the cdk deploy output (Get function name from stack outputs:```ScatterGatherWithSNSStack.RequesterFunctionName```).
 
 ``` bash
 aws lambda invoke-async --function-name ScatterGatherWithSNSStack-refactorlambdarequester8-3razgZDKZesx --invoke-args ./scatter_gather/input.json
