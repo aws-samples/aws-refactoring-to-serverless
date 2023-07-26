@@ -111,13 +111,13 @@ Login to your AWS console and navigate to Step Function. Look into the ```Parall
 ```
 
 Next, lets verify the refactored variant using SNS.
-First let's get the aggregator log group name.
+First let's get the aggregator log group name. Please replace ```ScatterGatherWithSNSStack-refactorlambdaaggregator-nfXGleA7rZsh``` with your Lambda function name.
 
 ``` bash
-aws logs describe-log-groups --query 'logGroups[?starts_with(logGroupName, `/aws/lambda/ScatterGatherWithSNSStack-refactorlambdaaggregator-nfXGleA7rZsh`)].logGroupName' --output text
+aws logs describe-log-groups --query 'logGroups[?ends_with(logGroupName, `ScatterGatherWithSNSStack-refactorlambdaaggregator-nfXGleA7rZsh`)].logGroupName' --output text
 ```
 
-In the logstream you should see a line with the received quotes:
+Use the log group name from the previous command to get the logs of the aggregator function and filter by "quotes". Please replace your log group name in the following command.
 
 ``` bash
 aws logs tail /aws/lambda/ScatterGatherWithSNSStack-refactorlambdaaggregator-nfXGleA7rZsh  --filter-pattern "quotes" 
