@@ -18,7 +18,7 @@ Because of these benefits, refactoring should be an integral part of serverless 
 
 
 ## About this repo:
-This repo is AWS CDK implementation for the patterns in [Refactorings to Serverless](https://serverlessland.com/refactoring-serverless/intro).  
+This repo contains AWS CDK implementation for the patterns at [Serverless Land : Refactoring to Serverless](https://serverlessland.com/refactoring-serverless/intro) 
 
 
 | Name | Description |
@@ -31,6 +31,8 @@ This repo is AWS CDK implementation for the patterns in [Refactorings to Serverl
 | [Extract Send Message to DynamoDB Stream](patterns/send-message-via-pipes.md) | Instead of a Lambda function sending a message after updating DynamoDB, use DynamoDB Streams plus EventBridge Pipes|
 | [Orchestration to Choreography](patterns/orchestration_%20to_choreography.md) | Convert the collaboration pattern from orchestration to choreography |
 | [Replace Parallel with SNS Scatter-Gather](patterns/parallel_to_sns_scatter_gather.md) | Instead of making parallel invocations from a StepFunctions `Parallel` step, send a message to SNS  |
+|[Extract Message Filter](patterns/extract-message-filter.md)|Instead of conditional statements at the consumer, eliminate unwanted messages with Amazon EventBridge.|
+
 
 
 ## Owners
@@ -41,7 +43,7 @@ Sindhu Pillai, Sr. Solutions Architect, AWS
 Svenja Raether,Associate ProServe Specialist, AWS  
 Abel Fresnillo Silva, Sr. Solutions Architect, AWS  
 Eugene Kim, Sr. Solutions Architect, AWS  
-Pengfei Zhang, Sr. Solutions Architect, AWS
+Pengfei Zhang, Sr. Solutions Architect, AWS  
 Agostino Di Figlia, Sr. Cloud Application Architect, AWS
 
 ## Interested in Contributing?
