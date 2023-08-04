@@ -1,0 +1,7 @@
+[
+    {
+        "Source": "ecommerce.application",
+        "DetailType": "user.review",
+        "Detail": "{\"productId\":\"12345\",\"rating\":4.5,\"reviewText\":\"Greatproduct!\",\"reviewer\":{\"userId\":\"67890\",\"email\":\"bob.buyer@example.com\",\"signupDate\":\"2023-04-01T00:00:00Z\",\"purchaseHistory\":[{\"orderId\":\"10001\",\"orderDate\":\"2023-04-01T02:30:00Z\",\"items\":[{\"productId\":\"12345\",\"quantity\":1}]},{\"orderId\":\"10002\",\"orderDate\":\"2023-07-01T02:30:00Z\",\"items\":[{\"productId\":\"12981920\",\"quantity\":2}]},{\"orderId\":\"10003\",\"orderDate\":\"2023-08-01T02:30:00Z\",\"items\":[{\"productId\":\"55667788\",\"quantity\":3}]}]}}"
+    }
+]
