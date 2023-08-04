@@ -32,6 +32,7 @@ This repo contains AWS CDK implementation for the patterns at [Serverless Land :
 | [Orchestration to Choreography](patterns/orchestration_%20to_choreography.md) | Convert the collaboration pattern from orchestration to choreography |
 | [Replace Parallel with SNS Scatter-Gather](patterns/parallel_to_sns_scatter_gather.md) | Instead of making parallel invocations from a StepFunctions `Parallel` step, send a message to SNS  |
 |[Extract Message Filter](patterns/extract-message-filter.md)|Instead of conditional statements at the consumer, eliminate unwanted messages with Amazon EventBridge.|
+| [Replace Amazon Event Bridge Event Patterns with Lambda filter](patterns/replace_event_pattern_with_lambda.md) | Replace Event Bridge Event Pattern  with Lambda filter for complex filtering logic  |
 
 
 

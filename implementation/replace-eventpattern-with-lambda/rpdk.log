@@ -1,0 +1,8 @@
+[2023-08-02T06:42:02Z] DEBUG    - Logging set up successfully
+[2023-08-02T06:42:02Z] DEBUG    - Running None: Namespace(artifact_type=None, command=<function init at 0x128317ea0>, endpoint_url=None, force=False, profile=None, region=None, subparser_name=None, target_schemas=[], type_name=None, verbose=0, version=False)
+[2023-08-02T06:42:02Z] DEBUG    - Root directory: /Users/figlia/Development/aws-refactoring-to-serverless/implementation/replace-eventpattern-with-lambda
+[2023-08-02T06:42:02Z] WARNING  - Initializing new project
+[2023-08-02T06:42:02Z] DEBUG    - Loading project file '/Users/figlia/Development/aws-refactoring-to-serverless/implementation/replace-eventpattern-with-lambda/.rpdk-config'
+[2023-08-02T06:45:07Z] DEBUG    - Logging set up successfully
+[2023-08-02T06:45:07Z] DEBUG    - Running None: Namespace(command=<function main.<locals>.no_command at 0x120f3ad08>, subparser_name=None, verbose=0, version=True)
+[2023-08-02T06:45:07Z] DEBUG    - Finished None
