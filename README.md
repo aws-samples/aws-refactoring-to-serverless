@@ -1,4 +1,4 @@
-# Refactoring to Serverless - Bhuvan
+# Refactoring to Serverless
 Refactoring, a popular coding technique is defined by Martin Folwer as:
 
 > A disciplined technique for restructuring an existing body of code, altering its internal structure without changing its external behavior.
