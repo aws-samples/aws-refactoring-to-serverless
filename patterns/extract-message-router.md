@@ -1,4 +1,4 @@
-# Send Message via Pipes
+# Extract Message Router
 
 Original:
 ![](images/ExtractMessageFilterOriginal.png)
