@@ -5,7 +5,7 @@ import { Rule } from 'aws-cdk-lib/aws-events';
 import * as targets from 'aws-cdk-lib/aws-events-targets';
 import * as s3 from 'aws-cdk-lib/aws-s3'
 
-export class ExtractMessageFilterRefactoredStack extends cdk.Stack {
+export class ExtractMessageRouterRefactoredStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
 
@@ -31,7 +31,7 @@ export class ExtractMessageFilterRefactoredStack extends cdk.Stack {
       handler: 'index.handler',
     });
 
-    const bucketName = 'extractmessagefilter-databucketrefactored' + this.account
+    const bucketName = 'extractmessagerouter-databucketrefactored' + this.account
     const dataBucket = new s3.Bucket(this, 'DataBucket', {
       removalPolicy: cdk.RemovalPolicy.DESTROY,
       bucketName: bucketName

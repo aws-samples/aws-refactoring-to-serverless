@@ -4,7 +4,7 @@ import * as s3 from 'aws-cdk-lib/aws-s3'
 import * as lambda from "aws-cdk-lib/aws-lambda"
 import * as iam from 'aws-cdk-lib/aws-iam';
 
-export class ExtractMessageFilterOriginalStack extends cdk.Stack {
+export class ExtractMessageRouterOriginalStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
 
@@ -49,7 +49,7 @@ export class ExtractMessageFilterOriginalStack extends cdk.Stack {
       resources: [claimProcessor.functionArn, mediaProcessor.functionArn, defaultProcessor.functionArn]
     }))
 
-    const bucketName = 'extractmessagefilter-databucketoriginal' + this.account
+    const bucketName = 'extractmessagerouter-databucketoriginal' + this.account
     const dataBucket = new s3.Bucket(this, 'DataBucket', {
       removalPolicy: cdk.RemovalPolicy.DESTROY,
       bucketName: bucketName

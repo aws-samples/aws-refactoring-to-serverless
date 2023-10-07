@@ -1,5 +1,5 @@
 {
-  "app": "npx ts-node --prefer-ts-exts bin/extract-message-filter.ts",
+  "app": "npx ts-node --prefer-ts-exts bin/extract-message-router.ts",
   "watch": {
     "include": [
       "**"
