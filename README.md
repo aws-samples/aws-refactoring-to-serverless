@@ -1,24 +1,9 @@
 # Refactoring to Serverless
-Refactoring, a popular coding technique is defined by Martin Folwer as:
-
-> A disciplined technique for restructuring an existing body of code, altering its internal structure without changing its external behavior.
-
-Refactoring to Serverless aims to move code from the application to CDK automation.
-
-## Why refactor to serverless?
-
-There are multiple benefits to refactoring your solution to serverless:
-
-* The refactored code better *leverages platform capabilities*. Automation features don't need code library upgrades, testing, or debugging. They also generally scale better and are more robust than application code.
-* AWS continually adds *new services and capabilities*, so you might find that you had written application code for a function that can now be done using a service capability. Time to refactor!
-* Occasionally your *application's needs outgrow the capability* of one service. For example, EventBridge has many features to filter incoming messages but if your application's needs evolve to require a complex rule across multiple fields, you might need to refactor from EventBridge to a custom lambda function.
-* Refactoring to serverless can *improve your run-time characteristics* and reduce cost. For example, if you can replace polling for results with a callback or a wait state, you reduce latency and cost.
-
-Because of these benefits, refactoring should be an integral part of serverless development.
+A controlled technique for improving the design of serverless applications by replacing application code with equivalent automation code.
 
 
 ## About this repo:
-This repo contains AWS CDK implementation for the patterns at [Serverless Land : Refactoring to Serverless](https://serverlessland.com/refactoring-serverless/intro) 
+This repo contains AWS CDK implementation for the refactorings at [Serverless Land : Refactoring to Serverless](https://serverlessland.com/refactoring-serverless/intro) 
 
 
 | Name | Description |
@@ -31,7 +16,7 @@ This repo contains AWS CDK implementation for the patterns at [Serverless Land :
 | [Extract Send Message to DynamoDB Stream](patterns/send-message-via-pipes.md) | Instead of a Lambda function sending a message after updating DynamoDB, use DynamoDB Streams plus EventBridge Pipes|
 | [Orchestration to Choreography](patterns/orchestration_%20to_choreography.md) | Convert the collaboration pattern from orchestration to choreography |
 | [Replace Parallel with SNS Scatter-Gather](patterns/parallel_to_sns_scatter_gather.md) | Instead of making parallel invocations from a StepFunctions `Parallel` step, send a message to SNS  |
-|[Extract Message Filter](patterns/extract-message-filter.md)|Instead of conditional statements at the consumer, eliminate unwanted messages with Amazon EventBridge.|
+|[Extract Message Router](patterns/extract-message-router.md)|Instead of using a Lambda function to route messages to different consumers, use EventBridge Rules|
 
 
 
