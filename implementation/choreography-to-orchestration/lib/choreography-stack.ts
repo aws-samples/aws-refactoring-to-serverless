@@ -64,24 +64,16 @@ export class ChoreographyStack extends Stack {
     const DynamoDBTable = new dynamodb.CfnTable(this, "DynamoDBTable", {
       attributeDefinitions: [
         {
-          attributeName: "from",
+          attributeName: "product_id",
           attributeType: "S",
-        },
-        {
-          attributeName: "stock_id",
-          attributeType: "S",
-        },
+        }
       ],
-      tableName: "StockRecommendationTable",
+      tableName: "store-order-data",
       keySchema: [
         {
-          attributeName: "stock_id",
+          attributeName: "product_id",
           keyType: "HASH",
-        },
-        {
-          attributeName: "from",
-          keyType: "RANGE",
-        },
+        }
       ],
       provisionedThroughput: {
         readCapacityUnits: 1,
@@ -93,207 +85,230 @@ export class ChoreographyStack extends Stack {
       pointInTimeRecoveryEnabled: true,
     };
 
-    const aggregatorRole = new iam.Role(this, "Aggregator Role", {
+    const ProcessPaymentFunctionRole = new iam.Role(this, "Process Payment Function Role", {
       assumedBy: new iam.ServicePrincipal("lambda.amazonaws.com"),
     });
 
-    aggregatorRole.addToPolicy(
+    ProcessPaymentFunctionRole.addToPolicy(
       new iam.PolicyStatement({
         actions: ["dynamodb:PutItem"],
         resources: [DynamoDBTable.attrArn],
       })
     );
 
-    aggregatorRole.addManagedPolicy(
+    ProcessPaymentFunctionRole.addManagedPolicy(
       iam.ManagedPolicy.fromAwsManagedPolicyName(
         "service-role/AWSLambdaBasicExecutionRole"
       )
     );
 
-    const AggregatorFunction = new lambda.Function(this, "AggregatorFunction", {
+    const SNSTopic_ShipOrder = new sns.CfnTopic(this, "SNSTopic_ShipOrder", {
+        displayName: "ShipOrderTopic",
+        topicName: "ShipOrderTopic",
+        kmsMasterKeyId: "alias/aws/sns",
+      });
+
+    const ProcessPaymentFunction = new lambda.Function(this, "ProcessPaymentFunction", {
       description: "",
       environment: {
         table_name: DynamoDBTable.ref,
+        sns_topic_arn : SNSTopic_ShipOrder.ref
       },
-      functionName: "StockRecommendationAggregator",
-      handler: "Aggregator.lambda_handler",
-      code: lambda.Code.fromAsset("lambda"),
+      functionName: "ProcessPaymentFunction",
+      handler: "ProcessPayment.lambda_handler",
+      code: lambda.Code.fromAsset("lambda/choreography"),
       memorySize: 128,
-      role: aggregatorRole,
+      role: ProcessPaymentFunctionRole,
       runtime: lambda.Runtime.PYTHON_3_9,
     });
 
-    const SQSQueue = new sqs.Queue(this, "SQSQueue", {
-      queueName: "StockRecommendationQueue",
-    });
+    const api_principal = new iam.ServicePrincipal("apigateway.amazonaws.com");
 
+    ProcessPaymentFunction.grantInvoke(api_principal);
 
-
-
-    AggregatorFunction.addEventSource(
-      new sources.SqsEventSource(SQSQueue, { batchSize: 10 })
-    );
-
-    const resourceRole1 = new iam.Role(this, "Resource Role1", {
-      assumedBy: new iam.ServicePrincipal("lambda.amazonaws.com"),
-    });
-
-    resourceRole1.addToPolicy(
-      new iam.PolicyStatement({
-        actions: ["sqs:SendMessage"],
-        resources: [SQSQueue.queueArn],
-      })
-    );
-
-    resourceRole1.addManagedPolicy(
-      iam.ManagedPolicy.fromAwsManagedPolicyName(
-        "service-role/AWSLambdaBasicExecutionRole"
-      )
-    );
-
-
-    const ResourceFunction1 = new lambda.Function(this, "ResourceFunction1", {
-      description: "",
-      environment: {
-        queue_url: SQSQueue.queueUrl,
-      },
-      functionName: "RecommendationResource1",
-      handler: "Resource.lambda_handler",
-      code: lambda.Code.fromAsset("lambda"),
-      memorySize: 128,
-      role: resourceRole1,
-      runtime: lambda.Runtime.PYTHON_3_9,
-    });
-
-    const resourceRole2 = new iam.Role(this, "Resource Role2", {
-      assumedBy: new iam.ServicePrincipal("lambda.amazonaws.com"),
-    });
-
-    resourceRole2.addToPolicy(
-      new iam.PolicyStatement({
-        actions: ["sqs:SendMessage"],
-        resources: [SQSQueue.queueArn],
-      })
-    );
-
-    resourceRole2.addManagedPolicy(
-      iam.ManagedPolicy.fromAwsManagedPolicyName(
-        "service-role/AWSLambdaBasicExecutionRole"
-      )
-    );
-
-    const ResourceFunction2 = new lambda.Function(this, "ResourceFunction2", {
-      description: "",
-      environment: {
-        queue_url: SQSQueue.queueUrl,
-      },
-      functionName: "RecommendationResource2",
-      handler: "Resource.lambda_handler",
-      code: lambda.Code.fromAsset("lambda"),
-      memorySize: 128,
-      role: resourceRole2,
-      runtime: lambda.Runtime.PYTHON_3_9,
-    });
-
-    const resourceRole3 = new iam.Role(this, "Resource Role3", {
-      assumedBy: new iam.ServicePrincipal("lambda.amazonaws.com"),
-    });
-
-    resourceRole3.addToPolicy(
-      new iam.PolicyStatement({
-        actions: ["sqs:SendMessage"],
-        resources: [SQSQueue.queueArn],
-      })
-    );
-
-    resourceRole3.addManagedPolicy(
-      iam.ManagedPolicy.fromAwsManagedPolicyName(
-        "service-role/AWSLambdaBasicExecutionRole"
-      )
-    );
-
-    const ResourceFunction3 = new lambda.Function(this, "ResourceFunction3", {
-      description: "",
-      environment: {
-        queue_url: SQSQueue.queueUrl,
-      },
-      functionName: "RecommendationResource3",
-      handler: "Resource.lambda_handler",
-      code: lambda.Code.fromAsset("lambda"),
-      memorySize: 128,
-      role: resourceRole3,
-      runtime: lambda.Runtime.PYTHON_3_9,
-    });
-
-    const SNSTopic = new sns.CfnTopic(this, "SNSTopic", {
-      displayName: "StockRecommendation",
-      topicName: "StockRecommendation",
-      kmsMasterKeyId: "alias/aws/sns",
-    });
-
-    const SNSTopicPolicy = new sns.CfnTopicPolicy(this, "SNSTopicPolicy", {
-      policyDocument: {
-        Version: "2008-10-17",
-        Id: "__default_policy_ID",
-        Statement: [
-          {
-            Sid: "__default_statement_ID",
-            Effect: "Allow",
-            Principal: { AWS: "*" },
-            Action: [
-              "SNS:GetTopicAttributes",
-              "SNS:SetTopicAttributes",
-              "SNS:AddPermission",
-              "SNS:RemovePermission",
-              "SNS:DeleteTopic",
-              "SNS:Subscribe",
-              "SNS:ListSubscriptionsByTopic",
-              "SNS:Publish",
-            ],
-            Resource: `${SNSTopic.ref}`,
-            Condition: {
-              StringEquals: { "AWS:SourceOwner": `${this.account}` },
+    const SNSTopicPolicy_ShipOrder = new sns.CfnTopicPolicy(this, "SNSTopicPolicy_ShipOrder", {
+        policyDocument: {
+          Version: "2008-10-17",
+          Id: "__default_policy_ID",
+          Statement: [
+            {
+              Sid: "__default_statement_ID",
+              Effect: "Allow",
+              Principal: { AWS: "*" },
+              Action: [
+                "SNS:GetTopicAttributes",
+                "SNS:SetTopicAttributes",
+                "SNS:AddPermission",
+                "SNS:RemovePermission",
+                "SNS:DeleteTopic",
+                "SNS:Subscribe",
+                "SNS:ListSubscriptionsByTopic",
+                "SNS:Publish",
+              ],
+              Resource: `${SNSTopic_ShipOrder.ref}`,
+              Condition: {
+                StringEquals: { "AWS:SourceOwner": `${this.account}` },
+              },
             },
-          },
+          ],
+        },
+        topics: [SNSTopic_ShipOrder.ref],
+      });
+
+    ProcessPaymentFunctionRole.addToPolicy(
+        new iam.PolicyStatement({
+          actions: ["sns:Publish"],
+          resources: [SNSTopic_ShipOrder.ref],
+        })
+      );
+
+
+
+    const ShipOrderFunctionRole = new iam.Role(this, "Ship Order Function Role", {
+        assumedBy: new iam.ServicePrincipal("lambda.amazonaws.com"),
+      });
+  
+    ShipOrderFunctionRole.addToPolicy(
+        new iam.PolicyStatement({
+          actions: [
+            "dynamodb:PutItem",
+            "dynamodb:GetItem",
+            "dynamodb:BatchGetItem",
+            "dynamodb:Scan",
+            "dynamodb:Query",
+            "dynamodb:ConditionCheckItem",
+            "dynamodb:UpdateItem"
         ],
-      },
-      topics: [SNSTopic.ref],
-    });
+          resources: [DynamoDBTable.attrArn],
+        })
+      );
+  
+      ShipOrderFunctionRole.addManagedPolicy(
+        iam.ManagedPolicy.fromAwsManagedPolicyName(
+          "service-role/AWSLambdaBasicExecutionRole"
+        )
+      );
 
-    const SNSSubscription1 = new sns.CfnSubscription(this, "SNSSubscription1", {
-      topicArn: SNSTopic.ref,
-      endpoint: ResourceFunction1.functionArn,
+      const SNSTopic_UpdateReward = new sns.CfnTopic(this, "SNSTopic_UpdateReward", {
+        displayName: "UpdateRewardTopic",
+        topicName: "UpdateRewardTopic",
+        kmsMasterKeyId: "alias/aws/sns",
+      });
+    
+
+    const ShipOrderFunction = new lambda.Function(this, "ShipOrderFunction", {
+        description: "",
+        environment: {
+          table_name: DynamoDBTable.ref,
+          sns_topic_arn : SNSTopic_UpdateReward.ref
+        },
+        functionName: "ShipOrderFunction",
+        handler: "ShipOrder.lambda_handler",
+        code: lambda.Code.fromAsset("lambda/choreography"),
+        memorySize: 128,
+        role: ShipOrderFunctionRole,
+        runtime: lambda.Runtime.PYTHON_3_9,
+      });
+
+    const SNSSubscription_ShipOrder= new sns.CfnSubscription(this, "SNSSubscription_ShipOrder", {
+      topicArn: SNSTopic_ShipOrder.ref,
+      endpoint: ShipOrderFunction.functionArn,
       protocol: "lambda",
       region: `${this.region}`,
     });
 
-    const SNSSubscription2 = new sns.CfnSubscription(this, "SNSSubscription2", {
-      topicArn: SNSTopic.ref,
-      endpoint: ResourceFunction2.functionArn,
-      protocol: "lambda",
-      region: `${this.region}`,
-    });
+    const SNSTopicPolicy_UpdateReward = new sns.CfnTopicPolicy(this, "SNSTopicPolicy_UpdateReward", {
+        policyDocument: {
+          Version: "2008-10-17",
+          Id: "__default_policy_ID",
+          Statement: [
+            {
+              Sid: "__default_statement_ID",
+              Effect: "Allow",
+              Principal: { AWS: "*" },
+              Action: [
+                "SNS:GetTopicAttributes",
+                "SNS:SetTopicAttributes",
+                "SNS:AddPermission",
+                "SNS:RemovePermission",
+                "SNS:DeleteTopic",
+                "SNS:Subscribe",
+                "SNS:ListSubscriptionsByTopic",
+                "SNS:Publish",
+              ],
+              Resource: `${SNSTopic_UpdateReward.ref}`,
+              Condition: {
+                StringEquals: { "AWS:SourceOwner": `${this.account}` },
+              },
+            },
+          ],
+        },
+        topics: [SNSTopic_UpdateReward.ref],
+      });
 
-    const SNSSubscription3 = new sns.CfnSubscription(this, "SNSSubscription3", {
-      topicArn: SNSTopic.ref,
-      endpoint: ResourceFunction3.functionArn,
-      protocol: "lambda",
-      region: `${this.region}`,
-    });
+    ShipOrderFunctionRole.addToPolicy(
+        new iam.PolicyStatement({
+          actions: ["sns:Publish"],
+          resources: [SNSTopic_UpdateReward.ref],
+        })
+      );
 
-    const principal = new iam.ServicePrincipal("sns.amazonaws.com");
+      const sns_principal = new iam.ServicePrincipal("sns.amazonaws.com");
 
-    ResourceFunction1.grantInvoke(principal);
-    ResourceFunction2.grantInvoke(principal);
-    ResourceFunction3.grantInvoke(principal);
+      ShipOrderFunction.grantInvoke(sns_principal);
 
-    const prdLogGroup = new logs.LogGroup(this, "PrdLogs");
+      const UpdateRewardFunctionRole = new iam.Role(this, "Update Reward Function Role", {
+        assumedBy: new iam.ServicePrincipal("lambda.amazonaws.com"),
+      });
+
+      UpdateRewardFunctionRole.addToPolicy(
+        new iam.PolicyStatement({
+          actions: [
+            "dynamodb:PutItem",
+            "dynamodb:GetItem",
+            "dynamodb:BatchGetItem",
+            "dynamodb:Scan",
+            "dynamodb:Query",
+            "dynamodb:ConditionCheckItem",
+            "dynamodb:UpdateItem"
+        ],
+          resources: [DynamoDBTable.attrArn],
+        })
+      );
+  
+      UpdateRewardFunctionRole.addManagedPolicy(
+        iam.ManagedPolicy.fromAwsManagedPolicyName(
+          "service-role/AWSLambdaBasicExecutionRole"
+        )
+      );
+
+    const UpdateRewardFunction = new lambda.Function(this, "UpdateRewardFunction", {
+        description: "",
+        environment: {
+          table_name: DynamoDBTable.ref,
+        },
+        functionName: "UpdateRewardFunction",
+        handler: "UpdateReward.lambda_handler",
+        code: lambda.Code.fromAsset("lambda/choreography"),
+        memorySize: 128,
+        role: UpdateRewardFunctionRole,
+        runtime: lambda.Runtime.PYTHON_3_9,
+      });
+
+    const SNSSubscription_UpdateReward= new sns.CfnSubscription(this, "SNSSubscription_UpdateReward", {
+        topicArn: SNSTopic_UpdateReward.ref,
+        endpoint: UpdateRewardFunction.functionArn,
+        protocol: "lambda",
+        region: `${this.region}`,
+      });
+      
+      UpdateRewardFunction.grantInvoke(sns_principal);
 
     const ApiGatewayRestApi = new apigateway.CfnRestApi(
       this,
       "ApiGatewayRestApi",
       {
-        name: "StockRecommendationEndpoint",
+        name: "OrderProductEndpoint",
         apiKeySourceType: "HEADER",
         endpointConfiguration: {
           types: ["REGIONAL"],
@@ -301,12 +316,12 @@ export class ChoreographyStack extends Stack {
       }
     );
 
-    const ApiGatewayResource = new apigateway.CfnResource(
+    const ApiGatewayResource1 = new apigateway.CfnResource(
       this,
       "ApiGatewayResource",
       {
         restApiId: ApiGatewayRestApi.ref,
-        pathPart: "query",
+        pathPart: "getOrder",
         parentId: ApiGatewayRestApi.attrRootResourceId,
       }
     );
@@ -316,7 +331,7 @@ export class ChoreographyStack extends Stack {
       "ApiGatewayResource2",
       {
         restApiId: ApiGatewayRestApi.ref,
-        pathPart: "submit",
+        pathPart: "placeOrder",
         parentId: ApiGatewayRestApi.attrRootResourceId,
       }
     );
@@ -327,7 +342,7 @@ export class ChoreographyStack extends Stack {
       {
         restApiId: ApiGatewayRestApi.ref,
         pathPart: "{id}",
-        parentId: ApiGatewayResource.ref,
+        parentId: ApiGatewayResource1.ref,
       }
     );
 
@@ -335,12 +350,12 @@ export class ChoreographyStack extends Stack {
       assumedBy: new iam.ServicePrincipal("apigateway.amazonaws.com"),
     });
 
-    apiMethodRole.addToPolicy(
-      new iam.PolicyStatement({
-        actions: ["sns:Publish"],
-        resources: [SNSTopic.ref],
-      })
-    );
+    // apiMethodRole.addToPolicy(
+    //   new iam.PolicyStatement({
+    //     actions: ["sns:Publish"],
+    //     resources: [SNSTopic.ref],
+    //   })
+    // );
 
     const ApiGatewayMethod = new apigateway.CfnMethod(
       this,
@@ -351,10 +366,6 @@ export class ChoreographyStack extends Stack {
         httpMethod: "POST",
         authorizationType: "NONE",
         apiKeyRequired: false,
-        requestParameters: {
-          "method.request.querystring.message": true,
-          "method.request.querystring.topic": true,
-        },
         methodResponses: [
           {
             responseModels: {
@@ -365,7 +376,7 @@ export class ChoreographyStack extends Stack {
         ],
         integration: {
           cacheNamespace: ApiGatewayResource2.ref,
-          credentials: apiMethodRole.roleArn,
+        //   credentials: apiMethodRole.roleArn,
           integrationHttpMethod: "POST",
           integrationResponses: [
             {
@@ -374,15 +385,9 @@ export class ChoreographyStack extends Stack {
             },
           ],
           passthroughBehavior: "WHEN_NO_MATCH",
-          requestParameters: {
-            "integration.request.querystring.Message":
-              "method.request.querystring.message",
-            "integration.request.querystring.TopicArn":
-              "method.request.querystring.topic",
-          },
           timeoutInMillis: 29000,
-          type: "AWS",
-          uri: "arn:aws:apigateway:us-east-1:sns:action/Publish",
+          type: "AWS_PROXY",
+          uri: `arn:aws:apigateway:us-east-1:lambda:path/2015-03-31/functions/${ProcessPaymentFunction.functionArn}/invocations` 
         },
       }
     );
@@ -432,31 +437,33 @@ export class ChoreographyStack extends Stack {
           integrationResponses: [
             {
               responseTemplates: {
-                "application/json": `{"Quotes": [
-#set( $items= $input.path("$.Items") )
-#foreach( $item in $items )
-"Stock Id" : $item.stock_id.S,
-"Recommendation" : $item.quote.S,
-"Quote by" : $item.from.S
-#if( $foreach.hasNext ),#end
-$esc.newline
-#end]}`,
+                "application/json": `{
+                    #set( $items= $input.path("$.Items") )
+                    #foreach( $item in $items )
+                        "Product Id" : $item.product_id.S,
+                        "Payment has been processed" : $item.Payment_processed.BOOL,
+                        "Order has been shipped" : $item.Ship_order.BOOL,
+                        "Reward was updated" : $item.Update_reward.BOOL
+                        #if( $foreach.hasNext ),#end
+                        $esc.newline
+                    #end
+                    }
+                    `,
               },
               statusCode: "200",
             },
           ],
           passthroughBehavior: "WHEN_NO_TEMPLATES",
           requestTemplates: {
-            "application/json": `
-{
-"TableName": "StockRecommendationTable",
-"KeyConditionExpression": "stock_id=:v1",
-"ExpressionAttributeValues": {
-":v1": {
-  "S": "$util.urlDecode($input.params('id'))"
-}
-}
-}`,
+            "application/json": `{
+                "TableName": "store-order-data",
+                "KeyConditionExpression": "product_id=:v1",
+                "ExpressionAttributeValues": {
+                    ":v1": {
+                        "S": "$util.urlDecode($input.params('id'))"
+                    }
+                }
+            }`,
           },
           timeoutInMillis: 29000,
           type: "AWS",
@@ -499,7 +506,7 @@ $esc.newline
       tracingEnabled: false,
     });
 
-    new CfnOutput(this, 'SNS Topic ARN: ', { value: SNSTopic.ref });
+    // new CfnOutput(this, 'SNS Topic ARN: ', { value: SNSTopic.ref });
     new CfnOutput(this, 'REST API endpoint: ', { value: `https://${ApiGatewayDeployment.restApiId}.execute-api.${this.region}.amazonaws.com/prod` });
   }
 }

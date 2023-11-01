@@ -36,29 +36,29 @@ export class OrchestrationStack extends Stack {
       },
     ]);
 
-    const ResourceFunction1 = new lambda.Function(this, "ResourceFunction1", {
+    const ProcessPaymentFunction = new lambda.Function(this, "ProcessPaymentFunction", {
       description: "",
-      functionName: "RecommendationResource1",
-      handler: "Resource.lambda_handler",
-      code: lambda.Code.fromAsset("lambda"),
+      functionName: "ProcessPaymentFunction",
+      handler: "ProcessPayment.lambda_handler",
+      code: lambda.Code.fromAsset("lambda/orchestration"),
       memorySize: 128,
       runtime: lambda.Runtime.PYTHON_3_9,
     });
 
-    const ResourceFunction2 = new lambda.Function(this, "ResourceFunction2", {
+    const ShipOrderFunction = new lambda.Function(this, "ShipOrderFunction", {
       description: "",
-      functionName: "RecommendationResource2",
-      handler: "Resource.lambda_handler",
-      code: lambda.Code.fromAsset("lambda"),
+      functionName: "ShipOrderFunction",
+      handler: "ShipOrder.lambda_handler",
+      code: lambda.Code.fromAsset("lambda/orchestration"),
       memorySize: 128,
       runtime: lambda.Runtime.PYTHON_3_9,
     });
 
-    const ResourceFunction3 = new lambda.Function(this, "ResourceFunction3", {
+    const UpdateRewardFunction = new lambda.Function(this, "UpdateRewardFunction", {
       description: "",
-      functionName: "RecommendationResource3",
-      handler: "Resource.lambda_handler",
-      code: lambda.Code.fromAsset("lambda"),
+      functionName: "UpdateRewardFunction",
+      handler: "UpdateReward.lambda_handler",
+      code: lambda.Code.fromAsset("lambda/orchestration"),
       memorySize: 128,
       runtime: lambda.Runtime.PYTHON_3_9,
     });
@@ -70,116 +70,135 @@ export class OrchestrationStack extends Stack {
     stateMachineRole.addToPolicy(
       new iam.PolicyStatement({
         actions: ["lambda:InvokeFunction"],
-        resources: [ResourceFunction1.functionArn, ResourceFunction2.functionArn, ResourceFunction3.functionArn],
+        resources: [ProcessPaymentFunction.functionArn, ShipOrderFunction.functionArn, UpdateRewardFunction.functionArn],
       })
     );
 
     const StepFunctionsStateMachine = new sfn.CfnStateMachine(this, 'StepFunctionsStateMachine', {
       stateMachineName: "MyStateMachine-klj0017ra",
       definitionString: `
-{
-  "Comment": "A description of my state machine",
-  "StartAt": "Pass",
-  "States": {
-    "Pass": {
-      "Type": "Pass",
-      "Next": "Parallel"
-    },
-    "Parallel": {
-      "Type": "Parallel",
-      "Branches": [
-        {
-          "StartAt": "RecommendationResource-1",
-          "States": {
-            "RecommendationResource-1": {
-              "Type": "Task",
-              "Resource": "arn:aws:states:::lambda:invoke",
-              "OutputPath": "$.Payload",
-              "Parameters": {
-                "Payload.$": "$",
-                "FunctionName": "${ResourceFunction1.functionArn}"
-              },
-              "Retry": [
-                {
-                  "ErrorEquals": [
-                    "Lambda.ServiceException",
-                    "Lambda.AWSLambdaException",
-                    "Lambda.SdkClientException",
-                    "Lambda.TooManyRequestsException"
-                  ],
-                  "IntervalSeconds": 2,
-                  "MaxAttempts": 6,
-                  "BackoffRate": 2
-                }
-              ],
-              "End": true
+      {
+        "Comment": "A description of my state machine",
+        "StartAt": "processPaymentFunction",
+        "States": {
+          "processPaymentFunction": {
+            "Type": "Task",
+            "Resource": "arn:aws:states:::lambda:invoke",
+            "OutputPath": "$.Payload",
+            "Parameters": {
+              "Payload.$": "$",
+              "FunctionName": "${ProcessPaymentFunction.functionArn}"
+            },
+            "Retry": [
+              {
+                "ErrorEquals": [
+                  "Lambda.ServiceException",
+                  "Lambda.AWSLambdaException",
+                  "Lambda.SdkClientException",
+                  "Lambda.TooManyRequestsException"
+                ],
+                "IntervalSeconds": 1,
+                "MaxAttempts": 3,
+                "BackoffRate": 2
+              }
+            ],
+            "Next": "Choice"
+          },
+          "Choice": {
+            "Type": "Choice",
+            "Choices": [
+              {
+                "Variable": "$.payment_processed",
+                "BooleanEquals": true,
+                "Next": "ShipOrderFunction"
+              }
+            ],
+            "Default": "Handle Error"
+          },
+          "ShipOrderFunction": {
+            "Type": "Task",
+            "Resource": "arn:aws:states:::lambda:invoke",
+            "OutputPath": "$.Payload",
+            "Parameters": {
+              "Payload.$": "$",
+              "FunctionName": "${ShipOrderFunction.functionArn}"
+            },
+            "Retry": [
+              {
+                "ErrorEquals": [
+                  "Lambda.ServiceException",
+                  "Lambda.AWSLambdaException",
+                  "Lambda.SdkClientException",
+                  "Lambda.TooManyRequestsException"
+                ],
+                "IntervalSeconds": 1,
+                "MaxAttempts": 3,
+                "BackoffRate": 2
+              }
+            ],
+            "Next": "Choice (1)"
+          },
+          "Choice (1)": {
+            "Type": "Choice",
+            "Choices": [
+              {
+                "Variable": "$.order_shipped",
+                "BooleanEquals": true,
+                "Next": "Update Reward function"
+              }
+            ],
+            "Default": "Handle Error"
+          },
+          "Update Reward function": {
+            "Type": "Task",
+            "Resource": "arn:aws:states:::lambda:invoke",
+            "OutputPath": "$.Payload",
+            "Parameters": {
+              "Payload.$": "$",
+              "FunctionName": "${UpdateRewardFunction.functionArn}"
+            },
+            "Retry": [
+              {
+                "ErrorEquals": [
+                  "Lambda.ServiceException",
+                  "Lambda.AWSLambdaException",
+                  "Lambda.SdkClientException",
+                  "Lambda.TooManyRequestsException"
+                ],
+                "IntervalSeconds": 1,
+                "MaxAttempts": 3,
+                "BackoffRate": 2
+              }
+            ],
+            "Next": "Choice (2)"
+          },
+          "Choice (2)": {
+            "Type": "Choice",
+            "Choices": [
+              {
+                "Variable": "$.update_reward",
+                "BooleanEquals": true,
+                "Next": "Transform Data"
+              }
+            ],
+            "Default": "Handle Error"
+          },
+          "Transform Data": {
+            "Type": "Pass",
+            "End": true,
+            "Parameters": {
+              "Product ID.$": "$.product_id",
+              "Payment has been processed.$": "$.payment_processed",
+              "Order has been shipped.$": "$.order_shipped",
+              "Reward was updated.$": "$.update_reward"
             }
-          }
-        },
-        {
-          "StartAt": "RecommendationResource-2",
-          "States": {
-            "RecommendationResource-2": {
-              "Type": "Task",
-              "Resource": "arn:aws:states:::lambda:invoke",
-              "OutputPath": "$.Payload",
-              "Parameters": {
-                "Payload.$": "$",
-                "FunctionName": "${ResourceFunction2.functionArn}"
-              },
-              "Retry": [
-                {
-                  "ErrorEquals": [
-                    "Lambda.ServiceException",
-                    "Lambda.AWSLambdaException",
-                    "Lambda.SdkClientException",
-                    "Lambda.TooManyRequestsException"
-                  ],
-                  "IntervalSeconds": 2,
-                  "MaxAttempts": 6,
-                  "BackoffRate": 2
-                }
-              ],
-              "End": true
-            }
-          }
-        },
-        {
-          "StartAt": "RecommendationResource-3",
-          "States": {
-            "RecommendationResource-3": {
-              "Type": "Task",
-              "Resource": "arn:aws:states:::lambda:invoke",
-              "OutputPath": "$.Payload",
-              "Parameters": {
-                "Payload.$": "$",
-                "FunctionName": "${ResourceFunction3.functionArn}"
-              },
-              "Retry": [
-                {
-                  "ErrorEquals": [
-                    "Lambda.ServiceException",
-                    "Lambda.AWSLambdaException",
-                    "Lambda.SdkClientException",
-                    "Lambda.TooManyRequestsException"
-                  ],
-                  "IntervalSeconds": 2,
-                  "MaxAttempts": 6,
-                  "BackoffRate": 2
-                }
-              ],
-              "End": true
-            }
+          },
+          "Handle Error": {
+            "Type": "Pass",
+            "End": true
           }
         }
-      ],
-      "ResultSelector": {
-        "Quotes.$": "$"
-      },
-      "End": true
-    }
-  }
-}
+      }
 `,
       roleArn: stateMachineRole.roleArn,
       stateMachineType: "STANDARD",

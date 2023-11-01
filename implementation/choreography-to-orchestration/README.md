@@ -2,18 +2,18 @@
 This project is the CDK implementation of ['Convert Orchestration to Choreography'](https://serverlessland.com/refactoring-serverless/choreography-to-orchestration) pattern. It shows how you can convert a distributed message flow Choreography architecture to a central workflow Orchestration architecture. 
 
 ## How it works: 
-The use case is for an  application that provides recommendations to buy or sell a stock(Stock Recommendation Engine). Customer sends a recommendation request for a stock. The application broadcasts the recommendation request to multiple resources and re-aggregate the responses back into a single quote and is sent to the customer. 
+The use case is for an application that place an order for a product (Order Placement Workflow). Customer sends a request to place an order for a product. The application completes a series of steps reuired to complete an order and ship the product to customer. 
 
 ***
 ## Choreography: 
 
-The flow starts with client submitting a recommendation quote request to the API Gateway REST API. Generating quotes is a lengthy process so there is no immediate response. The API accepts the recommendation request and returns a success or failed response. 
+The flow starts with client submitting a place order request to the API Gateway REST API. Placing order is a lengthy process so there is no immediate response. The API accepts the place order request and returns a success or failed response. 
 
-API Gateway then publishes the details into as SNS topic. SNS broadcasts the request to all potential recommendation resources. The resources use Publish-subscribe messaging model and will register (or subscribe) to the SNS topic. 
+API gateway then sends the request to a lambda function, which processes the payment and persists the payment data in an Amazon DynamoDB table. After that, the request is published to a 'Ship Order' SNS topic. Using Publish-subscribe model another lambda function will register to the 'Ship Order' SNS topic. This function reads the data from DynamoDB table to verify if payment was processed successfully and then ships an order. Throws an error is payment is not processed successfully. 
 
-The resources receives the message, runs their recommendation logic and submits their quote. All the quotes from resources are sent to Amazon SQS queue. The aggregator component then consumes the individual responses from the queue and uses an integration pattern, Stock ID to match incoming messages to the right Stock. The aggregator responsibility is simple to persist the details of each incoming quote into an Amazon DynamoDB table. 
+After that the record in DynamoDB table is updated and the request will be forwarded to 'Update Reward' SNS topic. The UpdateReward lambda function is subscribed to the SNS topic. This function reads data from DynamoDB table and verifies is the order is shipped. If order is shipped successfully then the DynamoDB table is updated with the reward data, if not an error is thrown. 
 
-Client requests the quote from using the Query REST API. The API reads the responses from the DynamoDB table, converts the data to JSON for the customer. All the components in this architecture can operate independently and asynchronously without needing a central coordinator.
+Client requests the order details using the 'get Order' REST API. The API reads the response from the DynamoDB table, formats the data to JSON for the customer. All the components in this architecture can operate independently and asynchronously without needing a central coordinator
 
 ## Deploy the application:
 To build this app, navigate to implementation/choreography-to-orchestration folder. Then run the following:
@@ -32,52 +32,45 @@ cdk bootstrap
 cdk deploy ChoreographyStack
 ```
 
-The stack outputs the RESTAPIendpoint and SNSTopicARN. Please note the values, we need them to test our application. 
+The stack outputs the RESTAPIendpoint. Please note the value, we need them to test our application. 
 
 ## Testing:
 
-Submit a recommendation quote request to the API Gateway REST API with the Stock ID using the curl command: 
+Submit a place order request to the API Gateway REST API with the Stock ID using the curl command: 
 
 ```bash
-curl --request POST '{RESTAPIendpoint}/submit?message=%7B%22stock-id%22:{Stock ID(should be an Integer, for example 3}%7D&topic={SNSTopic ARN}'
-    ```
+curl --request POST '{RESTAPIendpoint}/prod/placeOrder' --header 'Content-Type: text/plain' --data-raw '{"product_id" : Product ID(should be an integer)}'
+
+````
+
 Example request: 
 
 ```bash
-curl --location --request POST 'https://1234abc5.execute-api.us-east-1.amazonaws.com/prod/submit?message=%7B%22stock-id%22:3%7D&topic=arn:aws:sns:us-east-1:123456789123:StockRecommendation'
+curl --location --request POST 'https://1234abc5.execute-api.us-east-1.amazonaws.com/prodplaceOrder' --header 'Content-Type: text/plain' --data-raw '{"product_id" : 10)}'
 
 ```
 
 This will give a 200 success response.
 
-Now run the query quotes API using the curl command:
+Now run the get Order API using the curl command:
 
 ```bash
-curl --request GET '{RESTAPIendpoint}/query/{Stock ID}'
+curl --request GET '{RESTAPIendpoint}/getOrder/{Product ID}'
 ```
 Example request: 
 
 ```bash
-https://1234abc5.execute-api.us-east-1.amazonaws.com/prod/query/3
+https://1234abc5.execute-api.us-east-1.amazonaws.com/prod/getOrder/10
 ```
 
-Response will include a JSON object with quotes from all the Recommendation resources, sample JSON response:
+Response will include a JSON object with details about the order, sample JSON response:
 
 ```bash
 {
-    "Quotes": [
-        "Stock Id": 3,
-        "Recommendation": buy,
-        "Quote by": RecommendationResource1
-,
-        "Stock Id": 3,
-        "Recommendation": buy,
-        "Quote by": RecommendationResource2
-,
-        "Stock Id": 3,
-        "Recommendation": buy,
-        "Quote by": RecommendationResource3
-    ]
+    "Product Id": 10,
+    "Payment has been processed": true,
+    "Order has been shipped": true,
+    "Reward was updated": true
 }
 ```
 
@@ -89,7 +82,8 @@ cdk destroy ChoreographyStack
 ***
 
 ## Orchestration:
-A step function models the work flow as a state machine, coordinates the interactions between components and completes the workflow. The state machine uses Parallel state and adds separate branches to the recommendation resources. Each branch executes concurrently and waits until all resources respond  (or reach a terminal state). 
+
+A step function models the work flow as a state machine, coordinates the interactions between components and completes the workflow. The state machine invokes the lambda function and send the output to the next state. It then uses a Choice state to add conditional logic to either move to next steps or to an error state. 
 
 ## Deploy the application:
 To build this app, navigate to implementation/choreography-to-orchestration folder. Then run the following:
@@ -113,7 +107,7 @@ The stack outputs the StateMAchineARN. Please note the values, we need them to t
 Run the below command using AWS CLI, to start a stste machine execution
 
 ```bash
-aws stepfunctions start-execution --state-machine-arn {StateMAchineARN}  --input "$(echo '{"stock-id": 10}' | jq -R . )"
+aws stepfunctions start-execution --state-machine-arn {StateMAchineARN}  --input "$(echo '{"product-id": 10}' | jq -R . )"
 ```
 
 The response will contain executionArn. Run the below command using the executionArn
@@ -126,24 +120,12 @@ The response looks similar to:
 
 ```bash
 {
-  "Quotes": [
-    {
-      "stock-id": 10,
-      "quote": "sell",
-      "from": "RecommendationResource1"
-    },
-    {
-      "stock-id": 10,
-      "quote": "sell",
-      "from": "RecommendationResource2"
-    },
-    {
-      "stock-id": 10,
-      "quote": "sell",
-      "from": "RecommendationResource3"
-    }
-  ]
+  "Product ID": 34,
+  "Order has been shipped": true,
+  "Reward was updated": true,
+  "Payment has been processed": true
 }
+
 ```
 ## Cleanup:
 cdk destroy OrchestrationStack
