@@ -42,7 +42,7 @@ As an example to convert Choreography to Orchestration by using AWS Step Functio
 
 ## Limitations: 
 
-- Additional costs when using the Orchestration service.
+- Additional costs when using the Orchestration service. For example, AWS Step functions charges for the total number of state transitions per month after exceeding the initial 4,000 free state transitions per month. AWS Step Functions counts a state transition every time a step of your workflow is executed. 
 
 - The central coordinator system can be a single point of failure.  
 
