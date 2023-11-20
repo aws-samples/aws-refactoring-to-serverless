@@ -63,6 +63,26 @@ export class OrchestrationStack extends Stack {
       runtime: lambda.Runtime.PYTHON_3_9,
     });
 
+    const DynamoDBTable = new dynamodb.CfnTable(this, "DynamoDBTable", {
+      attributeDefinitions: [
+        {
+          attributeName: "product_id",
+          attributeType: "S",
+        }
+      ],
+      tableName: "store-order-data",
+      keySchema: [
+        {
+          attributeName: "product_id",
+          keyType: "HASH",
+        }
+      ],
+      provisionedThroughput: {
+        readCapacityUnits: 1,
+        writeCapacityUnits: 1,
+      },
+    });
+
     const stateMachineRole = new iam.Role(this, "Resource Role", {
       assumedBy: new iam.ServicePrincipal("states.amazonaws.com"),
     });
@@ -71,6 +91,13 @@ export class OrchestrationStack extends Stack {
       new iam.PolicyStatement({
         actions: ["lambda:InvokeFunction"],
         resources: [ProcessPaymentFunction.functionArn, ShipOrderFunction.functionArn, UpdateRewardFunction.functionArn],
+      })
+    );
+
+    stateMachineRole.addToPolicy(
+      new iam.PolicyStatement({
+        actions: ["dynamodb:PutItem"],
+        resources: [DynamoDBTable.attrArn],
       })
     );
 
@@ -178,10 +205,33 @@ export class OrchestrationStack extends Stack {
               {
                 "Variable": "$.update_reward",
                 "BooleanEquals": true,
-                "Next": "Transform Data"
+                "Next": "Put Item"
               }
             ],
             "Default": "Handle Error"
+          },
+          "Put Item": {
+            "Type": "Task",
+            "Resource": "arn:aws:states:::dynamodb:putItem",
+            "Parameters": {
+              "TableName": "${DynamoDBTable.tableName}",
+              "Item": {
+                "product_id": {
+                  "S.$": "$.product_id"
+                },
+                "Payment_processed": {
+                  "BOOL": true
+                },
+                "Ship_order": {
+                  "BOOL": true
+                },
+                "Update_reward": {
+                  "BOOL": true
+                }
+              }
+            },
+            "Next": "Transform Data",
+            "ResultPath": null
           },
           "Transform Data": {
             "Type": "Pass",

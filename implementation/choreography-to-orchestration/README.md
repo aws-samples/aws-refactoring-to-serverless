@@ -2,18 +2,18 @@
 This project is the CDK implementation of ['Convert Orchestration to Choreography'](https://serverlessland.com/refactoring-serverless/choreography-to-orchestration) pattern. It shows how you can convert a distributed message flow Choreography architecture to a central workflow Orchestration architecture. 
 
 ## How it works: 
-The use case is for an application that place an order for a product (Order Placement Workflow). Customer sends a request to place an order for a product. The application completes a series of steps reuired to complete an order and ship the product to customer. 
+The use case is for an application that place an order for a product (Order Placement Workflow). Customer sends a request to place an order for a product. The application completes a series of steps required to complete an order and ship the product to customer. The code will deploy 2 CloudFormation stacks ChoreographyStack and OrchestrationStack. In ChoreographyStack the services coordinate among themselves, the refactored OrchestrationStack uses a central orchestrator to manage and coordinate the interactions. 
 
 ***
 ## Choreography: 
 
-The flow starts with client submitting a place order request to the API Gateway REST API. Placing order is a lengthy process so there is no immediate response. The API accepts the place order request and returns a success or failed response. 
+The flow starts with customer submitting a place order request to the API Gateway REST API. Placing order is a lengthy process so there is no immediate response. The API accepts the place order request and returns a success or failed response. 
 
-API gateway then sends the request to a lambda function, which processes the payment and persists the payment data in an Amazon DynamoDB table. After that, the request is published to a 'Ship Order' SNS topic. Using Publish-subscribe model another lambda function will register to the 'Ship Order' SNS topic. This function reads the data from DynamoDB table to verify if payment was processed successfully and then ships an order. Throws an error is payment is not processed successfully. 
+API gateway then sends the request to a Lambda function, which processes the payment and persists the payment data in an Amazon DynamoDB table. After that, the request is published to a 'Ship Order' SNS topic. Using Publish-subscribe model another Lambda function will register to the 'Ship Order' SNS topic. This function reads the data from DynamoDB table to verify if payment was processed successfully and then ships an order. Throws an error is payment is not processed successfully. 
 
-After that the record in DynamoDB table is updated and the request will be forwarded to 'Update Reward' SNS topic. The UpdateReward lambda function is subscribed to the SNS topic. This function reads data from DynamoDB table and verifies is the order is shipped. If order is shipped successfully then the DynamoDB table is updated with the reward data, if not an error is thrown. 
+After that the record in DynamoDB table is updated and the request will be forwarded to 'Update Reward' SNS topic. The UpdateReward Lambda function is subscribed to the SNS topic. This function reads data from DynamoDB table and verifies is the order is shipped. If order is shipped successfully then the DynamoDB table is updated with the reward data, if not an error is thrown. 
 
-Client requests the order details using the 'get Order' REST API. The API reads the response from the DynamoDB table, formats the data to JSON for the customer. All the components in this architecture can operate independently and asynchronously without needing a central coordinator
+Customer requests the order details using the 'get Order' REST API. The API reads the response from the DynamoDB table, formats the data to JSON for the customer. All the components in this architecture can operate independently and asynchronously without needing a central coordinator
 
 ## Deploy the application:
 To build this app, navigate to implementation/choreography-to-orchestration folder. Then run the following:
@@ -83,7 +83,7 @@ cdk destroy ChoreographyStack
 
 ## Orchestration:
 
-A step function models the work flow as a state machine, coordinates the interactions between components and completes the workflow. The state machine invokes the lambda function and send the output to the next state. It then uses a Choice state to add conditional logic to either move to next steps or to an error state. 
+A step function models the work flow as a state machine, coordinates the interactions between components and completes the workflow. The state machine invokes the Lambda function and send the output to the next state. It then uses a Choice state to add conditional logic to either move to next steps or to an error state. 
 
 ## Deploy the application:
 To build this app, navigate to implementation/choreography-to-orchestration folder. Then run the following:

@@ -16,7 +16,7 @@ In Choreography, every service works independently and achieves communication wi
 
 In orchestration, there is a central service (the ‘orchestrator’) that controls the interaction between services. It coordinates the interaction and order in which services are invoked like a control flow for the business logic. 
 
-Many applications use both choreography and orchestration for different use cases. Communication between bounded contexts is often how choreography is used most effectively, within a bounded context, you need to control the sequence of service integration, maintain state, and handle errors and retries. A standard guideline is to use orchestration within the bounded context of a microservice, but use choreography between bounded-contexts. 
+Many applications use both choreography and orchestration for different use cases. Communication between [bounded contexts](https://martinfowler.com/bliki/BoundedContext.html) is often how choreography is used most effectively, within a bounded context, you need to control the sequence of service integration, maintain state, and handle errors and retries. A standard guideline is to use orchestration within the bounded context of a microservice, but use choreography between bounded-contexts. 
 
 The following article presents a comprehensive illustration of two interaction patterns, highlights their pros and cons, and gives the advice how to select or combine them within a given context.
 
@@ -31,7 +31,7 @@ As an example to convert Choreography to Orchestration by using AWS Step Functio
 
 ## Advantages:
 
-- Easier to implement as one system controls the flow between components. The work flow is modelled and source controlled
+- Easier to implement as one system controls the flow between components. The work flow is modelled and version controlled
 
 - Simplifies end-to-end monitoring, reporting using built in visualization and audit histories.
  
@@ -39,10 +39,9 @@ As an example to convert Choreography to Orchestration by using AWS Step Functio
 
 - Centralized business logic - everything can be seen in one place. No need for architecture diagrams and supporting documents. 
 
-
 ## Limitations: 
 
-- Additional costs when using the Orchestration service. For example, AWS Step functions charges for the total number of state transitions per month after exceeding the initial 4,000 free state transitions per month. AWS Step Functions counts a state transition every time a step of your workflow is executed. 
+- Additional costs when using the Orchestration service. For example, AWS Step functions charges for the total number of state transitions per month after exceeding the initial 4,000 free state transitions per month. AWS Step Functions counts a state transition every time a step of your workflow is executed. For example for 50K requests it costs 3.96 using the original architecture and the refactored architecture using AWS step functions costs 4.90. 
 
 - The central coordinator system can be a single point of failure.  
 
