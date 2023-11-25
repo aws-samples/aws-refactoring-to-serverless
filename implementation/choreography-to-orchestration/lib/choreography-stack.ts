@@ -68,7 +68,7 @@ export class ChoreographyStack extends Stack {
           attributeType: "S",
         }
       ],
-      tableName: "store-order-data",
+      tableName: "temporary-data-store",
       keySchema: [
         {
           attributeName: "product_id",
@@ -119,7 +119,7 @@ export class ChoreographyStack extends Stack {
       code: lambda.Code.fromAsset("lambda/choreography"),
       memorySize: 128,
       role: ProcessPaymentFunctionRole,
-      runtime: lambda.Runtime.PYTHON_3_9,
+      runtime: lambda.Runtime.PYTHON_3_10,
     });
 
     const api_principal = new iam.ServicePrincipal("apigateway.amazonaws.com");
@@ -207,7 +207,7 @@ export class ChoreographyStack extends Stack {
         code: lambda.Code.fromAsset("lambda/choreography"),
         memorySize: 128,
         role: ShipOrderFunctionRole,
-        runtime: lambda.Runtime.PYTHON_3_9,
+        runtime: lambda.Runtime.PYTHON_3_10,
       });
 
     const SNSSubscription_ShipOrder= new sns.CfnSubscription(this, "SNSSubscription_ShipOrder", {
@@ -292,7 +292,7 @@ export class ChoreographyStack extends Stack {
         code: lambda.Code.fromAsset("lambda/choreography"),
         memorySize: 128,
         role: UpdateRewardFunctionRole,
-        runtime: lambda.Runtime.PYTHON_3_9,
+        runtime: lambda.Runtime.PYTHON_3_10,
       });
 
     const SNSSubscription_UpdateReward= new sns.CfnSubscription(this, "SNSSubscription_UpdateReward", {

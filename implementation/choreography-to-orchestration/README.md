@@ -9,9 +9,9 @@ The use case is for an application that place an order for a product (Order Plac
 
 The flow starts with customer submitting a place order request to the API Gateway REST API. Placing order is a lengthy process so there is no immediate response. The API accepts the place order request and returns a success or failed response. 
 
-API gateway then sends the request to a Lambda function, which processes the payment and persists the payment data in an Amazon DynamoDB table. After that, the request is published to a 'Ship Order' SNS topic. Using Publish-subscribe model another Lambda function will register to the 'Ship Order' SNS topic. This function reads the data from DynamoDB table to verify if payment was processed successfully and then ships an order. Throws an error is payment is not processed successfully. 
+API gateway then sends the request to a Lambda function, which processes the payment and uses Amazon DynamoDB table as temporary storage for payment data. After that, the request is published to a 'Ship Order' SNS topic. Using Publish-subscribe model another Lambda function will register to the 'Ship Order' SNS topic. This function reads the data from DynamoDB table to verify if payment was processed successfully and then ships an order. Throws an error is payment is not processed successfully. After that, the record in DynamoDB table is updated and the request will be forwarded to 'Update Reward' SNS topic. 
 
-After that the record in DynamoDB table is updated and the request will be forwarded to 'Update Reward' SNS topic. The UpdateReward Lambda function is subscribed to the SNS topic. This function reads data from DynamoDB table and verifies is the order is shipped. If order is shipped successfully then the DynamoDB table is updated with the reward data, if not an error is thrown. 
+The UpdateReward Lambda function is subscribed to the SNS topic. This function reads data from DynamoDB table and verifies if the order is shipped. If order is shipped successfully then the DynamoDB table is updated with the reward data, if not an error is thrown. 
 
 Customer requests the order details using the 'get Order' REST API. The API reads the response from the DynamoDB table, formats the data to JSON for the customer. All the components in this architecture can operate independently and asynchronously without needing a central coordinator
 
