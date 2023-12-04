@@ -21,8 +21,8 @@ This repo contains catalog of these refactorings
 
 
 ## Owners
-Gregor Hohpe, Enterprise Strategist, AWS  
 Sindhu Pillai, Sr. Solutions Architect, AWS  
+Gregor Hohpe, Enterprise Strategist, AWS
 
 ## Contributors
 Svenja Raether,Associate ProServe Specialist, AWS  
