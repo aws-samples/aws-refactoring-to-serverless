@@ -39,14 +39,22 @@ The stack outputs the RESTAPIendpoint. Please note the value, we need them to te
 Submit a place order request to the API Gateway REST API with the Stock ID using the curl command: 
 
 ```bash
-curl --request POST '{RESTAPIendpoint}/prod/placeOrder' --header 'Content-Type: text/plain' --data-raw '{"product_id" : Product ID(should be an integer)}'
+curl --location --request POST '{RESTAPIendpoint}/prod/placeOrder' \
+--header 'Content-Type: text/plain' \
+--data-raw '{
+    "product_id" : Product ID(should be an integer)}
+}'
 
 ````
 
 Example request: 
 
 ```bash
-curl --location --request POST 'https://1234abc5.execute-api.us-east-1.amazonaws.com/prodplaceOrder' --header 'Content-Type: text/plain' --data-raw '{"product_id" : 10)}'
+curl --location --request POST 'https://98zhk8yq1m.execute-api.us-west-1.amazonaws.com/prod/placeOrder' \
+--header 'Content-Type: text/plain' \
+--data-raw '{
+    "product_id" : 20
+}'
 
 ```
 
@@ -55,7 +63,7 @@ This will give a 200 success response.
 Now run the get Order API using the curl command:
 
 ```bash
-curl --request GET '{RESTAPIendpoint}/getOrder/{Product ID}'
+curl --request GET '{RESTAPIendpoint}/prod/getOrder/{Product ID}'
 ```
 Example request: 
 
@@ -104,27 +112,22 @@ cdk deploy OrchestrationStack
 The stack outputs the StateMAchineARN. Please note the values, we need them to test our application. 
 
 ## Testing:
-Run the below command using AWS CLI, to start a stste machine execution
+Run the below command using AWS CLI, to start a state machine execution
 
 ```bash
-aws stepfunctions start-execution --state-machine-arn {StateMAchineARN}  --input "$(echo '{"product-id": 10}' | jq -R . )"
+aws stepfunctions start-execution --state-machine-arn {StateMAchineARN}  --input "$(echo '{"product_id": "112"}' | jq -R . )"
 ```
 
 The response will contain executionArn. Run the below command using the executionArn
 
 ```bash
-aws stepfunctions describe-execution --execution-arn {executionArn} | grep output  |sed 's/\\//g'
+aws stepfunctions describe-execution --execution-arn {executionArn} | grep -w output | sed 's/\\//g'
 ```
 
 The response looks similar to: 
 
 ```bash
-{
-  "Product ID": 34,
-  "Order has been shipped": true,
-  "Reward was updated": true,
-  "Payment has been processed": true
-}
+"output": "{"Product ID":"112","Order has been shipped":true,"Reward was updated":true,"Payment has been processed":true}",
 
 ```
 ## Cleanup:

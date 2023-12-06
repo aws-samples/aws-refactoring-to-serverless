@@ -42,7 +42,7 @@ export class OrchestrationStack extends Stack {
       handler: "ProcessPayment.lambda_handler",
       code: lambda.Code.fromAsset("lambda/orchestration"),
       memorySize: 128,
-      runtime: lambda.Runtime.PYTHON_3_9,
+      runtime: lambda.Runtime.PYTHON_3_10,
     });
 
     const ShipOrderFunction = new lambda.Function(this, "ShipOrderFunction", {
@@ -51,7 +51,7 @@ export class OrchestrationStack extends Stack {
       handler: "ShipOrder.lambda_handler",
       code: lambda.Code.fromAsset("lambda/orchestration"),
       memorySize: 128,
-      runtime: lambda.Runtime.PYTHON_3_9,
+      runtime: lambda.Runtime.PYTHON_3_10,
     });
 
     const UpdateRewardFunction = new lambda.Function(this, "UpdateRewardFunction", {
@@ -60,7 +60,7 @@ export class OrchestrationStack extends Stack {
       handler: "UpdateReward.lambda_handler",
       code: lambda.Code.fromAsset("lambda/orchestration"),
       memorySize: 128,
-      runtime: lambda.Runtime.PYTHON_3_9,
+      runtime: lambda.Runtime.PYTHON_3_10,
     });
 
     const DynamoDBTable = new dynamodb.CfnTable(this, "DynamoDBTable", {

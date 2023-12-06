@@ -387,7 +387,7 @@ export class ChoreographyStack extends Stack {
           passthroughBehavior: "WHEN_NO_MATCH",
           timeoutInMillis: 29000,
           type: "AWS_PROXY",
-          uri: `arn:aws:apigateway:us-east-1:lambda:path/2015-03-31/functions/${ProcessPaymentFunction.functionArn}/invocations` 
+          uri: `arn:aws:apigateway:${this.region}:lambda:path/2015-03-31/functions/${ProcessPaymentFunction.functionArn}/invocations` 
         },
       }
     );
@@ -456,7 +456,7 @@ export class ChoreographyStack extends Stack {
           passthroughBehavior: "WHEN_NO_TEMPLATES",
           requestTemplates: {
             "application/json": `{
-                "TableName": "store-order-data",
+                "TableName": "temporary-data-store",
                 "KeyConditionExpression": "product_id=:v1",
                 "ExpressionAttributeValues": {
                     ":v1": {
@@ -467,7 +467,7 @@ export class ChoreographyStack extends Stack {
           },
           timeoutInMillis: 29000,
           type: "AWS",
-          uri: "arn:aws:apigateway:us-east-1:dynamodb:action/Query",
+          uri: `arn:aws:apigateway:${this.region}:dynamodb:action/Query`,
         },
       }
     );
@@ -507,6 +507,6 @@ export class ChoreographyStack extends Stack {
     });
 
     // new CfnOutput(this, 'SNS Topic ARN: ', { value: SNSTopic.ref });
-    new CfnOutput(this, 'REST API endpoint: ', { value: `https://${ApiGatewayDeployment.restApiId}.execute-api.${this.region}.amazonaws.com/prod` });
+    new CfnOutput(this, 'REST API endpoint: ', { value: `https://${ApiGatewayDeployment.restApiId}.execute-api.${this.region}.amazonaws.com` });
   }
 }
