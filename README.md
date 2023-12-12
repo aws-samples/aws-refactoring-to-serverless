@@ -30,7 +30,7 @@ Svenja Raether,Associate ProServe Specialist, AWS
 Abel Fresnillo Silva, Sr. Solutions Architect, AWS  
 Eugene Kim, Sr. Solutions Architect, AWS  
 Pengfei Zhang, Sr. Solutions Architect, AWS  
-Agostino Di Figlia, Sr. Cloud Application Architect, AWS
+Agostino Di Figlia, Sr. Cloud Application Architect, AWS  
 Bhuvan Annamreddi, Associate Solutions Architect, AWS
 
 ## Interested in Contributing?
