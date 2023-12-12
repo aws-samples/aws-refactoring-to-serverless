@@ -42,7 +42,7 @@ Submit a place order request to the API Gateway REST API with the Stock ID using
 curl --location --request POST '{RESTAPIendpoint}/prod/placeOrder' \
 --header 'Content-Type: text/plain' \
 --data-raw '{
-    "product_id" : Product ID(should be an integer)}
+    "product_id" : (Product ID, should be an integer)}
 }'
 
 ````
@@ -68,7 +68,7 @@ curl --request GET '{RESTAPIendpoint}/prod/getOrder/{Product ID}'
 Example request: 
 
 ```bash
-https://1234abc5.execute-api.us-east-1.amazonaws.com/prod/getOrder/10
+curl --request GET 'https://1234abc5.execute-api.us-east-1.amazonaws.com/prod/getOrder/10'
 ```
 
 Response will include a JSON object with details about the order, sample JSON response:
@@ -115,7 +115,7 @@ The stack outputs the StateMAchineARN. Please note the values, we need them to t
 Run the below command using AWS CLI, to start a state machine execution
 
 ```bash
-aws stepfunctions start-execution --state-machine-arn {StateMAchineARN}  --input "$(echo '{"product_id": "112"}' | jq -R . )"
+aws stepfunctions start-execution --state-machine-arn {StateMAchineARN}  --input "$(echo '{"product_id": "112"}')"
 ```
 
 The response will contain executionArn. Run the below command using the executionArn
