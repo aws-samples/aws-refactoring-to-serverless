@@ -53,7 +53,7 @@ export class ServiceIntegrationStackOriginal extends Stack {
 
     const detectObjectInImageLambda = new lambda.Function(this, 'detectObjectInImage', {
       functionName: 'detectObjectInImage',
-      runtime: lambda.Runtime.NODEJS_18_X,
+      runtime: lambda.Runtime.NODEJS_20_X,
       code: lambda.Code.fromAsset('lambda-fns'),
       handler: 'detectObjectInImage.handler',
       role: detectObjectInImageLambdaRole

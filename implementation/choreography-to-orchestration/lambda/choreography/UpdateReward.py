@@ -24,7 +24,7 @@ def lambda_handler(event, context):
   
     ship_order = json.dumps(data['Item']['Ship_order'] ['BOOL'])
     
-    if(ship_order is 'true'):
+    if(ship_order):
         dynamodb_response = dynamodb.put_item(
         TableName = TABLE_NAME, 
         Item = {
@@ -33,8 +33,6 @@ def lambda_handler(event, context):
             'Ship_order' : {'BOOL': True},
             'Update_reward' : {'BOOL': True}
         });
-    
-        print('sns_response:', sns_response)
     else:
         print(' Error: Ship order error')
         

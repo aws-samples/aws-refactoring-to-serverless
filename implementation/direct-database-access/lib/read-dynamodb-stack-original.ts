@@ -33,7 +33,7 @@ export class ReadDynamoDBStackOriginal extends Stack {
     // Lambda function to read from DynamoDB
     const lambdaReadDynamoDB = new lambda.Function(this, 'lambdaReadDynamoDB', {
       functionName: 'ReadDynamoDB',
-      runtime: Runtime.NODEJS_18_X,
+      runtime: Runtime.NODEJS_20_X,
       code: lambda.Code.fromAsset(path.join(__dirname, '../lambda')),
       handler: 'read-dynamodb.handler',
       environment: {

@@ -24,7 +24,7 @@ def lambda_handler(event, context):
        
     payment_processed = json.dumps(data['Item']['Payment_processed'] ['BOOL'])
         
-    if(payment_processed is 'true'):
+    if(payment_processed):
         dynamodb_response = dynamodb.put_item(
         TableName = TABLE_NAME, 
         Item = {

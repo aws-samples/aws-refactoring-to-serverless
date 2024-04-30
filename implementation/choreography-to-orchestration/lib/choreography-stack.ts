@@ -16,7 +16,6 @@ import {
   CfnOutput,
 } from "aws-cdk-lib";
 import { NagSuppressions } from 'cdk-nag'
-import { SqsQueue } from "aws-cdk-lib/aws-events-targets";
 
 export class ChoreographyStack extends Stack {
   constructor(scope: Construct, id: string, props?: StackProps) {
@@ -58,6 +57,10 @@ export class ChoreographyStack extends Stack {
       {
         id: 'AwsSolutions-IAM4',
         reason: 'This is a demo application, allowing use of AWS Managed policies'
+      },
+      {
+        id: 'AwsSolutions-APIG3', 
+        reason: 'This is demo stack, hence not associating AWS WAFv2 firewall'
       }
     ]);
 
@@ -119,7 +122,7 @@ export class ChoreographyStack extends Stack {
       code: lambda.Code.fromAsset("lambda/choreography"),
       memorySize: 128,
       role: ProcessPaymentFunctionRole,
-      runtime: lambda.Runtime.PYTHON_3_10,
+      runtime: lambda.Runtime.PYTHON_3_12,
     });
 
     const api_principal = new iam.ServicePrincipal("apigateway.amazonaws.com");
@@ -207,7 +210,7 @@ export class ChoreographyStack extends Stack {
         code: lambda.Code.fromAsset("lambda/choreography"),
         memorySize: 128,
         role: ShipOrderFunctionRole,
-        runtime: lambda.Runtime.PYTHON_3_10,
+        runtime: lambda.Runtime.PYTHON_3_12,
       });
 
     const SNSSubscription_ShipOrder= new sns.CfnSubscription(this, "SNSSubscription_ShipOrder", {
@@ -292,7 +295,7 @@ export class ChoreographyStack extends Stack {
         code: lambda.Code.fromAsset("lambda/choreography"),
         memorySize: 128,
         role: UpdateRewardFunctionRole,
-        runtime: lambda.Runtime.PYTHON_3_10,
+        runtime: lambda.Runtime.PYTHON_3_12,
       });
 
     const SNSSubscription_UpdateReward= new sns.CfnSubscription(this, "SNSSubscription_UpdateReward", {

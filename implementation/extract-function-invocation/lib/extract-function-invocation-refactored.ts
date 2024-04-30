@@ -31,7 +31,7 @@ export class FunctionInvocationRefactoredStack extends Stack {
 
     const destinationFn = new lambda.Function(this, 'destinationFn', {
       functionName: `destinationFnRefactored`,
-      runtime: lambda.Runtime.NODEJS_18_X,
+      runtime: lambda.Runtime.NODEJS_20_X,
       code: lambda.Code.fromAsset('lambda/destination'),
       handler: 'index.handler',
       role: destinationFnRole
@@ -52,7 +52,7 @@ export class FunctionInvocationRefactoredStack extends Stack {
     
     const invocationFnRefactored = new lambda.Function(this, 'invocationRefactored', {
       functionName: 'invocationFnRefactored',
-      runtime: lambda.Runtime.NODEJS_18_X,
+      runtime: lambda.Runtime.NODEJS_20_X,
       code: lambda.Code.fromAsset('lambda/invocation-refactored'),
       handler: 'index.handler',
       onSuccess: new LambdaDestination(destinationFn, { // Uses CDK's Lambda Destination  

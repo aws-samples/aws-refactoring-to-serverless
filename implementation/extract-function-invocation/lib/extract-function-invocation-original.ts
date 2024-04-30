@@ -30,7 +30,7 @@ export class FunctionInvocationBeforeStack extends Stack {
 
     const destinationFn = new lambda.Function(this, 'destinationFn', {
       functionName: `destinationFnOriginal`,
-      runtime: lambda.Runtime.NODEJS_18_X,
+      runtime: lambda.Runtime.NODEJS_20_X,
       code: lambda.Code.fromAsset('lambda/destination'),
       handler: 'index.handler',
       role: destinationFnRole
@@ -56,7 +56,7 @@ export class FunctionInvocationBeforeStack extends Stack {
     This function invokes another lambda as part of the code. */
     const invocationFnOriginal = new lambda.Function(this, 'invocationBeforeFn', {
       functionName: 'invocationFnOriginal',
-      runtime: lambda.Runtime.NODEJS_18_X,
+      runtime: lambda.Runtime.NODEJS_20_X,
       code: lambda.Code.fromAsset('lambda/invocation-before'),
       handler: 'index.handler',
       environment: { FUNCTION_NAME: destinationFn.functionName },
