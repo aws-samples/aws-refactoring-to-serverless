@@ -47,7 +47,7 @@ export class SendMessageStackRefactored extends Stack {
      
     const bakePizzaLambda = new Function(this, 'bakePizzaUsingDestination', {
       functionName: `bakePizza_refactored`,
-      runtime: Runtime.NODEJS_18_X,    
+      runtime: Runtime.NODEJS_20_X,    
       code: Code.fromAsset('lambda-fns/send-message-using-destination'),         
       handler: 'bakePizza.handler',                
       onSuccess: new SqsDestination(pizzaQueue),

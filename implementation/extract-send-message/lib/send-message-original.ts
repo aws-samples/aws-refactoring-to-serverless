@@ -49,7 +49,7 @@ export class SendMessageStackOriginal extends Stack {
 
     this.bakePizzaLambda = new Function(this, 'bakePizzaLambda', {
       functionName: `bakePizza_original`,
-      runtime: Runtime.NODEJS_18_X,
+      runtime: Runtime.NODEJS_20_X,
       code: Code.fromAsset('lambda-fns/send-message-from-code'),
       handler: 'bakePizza.handler',
       environment: {
