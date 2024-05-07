@@ -42,7 +42,7 @@ cdk deploy --all
 
 ## Testing it out
 
-- First, let's invoke the state machine that polls for the message:
+- First, let's invoke the state machine that polls for the message. Please replace <state-machine-arn>  with arn of deployed 'StepFunctionWithCallback' StepFunction.
 ``` 
 aws stepfunctions start-execution \
 --state-machine-arn <state-machine-arn> \

@@ -54,7 +54,7 @@ export class CallbackExample extends Stack {
     // Lambda function that processes the pizza order
     const bakingFn = new lambda.Function(this, 'pizzaBakingFn', {
       functionName: 'pizzaBakingFnRefactored',
-      runtime: lambda.Runtime.NODEJS_18_X,
+      runtime: lambda.Runtime.NODEJS_20_X,
       handler: 'refactored.handler',
       code: lambda.Code.fromAsset(path.join(__dirname, '../lambda-fns/processing')),
       role:pizzaBakingRefactoredLambdaRole

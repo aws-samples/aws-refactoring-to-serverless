@@ -68,7 +68,7 @@ export class PollingExample extends Stack {
         // Lambda function that processes the pizza order
         const bakingFn = new lambda.Function(this, 'pizzaBakingFn', {
             functionName: 'pizzaBakingFn',
-            runtime: lambda.Runtime.NODEJS_18_X,
+            runtime: lambda.Runtime.NODEJS_20_X,
             handler: 'before.handler',
             code: lambda.Code.fromAsset(path.join(__dirname, '../lambda-fns/processing')),
             environment: {
@@ -95,7 +95,7 @@ export class PollingExample extends Stack {
         // lambda function to check queue for completed orders
         const pollingFn = new lambda.Function(this, 'pollingFn', {
             functionName: `pollingFn`,
-            runtime: lambda.Runtime.NODEJS_18_X,
+            runtime: lambda.Runtime.NODEJS_20_X,
             handler: 'checkStatus.handler',
             code: lambda.Code.fromAsset(path.join(__dirname, '../lambda-fns/polling')),
             environment: {
