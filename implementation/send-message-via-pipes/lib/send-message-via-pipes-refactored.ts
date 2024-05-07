@@ -43,7 +43,7 @@ export class SendMessageViaPipesRefactoredStack extends Stack {
     // Lambda function to store orders to dynamodb table
     const processOrder = new lambda.Function(this, 'ProcessOrderLambda', {
       functionName: 'ProcessOrderRefactored',
-      runtime: lambda.Runtime.NODEJS_18_X,
+      runtime: lambda.Runtime.NODEJS_20_X,
       code: lambda.Code.fromAsset('lambda/process-order-refactored'),
       handler: 'index.handler',
       environment: {

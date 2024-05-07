@@ -37,7 +37,7 @@ export class SendMessageViaPipesOriginalStack extends Stack {
     // Lambda function to store orders to dynamodb table and send events to EB
     const processOrder = new lambda.Function(this, 'ProcessOrderLambda', {
       functionName: 'ProcessOrderOriginal',
-      runtime: lambda.Runtime.NODEJS_18_X,
+      runtime: lambda.Runtime.NODEJS_20_X,
       code: lambda.Code.fromAsset('lambda/process-order-original'),
       handler: 'index.handler',
       environment: {

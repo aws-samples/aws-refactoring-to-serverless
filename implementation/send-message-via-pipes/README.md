@@ -36,16 +36,16 @@ cdk deploy --all
 
 # Create a CloudWatch Log group
 aws logs create-log-group --log-group-name /aws/events/eventbridge-logs-original
-# Create a rule
+# Create a rule. Note: replace <account-id> with your AWS Account ID
 aws events put-rule --name eventbridge-logs --event-pattern "{\"account\":[\"<account-id>\"]}" --event-bus-name OrdersEventBusOriginal
 # Configure the rule to send to CloudWatch
-aws events put-targets --rule eventbridge-logs --targets "Id"="1","Arn"="arn:aws:logs:us-east-1:<account-id>:log-group:/aws/events/eventbridge-logs-original" --event-bus-name OrdersEventBusOriginal
+aws events put-targets --rule eventbridge-logs --targets "Id"="1","Arn"="arn:aws:logs:<region>:<account-id>:log-group:/aws/events/eventbridge-logs-original" --event-bus-name OrdersEventBusOriginal
 
 # Same for the refactored stack
 
 aws logs create-log-group --log-group-name /aws/events/eventbridge-logs-refactored
 aws events put-rule --name eventbridge-logs --event-pattern "{\"account\":[\"<account-id>\"]}" --event-bus-name OrdersEventBusRefactored
-aws events put-targets --rule eventbridge-logs --targets "Id"="1","Arn"="arn:aws:logs:us-east-1:<account-id>:log-group:/aws/events/eventbridge-logs-refactored" --event-bus-name OrdersEventBusRefactored
+aws events put-targets --rule eventbridge-logs --targets "Id"="1","Arn"="arn:aws:logs:<region>:<account-id>:log-group:/aws/events/eventbridge-logs-refactored" --event-bus-name OrdersEventBusRefactored
 
 ```  
 
@@ -89,7 +89,7 @@ Each log group should have a log stream displaying a message that event bus rece
     "source": "my-source",
     "account": "<redacted>",
     "time": "2023-03-01T19:11:30Z",
-    "region": "us-east-1",
+    "region": "<your-region>",
     "resources": [],
     "detail": {
         "orderId": "1",
