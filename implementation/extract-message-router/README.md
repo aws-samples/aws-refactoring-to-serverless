@@ -32,7 +32,7 @@ cdk deploy --all
 
 1. Get any media file (content does not matter) for testing this pattern.
 
-2. Next, lets upload that file to the 'media' folder. Remember to r7.eplace {your_filename} with name of your file.
+2. Next, lets upload that file to the 'media' folder. Remember to replace {your_filename} with name of your file.
 ``` 
 BUCKET_ORIGINAL=$(aws cloudformation describe-stacks --stack-name ExtractMessageRouterOriginalStack --query 'Stacks[].Outputs[0].OutputValue' --output text)
 aws s3 cp <your_filename> s3://$BUCKET_ORIGINAL/media/<your_filename>

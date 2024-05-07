@@ -12,21 +12,21 @@ export class ExtractMessageRouterRefactoredStack extends cdk.Stack {
     // downstream lambda functions
     const claimProcessor = new lambda.Function(this, 'ClaimProcessorLambda', {
       functionName: 'ClaimProcessorRefactored',
-      runtime: lambda.Runtime.NODEJS_18_X,
+      runtime: lambda.Runtime.NODEJS_20_X,
       code: lambda.Code.fromAsset('lambda/claim-processor'),
       handler: 'index.handler',
     });
 
     const mediaProcessor = new lambda.Function(this, 'MediaProcessorLambda', {
       functionName: 'MediaProcessorRefactored',
-      runtime: lambda.Runtime.NODEJS_18_X,
+      runtime: lambda.Runtime.NODEJS_20_X,
       code: lambda.Code.fromAsset('lambda/media-processor'),
       handler: 'index.handler',
     });
 
     const defaultProcessor = new lambda.Function(this, 'DefaultProcessorLambda', {
       functionName: 'DefaultProcessorRefactored',
-      runtime: lambda.Runtime.NODEJS_18_X,
+      runtime: lambda.Runtime.NODEJS_20_X,
       code: lambda.Code.fromAsset('lambda/default-processor'),
       handler: 'index.handler',
     });

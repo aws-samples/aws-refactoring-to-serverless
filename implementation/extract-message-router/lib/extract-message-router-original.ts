@@ -11,21 +11,21 @@ export class ExtractMessageRouterOriginalStack extends cdk.Stack {
     // downstream lambda functions
     const claimProcessor = new lambda.Function(this, 'ClaimProcessorLambda', {
       functionName: 'ClaimProcessorOriginal',
-      runtime: lambda.Runtime.NODEJS_18_X,
+      runtime: lambda.Runtime.NODEJS_20_X,
       code: lambda.Code.fromAsset('lambda/claim-processor'),
       handler: 'index.handler',
     });
 
     const mediaProcessor = new lambda.Function(this, 'MediaProcessorLambda', {
       functionName: 'MediaProcessorOriginal',
-      runtime: lambda.Runtime.NODEJS_18_X,
+      runtime: lambda.Runtime.NODEJS_20_X,
       code: lambda.Code.fromAsset('lambda/media-processor'),
       handler: 'index.handler',
     });
 
     const defaultProcessor = new lambda.Function(this, 'DefaultProcessorLambda', {
       functionName: 'DefaultProcessorOriginal',
-      runtime: lambda.Runtime.NODEJS_18_X,
+      runtime: lambda.Runtime.NODEJS_20_X,
       code: lambda.Code.fromAsset('lambda/default-processor'),
       handler: 'index.handler',
     });
@@ -33,7 +33,7 @@ export class ExtractMessageRouterOriginalStack extends cdk.Stack {
     // router lambda function 
     const router = new lambda.Function(this, 'RouterLambda', {
       functionName: 'Router',
-      runtime: lambda.Runtime.NODEJS_18_X,
+      runtime: lambda.Runtime.NODEJS_20_X,
       code: lambda.Code.fromAsset('lambda/router'),
       handler: 'index.handler',
       environment: {
