@@ -99,7 +99,7 @@ export class ChoreographyStack extends Stack {
       handler: "BankSns.handler",
       code: lambda.Code.fromAsset('lambda/choreography'),
       role: choreographyRole,
-      runtime: lambda.Runtime.NODEJS_18_X,
+      runtime: lambda.Runtime.NODEJS_20_X,
       onSuccess: new destinations.SqsDestination(SQSQueue)
     });
 
@@ -118,7 +118,7 @@ export class ChoreographyStack extends Stack {
       handler: "BankSns.handler",
       code: lambda.Code.fromAsset('lambda/choreography'),
       role: choreographyRole,
-      runtime: lambda.Runtime.NODEJS_18_X,
+      runtime: lambda.Runtime.NODEJS_20_X,
       onSuccess: new destinations.SqsDestination(SQSQueue)
     });
 
@@ -137,7 +137,7 @@ export class ChoreographyStack extends Stack {
       handler: "BankSns.handler",
       code: lambda.Code.fromAsset('lambda/choreography'),
       role: choreographyRole,
-      runtime: lambda.Runtime.NODEJS_18_X,
+      runtime: lambda.Runtime.NODEJS_20_X,
       onSuccess: new destinations.SqsDestination(SQSQueue)
     });
 
@@ -173,7 +173,7 @@ export class ChoreographyStack extends Stack {
       handler: "quoteAggregator.lambda_handler",
       code: lambda.Code.fromAsset('lambda/choreography'),
       role: choreographyRole,
-      runtime: lambda.Runtime.PYTHON_3_9
+      runtime: lambda.Runtime.PYTHON_3_12
     });
 
     // QuoteAggregation is triggered by SQS events
@@ -208,7 +208,7 @@ export class ChoreographyStack extends Stack {
     // Create the Lambda functions
     const getCreditScoreFn = new lambda.Function(this, 'getCreditScoreSns', {
       functionName: `GetCreditScoreSns`,
-      runtime: lambda.Runtime.NODEJS_18_X,
+      runtime: lambda.Runtime.NODEJS_20_X,
       code: lambda.Code.fromAsset('lambda/choreography'),
       handler: 'index.handler',
       role: choreographyRole,

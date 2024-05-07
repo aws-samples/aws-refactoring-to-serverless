@@ -63,7 +63,7 @@ export class OrchestrationStack extends Stack {
     // Create the Lambda functions
     const getCreditScoreFn = new lambda.Function(this, 'getCreditScore', {
       functionName: `GetCreditScore`,
-      runtime: lambda.Runtime.NODEJS_18_X,
+      runtime: lambda.Runtime.NODEJS_20_X,
       code: lambda.Code.fromAsset('lambda/orchestration'),
       handler: 'index.handler',
       role: orchestrationRole,
@@ -75,7 +75,7 @@ export class OrchestrationStack extends Stack {
         base_rate: "5"
       },
       functionName: `BankRecipientPawnshop`,
-      runtime: lambda.Runtime.NODEJS_18_X,
+      runtime: lambda.Runtime.NODEJS_20_X,
       code: lambda.Code.fromAsset('lambda/orchestration'),
       handler: 'RecipientBank.handler',
       role: orchestrationRole
@@ -87,7 +87,7 @@ export class OrchestrationStack extends Stack {
         base_rate: "3"
       },
       functionName: `BankRecipientPremium`,
-      runtime: lambda.Runtime.NODEJS_18_X,
+      runtime: lambda.Runtime.NODEJS_20_X,
       code: lambda.Code.fromAsset('lambda/orchestration'),
       handler: 'RecipientBank.handler',
       role: orchestrationRole
@@ -99,7 +99,7 @@ export class OrchestrationStack extends Stack {
         base_rate: "4"
       },
       functionName: `BankRecipientUniversal`,
-      runtime: lambda.Runtime.NODEJS_18_X,
+      runtime: lambda.Runtime.NODEJS_20_X,
       code: lambda.Code.fromAsset('lambda/orchestration'),
       handler: 'RecipientBank.handler',
       role: orchestrationRole

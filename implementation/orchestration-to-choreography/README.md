@@ -38,7 +38,7 @@ aws dynamodb put-item --table-name LoanBrokerBanks --item '{"Type": {"S": "Home"
 
 2. Next, we can perform the Step Functions State Machine:
     - Go to the AWS Console and then to Step Functions
-    - Click on the LoanBroker State Machine
+    - Click on the 'LoanBroker' State Machine
     - Click the Start Execution button and enter this input: `{"SSN": "123-45-6789", "Amount": 400000, "Term": 30 }`
     - After a few seconds, all the states should turn green.
     - Click on the Map state, and choose "View Map state overview", in the "Output" tab, you should be able to see the bank offers.
@@ -72,7 +72,7 @@ aws dynamodb put-item --table-name LoanBrokerBanks --item '{"Type": {"S": "Home"
 
 3. Now, let's test the choreagraphy scenario and validate it can achieve the same functionality. We can perform the Step Functions State Machine defined to issue a message to SNS topic:
     - Go to the AWS Console and then to Step Functions
-    - Click on the LoanBroker-PubSub State Machine
+    - Click on the 'LoanBroker-PubSub' State Machine
     - Click the Start Execution button, name it as `mysnsrun`, and enter this input: `{"SSN": "123-45-6789", "Amount": 400000, "Term": 30 }`
     - All the states should immediately turn green
 
